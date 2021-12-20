@@ -28,8 +28,8 @@ class Juspay {
     return result;
   }
 
-  static Future<String> prefetch(Map<String, dynamic> params) async {
-    var result = await _juspay.invokeMethod('prefetch', <String, dynamic>{
+  static Future<String> preFetch(Map<String, dynamic> params) async {
+    var result = await _juspay.invokeMethod('preFetch', <String, dynamic>{
       'params': params,
     });
     return result.toString();
@@ -54,8 +54,8 @@ class Juspay {
     return result.toString();
   }
 
-  Future<String> backpress() async {
-    var result = await _juspay.invokeMethod("backpress");
+  Future<String> onBackpress() async {
+    var result = await _juspay.invokeMethod("onBackpress");
     return result.toString();
   }
 

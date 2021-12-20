@@ -20,7 +20,7 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
-      case "prefetch":
+      case "preFetch":
           let args = call.arguments as! Dictionary<String, Any>
           prefetch(args["params"] as! [String: Any], result)
       case "initiate":
@@ -39,7 +39,7 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
         result(hyperServices.isInitialised())
     }
 
-  private func prefetch(_ params: [String: Any], _ result: @escaping FlutterResult) {
+  private func preFetch(_ params: [String: Any], _ result: @escaping FlutterResult) {
       HyperServices.preFetch(params)
       result(true)
   }

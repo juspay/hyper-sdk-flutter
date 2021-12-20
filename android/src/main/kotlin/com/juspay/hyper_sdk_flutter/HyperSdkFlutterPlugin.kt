@@ -58,17 +58,17 @@ class HyperSdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Pl
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
         when (call.method) {
-            "prefetch" -> prefetch(call.argument<Map<String, Any>>("params"), result)
+            "preFetch" -> preFetch(call.argument<Map<String, Any>>("params"), result)
             "initiate" -> initiate(call.argument<Map<String, Any>>("params"), result)
             "process" -> process(call.argument<Map<String, Any>>("params"), result)
             "terminate" -> terminate(result)
             "isInitialised" -> isInitialised(result)
-            "backpress" -> backpress(result)
+            "onBackpress" -> onBackpress(result)
             else -> result.notImplemented()
         }
     }
 
-    private fun backpress(result: Result) {
+    private fun onBackpress(result: Result) {
         try {
             var backpress = hyperServices!!.onBackPressed()
             result.success(backpress)
@@ -86,7 +86,7 @@ class HyperSdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Pl
         }
     }
 
-    private fun prefetch(params: Map<String, Any>?, result: Result) {
+    private fun preFetch(params: Map<String, Any>?, result: Result) {
         try {
             HyperServices.preFetch(binding!!.activity, JSONObject(params))
             result.success(true)
