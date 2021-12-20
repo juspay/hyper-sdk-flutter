@@ -63,12 +63,12 @@ class HyperSdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Pl
             "process" -> process(call.argument<Map<String, Any>>("params"), result)
             "terminate" -> terminate(result)
             "isInitialised" -> isInitialised(result)
-            "onBackpress" -> onBackpress(result)
+            "onBackPress" -> onBackpress(result)
             else -> result.notImplemented()
         }
     }
 
-    private fun onBackpress(result: Result) {
+    private fun onBackPress(result: Result) {
         try {
             var backpress = hyperServices!!.onBackPressed()
             result.success(backpress)
