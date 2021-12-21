@@ -57,8 +57,8 @@ post_install do |installer|
 end
 ```
 
-2. Add file `MerchantConfig.txt` in the same directory`(android/app/)`as the gradle file in the previous step with the following content
-```MerchantConfig.txt
+1. Create file `ios/MerchantConfig.txt` with the following content
+```
 clientId = <your client id>
 ```
 
@@ -122,9 +122,13 @@ Handling Android Hardware Back-Press can be done using `WillPopScope` as shown b
 
 ```
 onWillPop: () async {
-        var backpressResult = await juspay.onBackpress();
-        if (backpressResult.toLowerCase() == "true") {
-          return false;
+        if (Platform.isAndroid) {
+          var backpressResult = await juspay.onBackpress();
+          if (backpressResult.toLowerCase() == "true") {
+            return false;
+          } else {
+            return true;
+          }
         } else {
           return true;
         }
