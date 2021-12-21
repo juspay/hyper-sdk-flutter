@@ -10,7 +10,7 @@ Add flutter plugin dependency in `pubspec.yaml`
 ```yaml
 hyper_sdk_flutter:
     git:
-      url: git@bitbucket.org:juspay/hyper-sdk-flutter.git
+      url: https://bitbucket.org/juspay/hyper-sdk-flutter.git
       ref: master
 ```
 
