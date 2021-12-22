@@ -63,7 +63,7 @@ class HyperSdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Pl
             "process" -> process(call.argument<Map<String, Any>>("params"), result)
             "terminate" -> terminate(result)
             "isInitialised" -> isInitialised(result)
-            "onBackPress" -> onBackpress(result)
+            "onBackPress" -> onBackPress(result)
             else -> result.notImplemented()
         }
     }
