@@ -82,7 +82,7 @@ To keep the SDK up to date with the latest changes, it is highly recommended to 
 
 ### Step-1: Create Juspay Object
 
-This method creates an instance of Juspay class in the React Bridge Module on which all the HyperSDK APIs / methods are triggered. It internally uses the current activity as an argument.
+This method creates an instance of Juspay class on which all the HyperSDK APIs / methods are triggered.
 
 Note: This method is mandatory and is required to call any other subsequent methods from HyperSDK.
 

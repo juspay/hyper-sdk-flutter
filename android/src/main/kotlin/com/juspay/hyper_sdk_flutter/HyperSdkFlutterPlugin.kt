@@ -52,8 +52,12 @@ class HyperSdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Pl
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-        hyperServices!!.onActivityResult(requestCode, resultCode, data!!)
-        return true
+        try {
+            hyperServices!!.onActivityResult(requestCode, resultCode, data!!)
+            return true
+        } catch (e: Exception) {
+            return false;
+        }
     }
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
@@ -73,7 +77,7 @@ class HyperSdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Pl
             var backpress = hyperServices!!.onBackPressed()
             result.success(backpress)
         } catch(e: Exception) {
-            result.success(false)
+            result.error("HYPERSDKFLUTTER: backpress error", e.localizedMessage, e)
         }
     }
 
@@ -91,7 +95,7 @@ class HyperSdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Pl
             HyperServices.preFetch(binding!!.activity, JSONObject(params))
             result.success(true)
         } catch (e: Exception) {
-            result.error("FETCH_ERROR", e.message, e)
+            result.error("HYPERSDKFLUTTER: prefetch error", e.message, e)
         }
     }
 
@@ -107,7 +111,7 @@ class HyperSdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Pl
             }
 
             override fun notImplemented() {
-                throw NotImplementedError()
+                Log.e(this.javaClass.canonicalName, "notImplemented")
             }
         }
         val callback = object : HyperPaymentsCallbackAdapter() {

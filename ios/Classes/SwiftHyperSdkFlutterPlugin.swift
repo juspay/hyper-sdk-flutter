@@ -22,7 +22,7 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
     switch call.method {
       case "preFetch":
           let args = call.arguments as! Dictionary<String, Any>
-          prefetch(args["params"] as! [String: Any], result)
+          preFetch(args["params"] as! [String: Any], result)
       case "initiate":
           let args = call.arguments as! Dictionary<String, Any>
           initiate(args["params"] as! [String: Any], result)
