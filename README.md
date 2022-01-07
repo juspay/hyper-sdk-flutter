@@ -135,7 +135,7 @@ Handling Android Hardware Back-Press can be done using `WillPopScope` as shown b
 ```dart
 onWillPop: () async {
         if (Platform.isAndroid) {
-          var backpressResult = await juspay.onBackpress();
+          var backpressResult = await juspay.onBackPress();
           if (backpressResult.toLowerCase() == "true") {
             return false;
           } else {
