@@ -1,4 +1,4 @@
-group 'com.juspay.hyper_sdk_flutter'
+group 'in.juspay.hyper_sdk_flutter'
 version '1.0-SNAPSHOT'
 
 buildscript {
