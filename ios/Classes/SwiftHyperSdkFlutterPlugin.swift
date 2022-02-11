@@ -6,6 +6,7 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
   private static var CHANNEL_NAME = "juspay"
   private let juspay: FlutterMethodChannel
   private let hyperServices: HyperServices
+  private let hyperViewController = UIViewController()
 
   init(_ channel: FlutterMethodChannel, _ registrar: FlutterPluginRegistrar) {
       juspay = channel
@@ -45,7 +46,8 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
   }
 
   private func initiate(_ params: [String: Any], _ result: @escaping FlutterResult) {
-    hyperServices.initiate((UIApplication.shared.keyWindow?.rootViewController)!, payload: params, callback: { (response) in
+    hyperViewController.modalPresentationStyle = .overFullScreen
+    hyperServices.initiate(hyperViewController, payload: params, callback: { [unowned self] (response) in
         if response == nil {
             return
         }
@@ -64,9 +66,11 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
             }
         }
         if event == "process_result" {
-            if let jsonData = try? JSONSerialization.data(withJSONObject: response!, options: .prettyPrinted) {
-                if let jsonString = String(data: jsonData, encoding: .utf8) {
-                    self.juspay.invokeMethod("onProcessResult", arguments: jsonString)
+            self.hyperViewController.dismiss(animated: false) {
+                if let jsonData = try? JSONSerialization.data(withJSONObject: response!, options: .prettyPrinted) {
+                    if let jsonString = String(data: jsonData, encoding: .utf8) {
+                        self.juspay.invokeMethod("onProcessResult", arguments: jsonString)
+                    }
                 }
             }
         }
@@ -75,7 +79,12 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
 }
 
   private func process(_ params: [String: Any], _ result: @escaping FlutterResult) {
-      hyperServices.process(params)
+      let topViewController = (UIApplication.shared.keyWindow?.rootViewController)!
+      if (self.hyperServices.isInitialised() && hyperViewController.presentingViewController == nil) {
+          topViewController.present(hyperViewController, animated: false) {
+              self.hyperServices.process(params)
+          }
+      }
       result(true)
   }
 
