@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'hyper_sdk_flutter'
-  s.version          = '0.0.1'
+  s.version          = '0.0.2'
   s.summary          = 'Flutter plugin for Juspay SDK'
   s.description      = <<-DESC
 Flutter plugin for juspay SDK.
@@ -15,8 +15,8 @@ Flutter plugin for juspay SDK.
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
-  s.dependency 'HyperSDK', '2.0.90'
-  s.platform = :ios, '8.0'
+  s.dependency 'HyperSDK', '2.1.5'
+  s.platform = :ios, '10.0'
 
   # Flutter.framework does not contain a i386 slice.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
