@@ -1,4 +1,4 @@
-package com.juspay.hyper_sdk_flutter
+package `in`.juspay.hyper_sdk_flutter
 
 import `in`.juspay.hypersdk.data.JuspayResponseHandler
 import `in`.juspay.hypersdk.ui.HyperPaymentsCallbackAdapter
@@ -23,7 +23,7 @@ class HyperSdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Pl
     private var hyperServices: HyperServices? = null
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "juspay")
+        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "hyperSDK")
         channel.setMethodCallHandler(this)
     }
 

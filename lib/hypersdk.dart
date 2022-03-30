@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/services.dart';
 
@@ -9,27 +8,6 @@ import 'package:flutter/services.dart';
 class HyperSDK {
   /// @nodoc
   static MethodChannel hyperSDK = const MethodChannel('hyperSDK');
-
-  /// @nodoc
-  final Function onInitiateResult;
-
-  /// @nodoc
-  final Function onProcessResult;
-
-  /// @nodoc
-  final Function onShowLoader;
-
-  /// @nodoc
-  final Function onHideLoader;
-
-  HyperSDK({
-    required this.onInitiateResult,
-    required this.onProcessResult,
-    required this.onShowLoader,
-    required this.onHideLoader,
-  }) {
-    hyperSDK.setMethodCallHandler(hyperSDKCallbacks);
-  }
 
   /// @nodoc
   void dispose() {
@@ -55,10 +33,16 @@ class HyperSDK {
   ///
   /// Boots up required services to reduce latency.
   /// {@category Required}
-  Future<String> initiate(Map<String, dynamic> params) async {
+  Future<String> initiate(Map<String, dynamic> params, void Function(MethodCall) handler) async {
     var result = await hyperSDK.invokeMethod('initiate', <String, dynamic>{
       'params': params,
     });
+
+    // Wrapper function to eliminate redundant Future<dynamic> return value
+    Future<dynamic> callbackFunction(MethodCall methodCall) { handler(methodCall); return Future.value(0);}
+
+    hyperSDK.setMethodCallHandler(callbackFunction);
+
     return result.toString();
   }
 
@@ -87,21 +71,4 @@ class HyperSDK {
     return result.toString();
   }
 
-  /// @nodoc Returns responses for all callbacks for methods exposed above.
-  Future<dynamic> hyperSDKCallbacks(MethodCall methodCall) async {
-    switch (methodCall.method) {
-      case 'onShowLoader':
-        return onShowLoader.call(jsonDecode(methodCall.arguments.toString()));
-      case 'onHideLoader':
-        return onHideLoader.call(jsonDecode(methodCall.arguments.toString()));
-      case 'onInitiateResult':
-        return onInitiateResult
-            .call(jsonDecode(methodCall.arguments.toString()));
-      case 'onProcessResult':
-        return onProcessResult
-            .call(jsonDecode(methodCall.arguments.toString()));
-      default:
-        return Future.error('invalid method ${methodCall.method}');
-    }
-  }
 }
