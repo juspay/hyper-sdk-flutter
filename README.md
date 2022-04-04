@@ -8,7 +8,7 @@ For more details, refer [Payment Page SDK](https://developer.juspay.in/v4.0/docs
 Add flutter plugin dependency in `pubspec.yaml`
 
 ```yaml
-hyper_sdk_flutter:
+hypersdk:
     git:
       url: https://bitbucket.org/juspay/hyper-sdk-flutter.git
       ref: v1.1

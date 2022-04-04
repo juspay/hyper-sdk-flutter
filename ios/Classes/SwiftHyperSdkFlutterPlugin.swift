@@ -3,7 +3,7 @@ import UIKit
 import HyperSDK
 
 public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
-  private static var CHANNEL_NAME = "juspay"
+  private static var CHANNEL_NAME = "hyperSDK"
   private let juspay: FlutterMethodChannel
   private let hyperServices: HyperServices
   private let hyperViewController = UIViewController()

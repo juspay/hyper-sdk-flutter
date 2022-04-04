@@ -1,9 +1,9 @@
 #
 # To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html.
-# Run `pod lib lint hyper_sdk_flutter.podspec` to validate before publishing.
+# Run `pod lib lint hypersdk.podspec` to validate before publishing.
 #
 Pod::Spec.new do |s|
-  s.name             = 'hyper_sdk_flutter'
+  s.name             = 'hypersdk'
   s.version          = '0.0.2'
   s.summary          = 'Flutter plugin for Juspay SDK'
   s.description      = <<-DESC
