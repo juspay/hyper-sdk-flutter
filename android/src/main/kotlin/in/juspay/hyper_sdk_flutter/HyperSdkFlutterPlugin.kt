@@ -117,20 +117,7 @@ class HyperSdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Pl
         val callback = object : HyperPaymentsCallbackAdapter() {
             override fun onEvent(data: JSONObject, p1: JuspayResponseHandler?) {
                 try {
-                    when (data.getString("event")) {
-                        "show_loader" -> {
-                            channel.invokeMethod("onShowLoader", "", invokeMethodResult)
-                        }
-                        "hide_loader" -> {
-                            channel.invokeMethod("onHideLoader", "", invokeMethodResult)
-                        }
-                        "initiate_result" -> {
-                            channel.invokeMethod("onInitiateResult", data.toString(), invokeMethodResult)
-                        }
-                        "process_result" -> {
-                            channel.invokeMethod("onProcessResult", data.toString(), invokeMethodResult)
-                        }
-                    }
+                    channel.invokeMethod(data.getString("event"), data.toString(), invokeMethodResult)
                 } catch (e: Exception) {
                     Log.e(this.javaClass.canonicalName, "Failed to invoke method from native to dart", e)
                 }
