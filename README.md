@@ -163,4 +163,6 @@ This is a helper / optional method to check whether SDK has been initialised aft
 
 Payload type is `Map<String,Dynamic>`
 
-Please refer [Payment Page Payload](https://developer.juspay.in/v4.0/docs/payload) for request and response payload structure.
+For Payment Page Product, [click here](https://developer.juspay.in/v4.0/docs/payload) for payload.
+
+For EC-Headless Product, [click here](https://developer.juspay.in/v2.0/docs/payload) for payload.
