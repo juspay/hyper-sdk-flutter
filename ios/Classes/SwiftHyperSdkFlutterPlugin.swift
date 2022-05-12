@@ -51,27 +51,12 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
         if response == nil {
             return
         }
+
         let event = response!["event"] as? String ?? ""
-        if event == "show_loader" {
-            self.juspay.invokeMethod("onShowLoader", arguments: "")
-        }
-        if event == "hide_loader" {
-            self.juspay.invokeMethod("onHideLoader", arguments: "")
-        }
-        if event == "initiate_result" {
-            if let jsonData = try? JSONSerialization.data(withJSONObject: response!, options: .prettyPrinted) {
-                if let jsonString = String(data: jsonData, encoding: .utf8) {
-                    self.juspay.invokeMethod("onInitiateResult", arguments: jsonString)
-                }
-            }
-        }
-        if event == "process_result" {
-            self.hyperViewController.dismiss(animated: false) {
-                if let jsonData = try? JSONSerialization.data(withJSONObject: response!, options: .prettyPrinted) {
-                    if let jsonString = String(data: jsonData, encoding: .utf8) {
-                        self.juspay.invokeMethod("onProcessResult", arguments: jsonString)
-                    }
-                }
+
+        if let jsonData = try? JSONSerialization.data(withJSONObject: response!, options: .prettyPrinted) {
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                self.juspay.invokeMethod(event, arguments: jsonString)
             }
         }
     })
@@ -79,13 +64,12 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
 }
 
   private func process(_ params: [String: Any], _ result: @escaping FlutterResult) {
-      let topViewController = (UIApplication.shared.keyWindow?.rootViewController)!
-      if (self.hyperServices.isInitialised() && hyperViewController.presentingViewController == nil) {
-          topViewController.present(hyperViewController, animated: false) {
-              self.hyperServices.process(params)
-          }
-      }
-      result(true)
+    if (self.hyperServices.isInitialised()) {
+        let topViewController = (UIApplication.shared.keyWindow?.rootViewController)!
+        self.hyperServices.baseViewController = topViewController
+        self.hyperServices.process(params)
+    }
+    result(true)
   }
 
   private func terminate(_ result: @escaping FlutterResult) {
