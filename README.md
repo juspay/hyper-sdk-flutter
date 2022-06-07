@@ -11,7 +11,7 @@ Add flutter plugin dependency in `pubspec.yaml`
 hyper_sdk_flutter:
     git:
       url: https://bitbucket.org/juspay/hyper-sdk-flutter.git
-      ref: master
+      ref: v1.1
 ```
 
 ## Android Setup
