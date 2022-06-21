@@ -33,13 +33,17 @@ class HyperSDK {
   ///
   /// Boots up required services to reduce latency.
   /// {@category Required}
-  Future<String> initiate(Map<String, dynamic> params, void Function(MethodCall) initiateHandler) async {
+  Future<String> initiate(Map<String, dynamic> params,
+      void Function(MethodCall) initiateHandler) async {
     var result = await hyperSDK.invokeMethod('initiate', <String, dynamic>{
       'params': params,
     });
 
     // Wrapper function to eliminate redundant Future<dynamic> return value
-    Future<dynamic> callbackFunction(MethodCall methodCall) { initiateHandler(methodCall); return Future.value(0);}
+    Future<dynamic> callbackFunction(MethodCall methodCall) {
+      initiateHandler(methodCall);
+      return Future.value(0);
+    }
 
     hyperSDK.setMethodCallHandler(callbackFunction);
 
@@ -50,13 +54,17 @@ class HyperSDK {
   ///
   /// Requires payload to be passed for each action.
   /// {@category Required}
-  Future<String> process(Map<String, dynamic> params, void Function(MethodCall) processHandler) async {
+  Future<String> process(Map<String, dynamic> params,
+      void Function(MethodCall) processHandler) async {
     var result = await hyperSDK.invokeMethod('process', <String, dynamic>{
       'params': params,
     });
 
-     // Wrapper function to eliminate redundant Future<dynamic> return value
-    Future<dynamic> callbackFunction(MethodCall methodCall) { processHandler(methodCall); return Future.value(0);}
+    // Wrapper function to eliminate redundant Future<dynamic> return value
+    Future<dynamic> callbackFunction(MethodCall methodCall) {
+      processHandler(methodCall);
+      return Future.value(0);
+    }
 
     hyperSDK.setMethodCallHandler(callbackFunction);
     return result.toString();
@@ -75,5 +83,4 @@ class HyperSDK {
     var result = await hyperSDK.invokeMethod('onBackPress');
     return result.toString();
   }
-
 }

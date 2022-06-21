@@ -5,4 +5,6 @@
 .pub/
 
 build/
+doc/
 .idea
+pubspec.lock
