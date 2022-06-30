@@ -106,7 +106,7 @@ class HyperSdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Pl
                 println("result = ${result.toString()}")
             }
 
-            override fun error(errorCode: String?, errorMessage: String?, errorDetails: Any?) {
+            override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
                 Log.e(this.javaClass.canonicalName, "$errorCode\n$errorMessage")
             }
 
