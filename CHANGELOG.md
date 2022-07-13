@@ -1,3 +1,8 @@
+# 3.0.0
+
+* Updating the Major Version
+* Adding Example project in the plugin
+
 # 2.0.4
 
 * Flutter 3 support
