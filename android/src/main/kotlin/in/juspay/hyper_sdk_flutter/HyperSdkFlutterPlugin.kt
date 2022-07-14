@@ -123,6 +123,10 @@ class HyperSdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Pl
                 }
             }
         }
+        if(!(binding!!.activity is FragmentActivity)){
+            Log.e("JUSPAY", "Kotlin MainActivity should extend FlutterFragmentActivity instead of FlutterActivity! JUSPAY Plugin only supports FragmentActivity. Please refer to this doc for more information: https://juspaydev.vercel.app/sections/base-sdk-integration/initiating-sdk?platform=Flutter&product=Payment+Page")
+            throw Exception("Kotlin MainActivity should extend FlutterFragmentActivity instead of FlutterActivity!");
+        }
         hyperServices!!.initiate(binding!!.activity as FragmentActivity, JSONObject(params), callback)
         result.success(true)
     } catch (e: Exception) {

@@ -2,6 +2,7 @@
 
 * Updating the Major Version
 * Adding Example project in the plugin
+* Adding descriptive error message for FlutterFragmentActivity Exception
 
 # 2.0.4
 
