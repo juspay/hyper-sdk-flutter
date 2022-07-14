@@ -3,6 +3,7 @@
 * Updating the Major Version
 * Adding Example project in the plugin
 * Adding descriptive error message for FlutterFragmentActivity Exception
+* Added Plugin Integration example app with Initiate being called in HomeScreen
 
 # 2.0.4
 
