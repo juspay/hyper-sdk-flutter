@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:hypersdk/hypersdk.dart';
+import 'package:hypersdkflutter/hypersdk.dart';
 import 'package:uuid/uuid.dart';
 
 class HomeScreen extends StatefulWidget {

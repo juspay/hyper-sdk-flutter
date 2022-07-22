@@ -1,3 +1,8 @@
+# 3.0.1
+* Updating plugin name to hypersdkflutter to avoid conflict with HyperSDK
+* Updating minSDKVersion for android to 19 as it's minimum suported version for our SDK.
+* Changing HyperSDK version for IOS to 2.0.15
+
 # 3.0.0
 
 * Updating the Major Version

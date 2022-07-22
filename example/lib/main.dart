@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hypersdk/hypersdk.dart';
+import 'package:hypersdkflutter/hypersdk.dart';
 
 import './screens/home.dart';
 
