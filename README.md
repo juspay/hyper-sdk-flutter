@@ -5,7 +5,7 @@ Flutter plugin for HyperSDK which enables payment orchestration via different dy
 ## Flutter Setup
 
 Add flutter plugin dependency in `pubspec.yaml`.
-Get dependency from [pub.dev](https://pub.dev/packages/hypersdk/install)
+Get dependency from [pub.dev](https://pub.dev/packages/hypersdkflutter/install)
 
 ## Android Setup
 
@@ -37,7 +37,19 @@ apply plugin: 'hypersdk-asset-plugin'
 Add file `MerchantConfig.txt` in the same directory`(android/app/)`as the gradle file in the previous step with the following content
 
 ```txt
-clientId = <your client id>
+clientId = <clientId> shared by Juspay Team
+```
+
+
+** Kotlin MainActivity should extend FlutterFragmentActivity instead of FlutterActivity!** _JUSPAY Plugin only supports FragmentActivity._ 
+Please refer to this doc for more information: [Ref](https://juspaydev.vercel.app/sections/base-sdk-integration/initiating-sdk?platform=Flutter&product=Payment+Page)
+
+```txt
+import io.flutter.embedding.android.FlutterFragmentActivity
+
+class MainActivity: FlutterFragmentActivity() {
+}
+
 ```
 
 ## iOS Setup
@@ -58,14 +70,14 @@ end
 Create file `ios/MerchantConfig.txt` with the following content
 
 ```txt
-clientId = <your client id>
+clientId = <clientId> shared by Juspay Team
 ```
 
 ## Usage
 
 ### Import HyperSDK
 
-`import 'package:hypersdk/hypersdk.dart';`
+`import 'package:hypersdk/hypersdkflutter.dart';`
 
 ### Step-1: Create Juspay Object
 

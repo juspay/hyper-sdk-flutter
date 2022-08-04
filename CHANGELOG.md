@@ -1,3 +1,6 @@
+# 3.0.2
+* Updated documentation/Readme.md for flutter plugin
+
 # 3.0.1
 * Updating plugin name to hypersdkflutter to avoid conflict with HyperSDK
 * Updating minSDKVersion for android to 19 as it's minimum suported version for our SDK.
