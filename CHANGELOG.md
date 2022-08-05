@@ -1,3 +1,6 @@
+# 3.0.3
+* Updated code formatting in README.md
+
 # 3.0.2
 * Updated documentation/Readme.md for flutter plugin
 

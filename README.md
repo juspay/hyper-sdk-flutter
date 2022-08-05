@@ -41,16 +41,23 @@ clientId = <clientId> shared by Juspay Team
 ```
 
 
-** Kotlin MainActivity should extend FlutterFragmentActivity instead of FlutterActivity!** _JUSPAY Plugin only supports FragmentActivity._ 
-Please refer to this doc for more information: [Ref](https://juspaydev.vercel.app/sections/base-sdk-integration/initiating-sdk?platform=Flutter&product=Payment+Page)
+### Note
 
-```txt
+**Your application's `MainActivity` should extend `FlutterFragmentActivity` instead of `FlutterActivity`.**
+
+_`HyperSDK` only supports `FragmentActivity`._
+
+
+```kotlin
 import io.flutter.embedding.android.FlutterFragmentActivity
 
+
 class MainActivity: FlutterFragmentActivity() {
+
 }
 
 ```
+Please refer to [this doc](https://juspaydev.vercel.app/sections/base-sdk-integration/initiating-sdk?platform=Flutter&product=Payment+Page) for more information.
 
 ## iOS Setup
 
@@ -77,7 +84,9 @@ clientId = <clientId> shared by Juspay Team
 
 ### Import HyperSDK
 
-`import 'package:hypersdk/hypersdkflutter.dart';`
+```dart
+import 'package:hypersdk/hypersdkflutter.dart';
+```
 
 ### Step-1: Create Juspay Object
 
@@ -95,7 +104,9 @@ This method should be called on the render of the host screen. This will boot up
 
 Note: It is highly recommended to initiate SDK from the order summary page (at least 5 seconds before opening your payment page) for seamless user experience.
 
-`await hyperSDK.initiate(initiatePayload, initiateCallbackHandler);`
+```dart
+await hyperSDK.initiate(initiatePayload, initiateCallbackHandler);
+```
 
 ### Step-3: Process
 
@@ -105,7 +116,9 @@ Displaying payment options on your payment page
 Performing a transaction
 User's payment profile management
 
-`await hyperSDK.process(processPayload, hyperSDKCallbackHandler)`
+```dart
+await hyperSDK.process(processPayload, hyperSDKCallbackHandler)
+```
 
 ### Step-4: Android Hardware Back-Press Handling
 
@@ -136,13 +149,17 @@ onWillPop: () async {
 
 This method shall be triggered when HyperSDK is no longer required.
 
-`await hyperSDK.terminate();`
+```dart
+await hyperSDK.terminate();
+```
 
 ### Optional: Is Initialised
 
 This is a helper / optional method to check whether SDK has been initialised after step-2. It returns a boolean.
 
-`await hyperSDK.isInitialised();`
+```dart
+await hyperSDK.isInitialised();
+```
 
 ## Callbacks
 
