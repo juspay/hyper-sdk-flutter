@@ -1,3 +1,6 @@
+# 3.0.4
+* Updated Android SDK Version to 2.1.2 
+ 
 # 3.0.3
 * Updated code formatting in README.md
 
