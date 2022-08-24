@@ -270,3 +270,9 @@ Payload type is `Map<String,Dynamic>`
 For Payment Page Product, [click here](https://developer.juspay.in/docs/introduction-6) for payload.
 
 For EC-Headless Product, [click here](https://developer.juspay.in/v2.0/docs/payload) for payload.
+
+
+## Attribution
+This project is based on the OSS project juspay_flutter by [Deep Rooted.co](https://deep-rooted.co) published under MIT License
+
+The original repository is accessible at https://github.com/deep-rooted-co/juspay_flutter

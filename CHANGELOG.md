@@ -1,3 +1,6 @@
+# 3.0.5 
+* Adding initial developer attribution to this plugin
+
 # 3.0.4
 * Updated Android SDK Version to 2.1.2 
  
