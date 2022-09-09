@@ -272,7 +272,10 @@ For Payment Page Product, [click here](https://developer.juspay.in/docs/introduc
 For EC-Headless Product, [click here](https://developer.juspay.in/v2.0/docs/payload) for payload.
 
 
+# License
+hypersdkflutter is distributed under [AGPL-3.0-only](https://pub.dev/packages/hypersdkflutter/license).
+
 ## Attribution
 This project is based on the OSS project juspay_flutter by [Deep Rooted.co](https://deep-rooted.co) published under MIT License
 
-The original repository is accessible at https://github.com/deep-rooted-co/juspay_flutter
+The original repository is accessible [here](https://github.com/deep-rooted-co/juspay_flutter).

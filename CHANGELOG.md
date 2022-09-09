@@ -1,9 +1,12 @@
-# 3.0.5 
+# 3.0.6
+* Updated LICENSE to AGPL-3.0
+
+# 3.0.5
 * Adding initial developer attribution to this plugin
 
 # 3.0.4
-* Updated Android SDK Version to 2.1.2 
- 
+* Updated Android SDK Version to 2.1.2
+
 # 3.0.3
 * Updated code formatting in README.md
 
