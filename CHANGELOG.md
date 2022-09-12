@@ -1,3 +1,6 @@
+# 3.0.7
+* Updated LICENSE extension to .md
+
 # 3.0.6
 * Updated LICENSE to AGPL-3.0
 
