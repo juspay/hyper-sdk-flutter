@@ -1,3 +1,6 @@
+# 3.0.7
+* Added flag to identify if the integration is flutter in android
+
 # 3.0.6
 * Updated LICENSE to AGPL-3.0
 
