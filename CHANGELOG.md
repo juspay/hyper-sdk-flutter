@@ -1,3 +1,6 @@
+# 3.0.8
+* Updated Android SDK Version to 2.1.8 and IOS SDK version to 2.1.17
+
 # 3.0.7
 * Added flag to identify if the integration is flutter in android
 
