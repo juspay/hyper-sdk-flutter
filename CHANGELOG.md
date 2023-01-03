@@ -1,3 +1,5 @@
+# 3.0.10
+* Updated Android SDK Version to 2.1.10
 # 3.0.9
 * Updated Android SDK Version to 2.1.9 and IOS SDK version to 2.1.15
 

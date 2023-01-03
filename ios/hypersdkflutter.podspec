@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'hypersdkflutter'
-  s.version          = '3.0.9'
+  s.version          = '3.0.10'
   s.summary          = 'Flutter plugin for Juspay SDK'
   s.description      = <<-DESC
 Flutter plugin for juspay SDK.
