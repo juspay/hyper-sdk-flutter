@@ -6,15 +6,13 @@ buildscript {
     repositories {
         google()
         jcenter()
-        maven {
-            url "https://maven.juspay.in/jp-build-packages/hypersdk-asset-download/releases/"
-        }
+        maven { url "https://maven.juspay.in/jp-build-packages/hyper-sdk/" }
     }
 
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'in.juspay:hypersdk-asset-plugin:1.0.3'
+        classpath 'in.juspay:hypersdk.plugin:2.0.1'
     }
 }
 
@@ -22,14 +20,13 @@ rootProject.allprojects {
     repositories {
         google()
         jcenter()
-        maven {
-            url "https://maven.juspay.in/jp-build-packages/hyper-sdk/"
-        }
+        maven { url "https://maven.juspay.in/jp-build-packages/hyper-sdk/" }
     }
 }
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'hypersdk.plugin'
 
 android {
     compileSdkVersion 30
@@ -54,5 +51,39 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'in.juspay:hypersdk:2.1.11'
+}
+
+static def mostRecentVersion(List<String> versions) {
+    return versions.sort(false) { a, b ->
+        [a, b]*.tokenize('-rc')*.join('')*.tokenize('.')*.collect {
+            it as int
+        }.with { u, v ->
+            [u, v].transpose().findResult { x, y -> x <=> y ?: null } ?: u.size() <=> v.size()
+        }
+    }[-1]
+}
+
+static def getHyperSDKVersion(rootProject) {
+    def hyperSdkVersion = '2.1.12'
+    if (!rootProject.hasProperty('hyperSDKVersion')) {
+        return hyperSdkVersion
+    }
+    def rootVersion = rootProject.hyperSDKVersion
+    hyperSdkVersion = mostRecentVersion([rootVersion, hyperSdkVersion])
+    if (hyperSdkVersion != rootVersion) {
+        System.out.println("Ignoring the overriden SDK version present in root build.gradle ($rootVersion), as there is a newer version present in the SDK ($hyperSdkVersion).")
+    }
+    return hyperSdkVersion
+}
+
+static def getClientId(rootProject) {
+    if (!rootProject.hasProperty('clientId')) {
+        throw new GradleException("clientId parameter is required in ext block of root build.gradle")
+    }
+    return rootProject.clientId
+}
+
+hyperSdkPlugin {
+    clientId = getClientId(rootProject)
+    sdkVersion = getHyperSDKVersion(rootProject)
 }

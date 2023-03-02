@@ -7,18 +7,37 @@ Flutter plugin for HyperSDK which enables payment orchestration via different dy
 Add flutter plugin dependency in `pubspec.yaml`.
 Get dependency from [pub.dev](https://pub.dev/packages/hypersdkflutter/install)
 
-## Android Setup
+## Android Setup (3.1.x and above)
 
-Add the build dependency in  `android/build.gradle` file
+Add the clientId ext property in root(top) `build.gradle`:
+
+```groovy
+buildscript {
+    ....
+    ext {
+        ....
+        clientId = "<clientId shared by Juspay team>"
+        hyperSDKVersion = "2.1.12"
+        ....
+    }
+    ....
+}
+```
+
+This is the same clientId present earlier in the `MerchantConfig.txt` file.
+
+Optionally, you can also provide an override for base SDK version present in plugin (the newer version among both would be considered).
+
+## Android Setup (3.0.x and below) [Deprecated]
+
+Add the build dependency in `android/build.gradle` file
 
 ```groovy
 buildscript {
     ....
     repositories {
         ....
-        maven {
-            url "https://maven.juspay.in/jp-build-packages/hypersdk-asset-download/releases/"
-        }
+        maven { url "https://maven.juspay.in/jp-build-packages/hypersdk-asset-download/releases/" }
     }
 
     dependencies {
@@ -40,13 +59,11 @@ Add file `MerchantConfig.txt` in the same directory`(android/app/)`as the gradle
 clientId = <clientId> shared by Juspay Team
 ```
 
-
 ### Note
 
 **Your application's `MainActivity` should extend `FlutterFragmentActivity` instead of `FlutterActivity`.**
 
 _`HyperSDK` only supports `FragmentActivity`._
-
 
 ```kotlin
 import io.flutter.embedding.android.FlutterFragmentActivity
@@ -55,9 +72,19 @@ import io.flutter.embedding.android.FlutterFragmentActivity
 class MainActivity: FlutterFragmentActivity() {
 
 }
-
 ```
+
 Please refer to [this doc](https://juspaydev.vercel.app/sections/base-sdk-integration/initiating-sdk?platform=Flutter&product=Payment+Page) for more information.
+
+### Migration Guide Android (3.0.x to 3.1.x)
+
+Step-1: Add the clientId ext property in root(top) `build.gradle`. Refer [here](#android-setup-31x-and-above) for more info. This is the same clientId present in the `MerchantConfig.txt` file.
+
+Step-2: Delete MerchantConfig.txt file.
+
+Step-3: Remove buildscript repository and classpath defined [here](#android-setup-30x-and-below-deprecated) in `android/build.gradle` file.
+
+Step-4: Remove the `hypersdk-asset-plugin` plugin application from the `android/app/build.gradle` file.
 
 ## iOS Setup
 
@@ -271,11 +298,12 @@ For Payment Page Product, [click here](https://developer.juspay.in/docs/introduc
 
 For EC-Headless Product, [click here](https://developer.juspay.in/v2.0/docs/payload) for payload.
 
+## License
 
-# License
-hypersdkflutter is distributed under [AGPL-3.0-only](https://pub.dev/packages/hypersdkflutter/license).
+hypersdkflutter is distributed under [AGPL-3.0-only](https://pub.dev/packages/hypersdkflutter/license) license.
 
-## Attribution
+### Attribution
+
 This project is based on the OSS project juspay_flutter by [Deep Rooted.co](https://deep-rooted.co) published under MIT License
 
 The original repository is accessible [here](https://github.com/deep-rooted-co/juspay_flutter).
