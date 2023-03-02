@@ -1,3 +1,6 @@
+# 3.0.11
+* Updated IOS SDK Version to 2.1.22 & Android SDK Version to 2.1.11,it has some bug fixes and improvements
+*
 # 3.0.10
 * Updated Android SDK Version to 2.1.10
 # 3.0.9
