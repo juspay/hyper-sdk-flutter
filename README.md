@@ -7,7 +7,7 @@ Flutter plugin for HyperSDK which enables payment orchestration via different dy
 Add flutter plugin dependency in `pubspec.yaml`.
 Get dependency from [pub.dev](https://pub.dev/packages/hypersdkflutter/install)
 
-## Android Setup (3.1.x and above)
+## Android Setup (4.0.0 and above)
 
 Add the clientId ext property in root(top) `build.gradle`:
 
@@ -76,9 +76,9 @@ class MainActivity: FlutterFragmentActivity() {
 
 Please refer to [this doc](https://juspaydev.vercel.app/sections/base-sdk-integration/initiating-sdk?platform=Flutter&product=Payment+Page) for more information.
 
-### Migration Guide Android (3.0.x to 3.1.x)
+### Migration Guide Android (3.0.x to 4.y.x)
 
-Step-1: Add the clientId ext property in root(top) `build.gradle`. Refer [here](#android-setup-31x-and-above) for more info. This is the same clientId present in the `MerchantConfig.txt` file.
+Step-1: Add the clientId ext property in root(top) `build.gradle`. Refer [here](#android-setup-400-and-above) for more info. This is the same clientId present in the `MerchantConfig.txt` file.
 
 Step-2: Delete MerchantConfig.txt file.
 
