@@ -1,6 +1,13 @@
+/*
+ * Copyright (c) Juspay Technologies.
+ *
+ * This source code is licensed under the AGPL 3.0 license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 import 'package:flutter/material.dart';
 import 'package:hypersdkflutter/hypersdkflutter.dart';
-
+import 'package:flutter/services.dart';
 import './screens/home.dart';
 
 void main() {
@@ -17,8 +24,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: [SystemUiOverlay.bottom]);
     return MaterialApp(
-      title: 'Flutter Plugin Integration',
+      title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),

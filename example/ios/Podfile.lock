@@ -1,0 +1,37 @@
+PODS:
+  - Flutter (1.0.0)
+  - HyperSDK (2.1.23):
+    - JuspaySafeBrowser (= 0.1.77)
+    - Salvator (= 1.0.2)
+  - hypersdkflutter (4.0.0):
+    - Flutter
+    - HyperSDK (= 2.1.23)
+  - JuspaySafeBrowser (0.1.77)
+  - Salvator (1.0.2)
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - hypersdkflutter (from `.symlinks/plugins/hypersdkflutter/ios`)
+
+SPEC REPOS:
+  trunk:
+    - HyperSDK
+    - JuspaySafeBrowser
+    - Salvator
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  hypersdkflutter:
+    :path: ".symlinks/plugins/hypersdkflutter/ios"
+
+SPEC CHECKSUMS:
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  HyperSDK: 6ed505c2cb997444bad0fd6eebce6e2bc685f82f
+  hypersdkflutter: e0d4d4e09ab171e2c8113b27d0a2961b1d0f1cbb
+  JuspaySafeBrowser: 039d54b068d7ca314866fa8a2d111ad98f3daea2
+  Salvator: 084905ad83586b10de2c283c87b9241fefac5405
+
+PODFILE CHECKSUM: db104a84eca0c13923662b13287e0e6ee236e206
+
+COCOAPODS: 1.11.3
