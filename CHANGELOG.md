@@ -1,3 +1,7 @@
+# 4.0.1
+
+* Updated Android SDK Version to 2.1.13.
+
 # 4.0.0
 
 * Upgraded to HyperSDK Plugin 2.0. Refer [README.md](README.md#migration-guide-android-30x-to-4yx) for the migration steps.
