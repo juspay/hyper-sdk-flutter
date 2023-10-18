@@ -79,7 +79,7 @@ class _PaymentPageState extends State<PaymentPage> {
 
     // Calling process on hyperSDK to open payment page
     // block:start:process-sdk
-    print('The process payload ${processPayload}');
+    print('The process payload $processPayload');
     await widget.hyperSDK.process(processPayload, hyperSDKCallbackHandler);
     // block:end:process-sdk
   }
@@ -109,6 +109,8 @@ class _PaymentPageState extends State<PaymentPage> {
         var status = innerPayload["status"] ?? " ";
         var pi = innerPayload["paymentInstrument"] ?? " ";
         var pig = innerPayload["paymentInstrumentGroup"] ?? " ";
+        print(pi);
+        print(pig);
 
         if (!error) {
           switch (status) {
@@ -133,6 +135,8 @@ class _PaymentPageState extends State<PaymentPage> {
         } else {
           var errorCode = args["errorCode"] ?? " ";
           var errorMessage = args["errorMessage"] ?? " ";
+          print(errorCode);
+          print(errorMessage);
           switch (status) {
             case "backpressed":
               {
@@ -208,12 +212,12 @@ class _PaymentPageState extends State<PaymentPage> {
 
   void navigateAfterPayment(BuildContext context) {
     if (paymentSuccess) {
-      WidgetsBinding.instance?.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) => const SuccessScreen()));
       });
     } else if (paymentFailed) {
-      WidgetsBinding.instance?.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) => const FailedScreen()));
       });

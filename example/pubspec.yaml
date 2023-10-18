@@ -32,8 +32,8 @@ dependencies:
   uuid: ^3.0.5
   dio: ^5.1.2
 # Applying HyperAssets plugin
-# block:start:add-dependency 
-  hypersdkflutter: 
+# block:start:add-dependency
+  hypersdkflutter:
     path: ../
 # block:end:add-dependency
 
@@ -42,6 +42,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   http: ^0.13.6
+  webview_flutter: ^4.4.1
 
 dev_dependencies:
   flutter_test:
