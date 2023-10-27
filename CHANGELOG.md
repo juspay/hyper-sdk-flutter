@@ -1,3 +1,7 @@
+# 4.0.3
+
+* Updated android plugin version to 2.0.4
+
 # 4.0.2
 
 * Updated IOS SDK Version to 2.1.26.
