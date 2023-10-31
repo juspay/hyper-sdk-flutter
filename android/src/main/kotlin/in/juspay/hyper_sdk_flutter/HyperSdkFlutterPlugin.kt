@@ -14,6 +14,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.annotation.NonNull
 import androidx.fragment.app.FragmentActivity
+import `in`.juspay.hypercheckoutlite.HyperCheckoutLite
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -28,6 +29,7 @@ class HyperSdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Pl
   private lateinit var channel: MethodChannel
     private var binding: ActivityPluginBinding? = null
     private var hyperServices: HyperServices? = null
+    private var isHyperCheckOutLiteInteg: Boolean = false
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "hyperSDK")
@@ -75,14 +77,20 @@ class HyperSdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Pl
             "terminate" -> terminate(result)
             "isInitialised" -> isInitialised(result)
             "onBackPress" -> onBackPress(result)
+            "openPaymentPage" -> openPaymentPage(call.argument<Map<String, Any>>("params"), result)
             else -> result.notImplemented()
         }
     }
 
     private fun onBackPress(result: Result) {
         try {
-            var backpress = hyperServices!!.onBackPressed()
-            result.success(backpress)
+            if (isHyperCheckOutLiteInteg) {
+                val backPress = HyperCheckoutLite.onBackPressed();
+                result.success(backPress)
+            }else{
+                val backPress = hyperServices!!.onBackPressed()
+                result.success(backPress)
+            }
         } catch(e: Exception) {
             result.error("HYPERSDKFLUTTER: backpress error", e.localizedMessage, e)
         }
@@ -143,6 +151,38 @@ class HyperSdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Pl
     private fun process(params: Map<String, Any>?, result: Result) {
         hyperServices!!.process(JSONObject(params))
         result.success(true)
+    }
+
+    private fun openPaymentPage(params: Map<String, Any>?, result : Result) {
+        isHyperCheckOutLiteInteg = true
+        val invokeMethodResult = object : Result {
+            override fun success(result: Any?) {
+                Log.d(this.javaClass.canonicalName, "success: ${result.toString()}")
+                println("result = ${result.toString()}")
+            }
+
+            override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
+                Log.e(this.javaClass.canonicalName, "$errorCode\n$errorMessage")
+            }
+
+            override fun notImplemented() {
+                Log.e(this.javaClass.canonicalName, "notImplemented")
+            }
+        }
+        val callback = object : HyperPaymentsCallbackAdapter() {
+            override fun onEvent(data: JSONObject, p1: JuspayResponseHandler?) {
+                try {
+                    channel.invokeMethod(data.getString("event"), data.toString(), invokeMethodResult)
+                } catch (e: Exception) {
+                    Log.e(this.javaClass.canonicalName, "Failed to invoke method from native to dart", e)
+                }
+            }
+        }
+        if(!(binding!!.activity is FragmentActivity)){
+            Log.e("JUSPAY", "Kotlin MainActivity should extend FlutterFragmentActivity instead of FlutterActivity! JUSPAY Plugin only supports FragmentActivity. Please refer to this doc for more information: https://juspaydev.vercel.app/sections/base-sdk-integration/initiating-sdk?platform=Flutter&product=Payment+Page")
+            throw Exception("Kotlin MainActivity should extend FlutterFragmentActivity instead of FlutterActivity!");
+        }
+        HyperCheckoutLite.openPaymentPage(binding!!.activity as FragmentActivity, JSONObject(params), callback)
     }
 
     private fun terminate(result: Result) {

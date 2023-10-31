@@ -90,4 +90,19 @@ class HyperSDK {
     var result = await hyperSDK.invokeMethod('onBackPress');
     return result.toString();
   }
+
+  Future<String> openPaymentPage(Map<String, dynamic> params,
+      void Function(MethodCall) hyperSdkCallBackHandler) async {
+    var result =
+        await hyperSDK.invokeMethod('openPaymentPage', <String, dynamic>{
+      'params': params,
+    });
+    Future<dynamic> callbackFunction(MethodCall methodCall) {
+      hyperSdkCallBackHandler(methodCall);
+      return Future.value(0);
+    }
+
+    hyperSDK.setMethodCallHandler(callbackFunction);
+    return result.toString();
+  }
 }
