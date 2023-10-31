@@ -22,7 +22,12 @@ class PaymentPage extends StatefulWidget {
   final String amount;
   final Map<String, dynamic> merchantDetails;
   final Map<String, dynamic> customerDetails;
-  const PaymentPage({Key? key, required this.hyperSDK, required this.amount, required this.merchantDetails, required this.customerDetails})
+  const PaymentPage(
+      {Key? key,
+      required this.hyperSDK,
+      required this.amount,
+      required this.merchantDetails,
+      required this.customerDetails})
       : super(key: key);
 
   @override
@@ -74,13 +79,24 @@ class _PaymentPageState extends State<PaymentPage> {
 
     // Get process payload from backend
     // block:start:fetch-process-payload
-    var processPayload = await getProcessPayload(widget.amount, widget.merchantDetails, widget.customerDetails);
+    var processPayload = await getProcessPayload(
+        widget.amount, widget.merchantDetails, widget.customerDetails);
     // block:end:fetch-process-payload
 
     // Calling process on hyperSDK to open payment page
     // block:start:process-sdk
     print('The process payload ${processPayload}');
     await widget.hyperSDK.process(processPayload, hyperSDKCallbackHandler);
+    //block:end:process-sdk
+  }
+
+  void openPaymentPage() async {
+    // Get sdk payload from backend
+    var sdkPayload = await getProcessPayload(
+        widget.amount, widget.merchantDetails, widget.customerDetails);
+
+    // Calling openPaymentPage on hyperSDK to open payment page
+    await widget.hyperSDK.openPaymentPage(sdkPayload, hyperSDKCallbackHandler);
     // block:end:process-sdk
   }
 
@@ -154,9 +170,7 @@ class _PaymentPageState extends State<PaymentPage> {
               }
               break;
             case "pending_vbv":
-              {
-
-              }
+              {}
               break;
             case "authorizing":
               {
