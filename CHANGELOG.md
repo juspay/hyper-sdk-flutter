@@ -1,3 +1,7 @@
+# 4.0.4
+
+* added openPaymentPage that calls initiate and process together using HyperCheckoutLite openPaymentPage Function
+
 # 4.0.3
 
 * Updated android plugin version to 2.0.4
