@@ -1,3 +1,7 @@
+# 4.0.5
+
+* Bug fix in HyperCheckoutLite's openPaymentPage Function
+
 # 4.0.4
 
 * added openPaymentPage that calls initiate and process together using HyperCheckoutLite openPaymentPage Function

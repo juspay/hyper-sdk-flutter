@@ -158,7 +158,6 @@ class HyperSdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Pl
         val invokeMethodResult = object : Result {
             override fun success(result: Any?) {
                 Log.d(this.javaClass.canonicalName, "success: ${result.toString()}")
-                println("result = ${result.toString()}")
             }
 
             override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
@@ -179,10 +178,10 @@ class HyperSdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Pl
             }
         }
         if(!(binding!!.activity is FragmentActivity)){
-            Log.e("JUSPAY", "Kotlin MainActivity should extend FlutterFragmentActivity instead of FlutterActivity! JUSPAY Plugin only supports FragmentActivity. Please refer to this doc for more information: https://juspaydev.vercel.app/sections/base-sdk-integration/initiating-sdk?platform=Flutter&product=Payment+Page")
             throw Exception("Kotlin MainActivity should extend FlutterFragmentActivity instead of FlutterActivity!");
         }
-        HyperCheckoutLite.openPaymentPage(binding!!.activity as FragmentActivity, JSONObject(params), callback)
+        HyperCheckoutLite.openPaymentPage(binding!!.activity as FragmentActivity,
+            params?.let { JSONObject(it) }, callback)
     }
 
     private fun terminate(result: Result) {
