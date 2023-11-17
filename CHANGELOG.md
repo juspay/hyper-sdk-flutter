@@ -1,3 +1,7 @@
+# 4.0.6
+
+* Updated Android SDK Version to 2.1.20
+
 # 4.0.5
 
 * Bug fix in HyperCheckoutLite's openPaymentPage Function
