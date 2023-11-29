@@ -1,0 +1,3 @@
+package hyper_webview_flutter.android
+
+rootProject.name = 'hyper_webview_flutter'

@@ -1,0 +1,29 @@
+name: hyper_webview_flutter
+description: A new Flutter plugin project.
+version: 0.0.1
+homepage:
+
+environment:
+  sdk: '>=3.1.5 <4.0.0'
+  flutter: '>=3.3.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  webview_flutter: ^4.4.2
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: in.juspay.hyper_webview_flutter
+        pluginClass: HyperWebviewFlutterPlugin
+      ios:
+        pluginClass: HyperWebviewFlutterPlugin
+

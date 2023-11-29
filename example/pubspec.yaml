@@ -31,10 +31,13 @@ dependencies:
     sdk: flutter
   uuid: ^3.0.5
   dio: ^5.1.2
+  webview_flutter: ^4.4.2
 # Applying HyperAssets plugin
-# block:start:add-dependency 
-  hypersdkflutter: 
+# block:start:add-dependency
+  hypersdkflutter:
     path: ../
+  hyper_webview_flutter:
+    path: ../hyper_webview_flutter
 # block:end:add-dependency
 
 

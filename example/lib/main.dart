@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:hypersdkflutter/hypersdkflutter.dart';
 import 'package:flutter/services.dart';
 import './screens/home.dart';
+import 'screens/webview_screen.dart';
 
 void main() {
   final hyperSDK = HyperSDK();
@@ -27,13 +28,56 @@ class MyApp extends StatelessWidget {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: [SystemUiOverlay.bottom]);
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: HomeScreen(
-        hyperSDK: hyperSDK,
-      ),
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: StartScreen(hyperSDK: hyperSDK,)
+    );
+  }
+}
+class StartScreen extends StatelessWidget {
+  final HyperSDK hyperSDK;
+  const StartScreen({Key? key, required this.hyperSDK}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('Flutter Hyper-SDK Demo'),
+        ),
+        body:Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  // Navigate to WebViewPaymentScreen when the first button is pressed
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => WebviewPaymentPage(hyperSDK: hyperSDK,url: "http://localhost:4200"),
+                    ),
+                  );
+                },
+                child: Text('PaymentPage In WebView'),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  // Navigate to NativePaymentScreen when the second button is pressed
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HomeScreen(hyperSDK: hyperSDK),
+                    ),
+                  );
+                },
+                child: Text('Native PaymentPage'),
+              ),
+            ],
+          ),
+        )
     );
   }
 }
