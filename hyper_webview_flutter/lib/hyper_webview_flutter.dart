@@ -19,17 +19,23 @@ class HyperWebviewFlutter {
             int requestCode = args['requestCode'] ?? -1 ;
             int resultCode = args['resultCode'] ?? -1 ;
             dynamic payload = args['payload'];
-            returnResultInWebview(requestCode, resultCode, payload);
+            bool isEncoded = args["is_encoded"] ?? false;
+            returnResultInWebview(requestCode, resultCode, payload, isEncoded);
           default:
-            log("HyperWebviewFlutter(DartChannel) : Not handled for function ${call.method}");
+            throw 'Not handled for function ${call.method}';
         }
       }catch(e){
-        log("HyperWebviewFlutter(DartChannel) : Error $e");
+        log("HyperWebviewFlutter(DartChannel) Error: $e");
       }
       return Future.value(null) ;
     });
   }
-  void returnResultInWebview(int requestCode, int resultCode, dynamic result){
+  void returnResultInWebview(int requestCode, int resultCode, dynamic result, bool isEncoded){
+
+    if(isEncoded && result != null){
+      Codec<dynamic, String> codec = utf8.fuse(base64);
+      result = codec.decode(result as String);
+    }
     String cmd = "window.onActivityResult(${jsonEncode({ "requestCode" : requestCode , "resultCode" : resultCode, "data" : result})})";
     _controller.runJavaScript(cmd);
   }
@@ -42,18 +48,18 @@ class HyperWebviewFlutter {
       var data = jsonDecode(message.message);
       var fnName = data['fnName'] as String;
       nativeFnCall(args) => nativeChannel.invokeMethod(fnName, args);
-      onErrorCallback() => returnResultInWebview(-1, -1, null);
+      onErrorCallback() => returnResultInWebview(-1, -1, null, false);
       if (allowedMethods.contains(fnName)) {
         var args = data['args'].cast<dynamic>();
         nativeChannel
             .invokeMethod(fnName, args)
             .then(nativeFnCall)
             .catchError( ( e)  {
-              log("HyperWebviewFlutter: attach() error $e");
-              onErrorCallback(); //just to not block the mapp, to prevent never-resolving aff
+              log("HyperWebviewFlutter: attach() Error: $e");
+              onErrorCallback()
         });
       }else{
-        onErrorCallback(); //just to not block the mapp, to prevent never-resolving aff
+        onErrorCallback();
       }
     });
   }

@@ -108,6 +108,7 @@ class HyperWebviewFlutterPlugin: FlutterPlugin, MethodChannel.MethodCallHandler,
     }
     output["resultCode"] = resultCode;
     output["requestCode"] = requestCode;
+    output["is_encoded"] = true;
     dartChannel.invokeMethod( "onActivityResult", output);
     return true;
   }
