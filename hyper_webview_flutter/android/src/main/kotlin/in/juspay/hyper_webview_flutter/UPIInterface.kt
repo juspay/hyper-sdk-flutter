@@ -46,7 +46,6 @@ class UPIInterface() {
         }
 
         fun getResourceByName(activity : FragmentActivity, resName: String?): String {
-            // TODO: Fix this - activity.resources.getIdentifier is returning null
             return getResourceById(
                 activity,
                 activity.resources.getIdentifier(
