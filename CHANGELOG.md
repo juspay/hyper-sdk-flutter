@@ -1,3 +1,7 @@
+# 4.0.7
+
+* Updated IOS SDK Version to 2.1.28.
+
 # 4.0.6
 
 * Updated Android SDK Version to 2.1.20
