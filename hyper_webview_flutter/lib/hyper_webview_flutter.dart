@@ -30,13 +30,19 @@ class HyperWebviewFlutter {
       return Future.value(null) ;
     });
   }
-  void returnResultInWebview(int requestCode, int resultCode, dynamic result, bool isEncoded){
 
-    if(isEncoded && result != null){
+  // this function returns the response in stringified format
+  String sanitizeResultdata(dynamic data, bool isEncoded){
+    data = data ?? {};
+    if(isEncoded && data is String){
       Codec<dynamic, String> codec = utf8.fuse(base64);
-      result = codec.decode(result as String);
+      data = codec.decode(data);
     }
-    String cmd = "window.onActivityResult(${jsonEncode({ "requestCode" : requestCode , "resultCode" : resultCode, "data" : result})})";
+    return jsonEncode(data);
+  }
+
+  void returnResultInWebview(int requestCode, int resultCode, dynamic result, bool isEncoded){
+    String cmd = "window.onActivityResult('$requestCode' , '$resultCode', '${sanitizeResultdata(result, isEncoded)}')";
     _controller.runJavaScript(cmd);
   }
 
@@ -56,7 +62,7 @@ class HyperWebviewFlutter {
             .then(nativeFnCall)
             .catchError( ( e)  {
               log("HyperWebviewFlutter: attach() Error: $e");
-              onErrorCallback()
+              onErrorCallback();
         });
       }else{
         onErrorCallback();

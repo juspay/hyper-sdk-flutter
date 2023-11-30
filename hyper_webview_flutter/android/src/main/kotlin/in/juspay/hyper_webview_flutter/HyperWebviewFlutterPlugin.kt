@@ -92,7 +92,7 @@ class HyperWebviewFlutterPlugin: FlutterPlugin, MethodChannel.MethodCallHandler,
   }
 
   override fun onDetachedFromActivity() {
-    this.binding!!.removeActivityResultListener(this)
+    this.binding?.removeActivityResultListener(this)
     this.binding = null
   }
 
@@ -101,11 +101,9 @@ class HyperWebviewFlutterPlugin: FlutterPlugin, MethodChannel.MethodCallHandler,
     if(requestCode != Constants.OPENAPPS_REQUEST_CODE){
       return false
     }
-    if(data != null) {
-      val jsonObject: JSONObject =  toJSON(data.extras)  ;
-      val encoded = Base64.encodeToString(jsonObject.toString().toByteArray(), Base64.NO_WRAP);
-      output["payload"] = encoded;
-    }
+    val jsonObject: JSONObject =  toJSON(data?.extras)  ;
+    val encoded = Base64.encodeToString(jsonObject.toString().toByteArray(), Base64.NO_WRAP);
+    output["payload"] = encoded;
     output["resultCode"] = resultCode;
     output["requestCode"] = requestCode;
     output["is_encoded"] = true;
