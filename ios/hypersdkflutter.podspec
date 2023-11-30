@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'hypersdkflutter'
-  s.version          = '4.0.6'
+  s.version          = '4.0.7'
   s.summary          = 'Flutter plugin for Juspay SDK'
   s.description      = <<-DESC
 Flutter plugin for juspay SDK.
@@ -15,7 +15,7 @@ Flutter plugin for juspay SDK.
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
-  s.dependency 'HyperSDK', '2.1.26'
+  s.dependency 'HyperSDK', '2.1.28'
   s.platform = :ios, '11.0'
 
   # Flutter.framework does not contain a i386 slice.
