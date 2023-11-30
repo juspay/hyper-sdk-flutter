@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.12.0 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -32,8 +32,8 @@ dependencies:
   uuid: ^3.0.5
   dio: ^5.1.2
 # Applying HyperAssets plugin
-# block:start:add-dependency 
-  hypersdkflutter: 
+# block:start:add-dependency
+  hypersdkflutter:
     path: ../
 # block:end:add-dependency
 
