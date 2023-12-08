@@ -42,8 +42,6 @@ class HyperSdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Pl
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         this.binding = binding
-        val fragmentActivity = binding.activity as FragmentActivity
-        hyperServices = HyperServices(fragmentActivity)
         binding.addActivityResultListener(this)
     }
 
@@ -98,7 +96,7 @@ class HyperSdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Pl
 
     private fun isInitialised(result: Result) {
         try {
-            var isInitiated = hyperServices!!.isInitialised()
+            val isInitiated = hyperServices!!.isInitialised
             result.success(isInitiated)
         } catch(e: Exception) {
             result.success(false)
@@ -115,6 +113,10 @@ class HyperSdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Pl
     }
 
     private fun initiate(params: Map<String, Any>?, result: Result) = try {
+
+        val fragmentActivity = binding!!.activity as FragmentActivity
+        hyperServices = HyperServices(fragmentActivity)
+
         val invokeMethodResult = object : Result {
             override fun success(result: Any?) {
                 Log.d(this.javaClass.canonicalName, "success: ${result.toString()}")
@@ -149,8 +151,13 @@ class HyperSdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Pl
     }
 
     private fun process(params: Map<String, Any>?, result: Result) {
-        hyperServices!!.process(JSONObject(params))
-        result.success(true)
+        if (hyperServices != null) {
+            hyperServices!!.process(JSONObject(params))
+            result.success(true)
+        } else {
+            Log.e(this.javaClass.canonicalName, "initiate() must be called before calling process()")
+            result.success(false)
+        }
     }
 
     private fun openPaymentPage(params: Map<String, Any>?, result : Result) {
@@ -185,7 +192,12 @@ class HyperSdkFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware, Pl
     }
 
     private fun terminate(result: Result) {
-        hyperServices!!.terminate()
-        result.success(true)
+        if (hyperServices != null) {
+            hyperServices!!.terminate()
+            result.success(true)
+        } else {
+            Log.w(this.javaClass.canonicalName, "Terminate called without initiate, skipping")
+            result.success(false)
+        }
     }
 }

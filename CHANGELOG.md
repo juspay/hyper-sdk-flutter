@@ -1,3 +1,7 @@
+# 4.0.8
+
+* Moved SDK instance creation to initiate.
+
 # 4.0.7
 
 * Updated IOS SDK Version to 2.1.28.

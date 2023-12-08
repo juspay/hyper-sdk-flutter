@@ -6,11 +6,14 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:hypersdkflutter/hypersdkflutter.dart';
 import 'package:flutter/services.dart';
 import './screens/home.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
   final hyperSDK = HyperSDK();
   runApp(MyApp(hyperSDK: hyperSDK));
 }
