@@ -1,3 +1,8 @@
+# 4.0.9
+
+* Updated IOS SDK version to 2.1.30
+* Added openPaymentPage that calls initiate and process together using HyperCheckoutLite openPaymentPage Function for IOS.
+
 # 4.0.8
 
 * Moved SDK instance creation to initiate.

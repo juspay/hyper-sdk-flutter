@@ -214,6 +214,14 @@ class _PaymentPageState extends State<PaymentPage> {
                 });
               }
               break;
+            default:
+              {
+                setState(() {
+                  paymentFailed = true;
+                  paymentSuccess = false;
+                });
+              }
+              break;
           }
         }
     }

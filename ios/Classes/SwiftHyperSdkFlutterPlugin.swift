@@ -34,6 +34,9 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
       case "initiate":
           let args = call.arguments as! Dictionary<String, Any>
           initiate(args["params"] as! [String: Any], result)
+      case "openPaymentPage":
+          let args = call.arguments as! Dictionary<String, Any>
+          openPaymentPage(args["params"] as! [String: Any], result)
       case "process":
           let args = call.arguments as! Dictionary<String, Any>
           process(args["params"] as! [String: Any], result)
@@ -76,6 +79,24 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
         self.hyperServices.baseViewController = topViewController
         self.hyperServices.process(params)
     }
+    result(true)
+  }
+
+  private func openPaymentPage(_ params: [String: Any], _ result: @escaping FlutterResult) {
+    let topViewController = (UIApplication.shared.keyWindow?.rootViewController)!
+    HyperCheckoutLite.openPaymentPage(topViewController, payload: params, callback: { [unowned self] (response) in
+      if response == nil {
+          return
+      }
+
+      let event = response!["event"] as? String ?? ""
+
+      if let jsonData = try? JSONSerialization.data(withJSONObject: response!, options: .prettyPrinted) {
+          if let jsonString = String(data: jsonData, encoding: .utf8) {
+              self.juspay.invokeMethod(event, arguments: jsonString)
+          }
+      }
+    })
     result(true)
   }
 
