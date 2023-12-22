@@ -1,3 +1,8 @@
+# 4.0.10
+
+* Updated README file.
+* Updated HyperSdk plugin version to 2.0.6
+
 # 4.0.9
 
 * Updated IOS SDK version to 2.1.30
