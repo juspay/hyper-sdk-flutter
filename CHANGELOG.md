@@ -1,3 +1,7 @@
+# 4.0.11
+
+* Updated Updated HyperSDK version for Android & IOS.
+
 # 4.0.10
 
 * Updated README file.
