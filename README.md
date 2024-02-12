@@ -7,7 +7,7 @@ Flutter plugin for HyperSDK which enables payment orchestration via different dy
 Add flutter plugin dependency in `pubspec.yaml`.
 Get dependency from [pub.dev](https://pub.dev/packages/hypersdkflutter/install)
 
-## Android Setup (4.0.0 and above)
+## Android Setup
 
 Add the clientId ext property in root(top) `build.gradle`:
 
@@ -24,40 +24,9 @@ buildscript {
 }
 ```
 
-This is the same clientId present earlier in the `MerchantConfig.txt` file.
-
 Optionally, you can also provide an override for base SDK version present in plugin (the newer version among both would be considered).
 
-## Android Setup (3.0.x and below) [Deprecated]
 
-Add the build dependency in `android/build.gradle` file
-
-```groovy
-buildscript {
-    ....
-    repositories {
-        ....
-        maven { url "https://maven.juspay.in/jp-build-packages/hypersdk-asset-download/releases/" }
-    }
-
-    dependencies {
-        ....
-        classpath 'in.juspay:hypersdk-asset-plugin:1.0.3'
-    }
-}
-```
-
-Apply the plugin to the application module in `android/app/build.gradle` file
-
-```groovy
-apply plugin: 'hypersdk-asset-plugin'
-```
-
-Add file `MerchantConfig.txt` in the same directory`(android/app/)`as the gradle file in the previous step with the following content
-
-```txt
-clientId = <clientId> shared by Juspay Team
-```
 
 ### Note
 
@@ -74,17 +43,7 @@ class MainActivity: FlutterFragmentActivity() {
 }
 ```
 
-Please refer to [this doc](https://juspaydev.vercel.app/sections/base-sdk-integration/initiating-sdk?platform=Flutter&product=Payment+Page) for more information.
 
-### Migration Guide Android (3.0.x to 4.y.x)
-
-Step-1: Add the clientId ext property in root(top) `build.gradle`. Refer [here](#android-setup-400-and-above) for more info. This is the same clientId present in the `MerchantConfig.txt` file.
-
-Step-2: Delete MerchantConfig.txt file.
-
-Step-3: Remove buildscript repository and classpath defined [here](#android-setup-30x-and-below-deprecated) in `android/build.gradle` file.
-
-Step-4: Remove the `hypersdk-asset-plugin` plugin application from the `android/app/build.gradle` file.
 
 ## iOS Setup
 
