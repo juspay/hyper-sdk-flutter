@@ -1,3 +1,7 @@
+# 4.0.12
+
+* Removed legacy integration documentation.
+
 # 4.0.11
 
 * Updated Updated HyperSDK version for Android & IOS.
