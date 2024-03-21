@@ -1,3 +1,8 @@
+# 4.0.14
+
+* Updated HyperSDK version for IOS to 2.1.35.
+* Making IOS HyperSDK instance creation on demand instead of creating it on plugin initiate.
+
 # 4.0.13
 
 * Updated HyperSDK version for Android.

@@ -12,12 +12,13 @@ import HyperSDK
 public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
   private static var CHANNEL_NAME = "hyperSDK"
   private let juspay: FlutterMethodChannel
-  private let hyperServices: HyperServices
+  private lazy var hyperServices: HyperServices = {
+    return HyperServices()
+  }()
   private let hyperViewController = UIViewController()
 
   init(_ channel: FlutterMethodChannel, _ registrar: FlutterPluginRegistrar) {
       juspay = channel
-      hyperServices = HyperServices()
   }
 
   public static func register(with registrar: FlutterPluginRegistrar) {
