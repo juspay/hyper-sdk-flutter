@@ -78,6 +78,7 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
     if (self.hyperServices.isInitialised()) {
         let topViewController = (UIApplication.shared.keyWindow?.rootViewController)!
         self.hyperServices.baseViewController = topViewController
+        self.hyperServices.shouldUseViewController = true
         self.hyperServices.process(params)
     }
     result(true)

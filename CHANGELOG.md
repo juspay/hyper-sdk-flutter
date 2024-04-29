@@ -1,3 +1,9 @@
+# 4.0.15
+
+* Updated HyperSDK version for IOS to 2.1.39.
+* Updated HyperSDK version for Android to 2.1.25.
+* Blocked click events to merchant screen in IOS.
+
 # 4.0.14
 
 * Updated HyperSDK version for IOS to 2.1.35.

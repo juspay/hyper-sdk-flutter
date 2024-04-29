@@ -29,7 +29,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'hypersdk.plugin'
 
 android {
-    compileSdkVersion 31
+    compileSdk 34
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -46,7 +46,9 @@ android {
 
     defaultConfig {
         minSdkVersion 21
+        consumerProguardFiles "consumer-rules.pro"
     }
+    namespace 'in.juspay.hyper_sdk_flutter'
 }
 
 dependencies {
@@ -65,7 +67,7 @@ static def mostRecentVersion(List<String> versions) {
 }
 
 static def getHyperSDKVersion(rootProject) {
-    def hyperSdkVersion = '2.1.24'
+    def hyperSdkVersion = '2.1.25'
     if (!rootProject.hasProperty('hyperSDKVersion')) {
         return hyperSdkVersion
     }
