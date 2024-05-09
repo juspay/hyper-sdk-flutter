@@ -17,8 +17,6 @@ linter:
     - empty_statements
     - hash_and_equals
     - implementation_imports
-    - iterable_contains_unrelated_type
-    - list_remove_unrelated_type
     - non_constant_identifier_names
     - omit_local_variable_types
     - overridden_fields
