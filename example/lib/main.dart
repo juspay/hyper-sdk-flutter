@@ -14,17 +14,15 @@ import './screens/home.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  print("HARSH MAAINNN FUNCTION");
   if (Platform.isAndroid) {
-    await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
+    await InAppWebViewController.setWebContentsDebuggingEnabled(true);
   }
   final hyperSDK = HyperSDK();
   runApp(MyApp(hyperSDK: hyperSDK));
 }
 
 void temp() async {
-  print("HARSH temp FUNCTION");
-  runApp(Test());
+  runApp(const Test());
 }
 
 class MyApp extends StatelessWidget {
@@ -51,6 +49,8 @@ class MyApp extends StatelessWidget {
 }
 
 class Test extends StatelessWidget {
+  const Test({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
