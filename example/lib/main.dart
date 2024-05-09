@@ -14,11 +14,17 @@ import './screens/home.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  print("HARSH MAAINNN FUNCTION");
   if (Platform.isAndroid) {
     await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
   }
   final hyperSDK = HyperSDK();
   runApp(MyApp(hyperSDK: hyperSDK));
+}
+
+void temp() async {
+  print("HARSH temp FUNCTION");
+  runApp(Test());
 }
 
 class MyApp extends StatelessWidget {
@@ -39,6 +45,22 @@ class MyApp extends StatelessWidget {
       ),
       home: HomeScreen(
         hyperSDK: hyperSDK,
+      ),
+    );
+  }
+}
+
+class Test extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Flutter Inside Android'),
+        ),
+        body: const Center(
+          child: Text('Hello from Flutter!'),
+        ),
       ),
     );
   }

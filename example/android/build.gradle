@@ -6,7 +6,7 @@ buildscript {
     }
 
     ext {
-        clientId = "geddit"
+        clientId = "shoppersstop"
     }
 
     dependencies {
