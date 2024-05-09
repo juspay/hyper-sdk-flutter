@@ -35,16 +35,16 @@ class PaymentPage extends StatefulWidget {
 }
 
 class _PaymentPageState extends State<PaymentPage> {
-  var showLoader = true;
+  var showLoader = false;
   var processCalled = false;
   var paymentSuccess = false;
   var paymentFailed = false;
 
   @override
   Widget build(BuildContext context) {
-    if (!processCalled) {
-      callProcess();
-    }
+    // if (!processCalled) {
+    //   callProcess();
+    // }
 
     navigateAfterPayment(context);
 
@@ -68,8 +68,36 @@ class _PaymentPageState extends State<PaymentPage> {
       child: Container(
         color: Colors.white,
         child: Center(
-          child: showLoader ? const CircularProgressIndicator() : Container(),
-        ),
+            child: showLoader
+                ? const CircularProgressIndicator()
+                : Container(
+                    color: Colors.deepPurple,
+                    padding: const EdgeInsets.all(20.0),
+                    child: AndroidView(
+                      viewType: "HyperSdkViewGroup",
+                      onPlatformViewCreated: (id) async {
+                        print("onPlatformViewCreated called with $id");
+                        var viewChannel = MethodChannel("hyper_view_$id");
+                        var viewId = -1;
+                        Future<dynamic> callbackFunction(MethodCall methodCall) {
+                          print("Method Channel triggered for platform view ${methodCall.method}, ${methodCall.arguments}");
+                          if (methodCall.method == "hyperViewCreated") {
+                            viewId = methodCall.arguments as int;
+                          }
+                          return Future.value(0);
+                        }
+
+                        viewChannel.setMethodCallHandler(callbackFunction);
+                        var processPayload = await getProcessPayload(
+                            widget.amount,
+                            widget.merchantDetails,
+                            widget.customerDetails);
+
+                        widget.hyperSDK.processWithView(
+                            viewId, processPayload, hyperSDKCallbackHandler);
+                      },
+                    ),
+                  )),
       ),
     );
   }
@@ -85,7 +113,7 @@ class _PaymentPageState extends State<PaymentPage> {
 
     // Calling process on hyperSDK to open payment page
     // block:start:process-sdk
-    print('The process payload ${processPayload}');
+    print('The process payload $processPayload');
     await widget.hyperSDK.process(processPayload, hyperSDKCallbackHandler);
     //block:end:process-sdk
   }
@@ -125,6 +153,7 @@ class _PaymentPageState extends State<PaymentPage> {
         var status = innerPayload["status"] ?? " ";
         var pi = innerPayload["paymentInstrument"] ?? " ";
         var pig = innerPayload["paymentInstrumentGroup"] ?? " ";
+        print("$pi, $pig");
 
         if (!error) {
           switch (status) {
@@ -149,6 +178,8 @@ class _PaymentPageState extends State<PaymentPage> {
         } else {
           var errorCode = args["errorCode"] ?? " ";
           var errorMessage = args["errorMessage"] ?? " ";
+          print("$errorCode, $errorMessage");
+
           switch (status) {
             case "backpressed":
               {
@@ -230,12 +261,12 @@ class _PaymentPageState extends State<PaymentPage> {
 
   void navigateAfterPayment(BuildContext context) {
     if (paymentSuccess) {
-      WidgetsBinding.instance?.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) => const SuccessScreen()));
       });
     } else if (paymentFailed) {
-      WidgetsBinding.instance?.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) => const FailedScreen()));
       });

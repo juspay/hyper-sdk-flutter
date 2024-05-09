@@ -77,6 +77,24 @@ class HyperSDK {
     return result.toString();
   }
 
+  Future<String> processWithView(int id, Map<String, dynamic> params,
+      void Function(MethodCall) processHandler) async {
+    var result = await hyperSDK.invokeMethod('processWithView', <String, dynamic>{
+      'viewId' : id,
+      'params': params,
+    });
+
+    // Wrapper function to eliminate redundant Future<dynamic> return value
+    Future<dynamic> callbackFunction(MethodCall methodCall) {
+      processHandler(methodCall);
+      return Future.value(0);
+    }
+
+    hyperSDK.setMethodCallHandler(callbackFunction);
+    return result.toString();
+  }
+
+
   /// Kills the SDK and cleans up any extra resources.
   /// {@category Optional}
   Future<String> terminate() async {

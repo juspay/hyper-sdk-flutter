@@ -6,12 +6,9 @@
  */
 
 import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
 import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
-import '../screens/home.dart' as details;
 
 
 Future<Map<String, dynamic>> getProcessPayload(amount, merchantDetails, customerDetails) async{
@@ -79,6 +76,6 @@ String getOrderId() {
   for ( var i = 0; i < 10; i++ ) {
     result += characters[(Random().nextDouble() * charactersLength).floor()];
   }
-  print('The order id ${result}');
+  print('The order id $result');
   return result;
 }

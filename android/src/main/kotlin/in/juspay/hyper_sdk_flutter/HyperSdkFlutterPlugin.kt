@@ -8,22 +8,15 @@
 
 package `in`.juspay.hyper_sdk_flutter
 
+import android.app.Activity
 import android.content.Intent
 import android.util.Log
-import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
-import android.widget.LinearLayout
 import androidx.fragment.app.FragmentActivity
 import `in`.juspay.hypercheckoutlite.HyperCheckoutLite
-import `in`.juspay.hypersdk.core.MerchantViewType
 import `in`.juspay.hypersdk.data.JuspayResponseHandler
 import `in`.juspay.hypersdk.ui.HyperPaymentsCallbackAdapter
 import `in`.juspay.services.HyperServices
-import io.flutter.FlutterInjector
-import io.flutter.embedding.android.FlutterView
-import io.flutter.embedding.engine.FlutterEngine
-import io.flutter.embedding.engine.dart.DartExecutor
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -47,6 +40,10 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "hyperSDK")
         this.flutterPluginBinding = flutterPluginBinding
+        flutterPluginBinding.platformViewRegistry.registerViewFactory(
+            "HyperSdkViewGroup",
+            HyperPlatformViewFactory(flutterPluginBinding.binaryMessenger)
+        )
         channel.setMethodCallHandler(this)
     }
 
@@ -90,8 +87,25 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             "isInitialised" -> isInitialised(result)
             "onBackPress" -> onBackPress(result)
             "openPaymentPage" -> openPaymentPage(call.argument<Map<String, Any>>("params"), result)
+            "processWithView" -> processWithView(
+                call.argument<Int>("viewId"),
+                call.argument<Map<String, Any>>("params"),
+                result
+            )
+
             else -> result.notImplemented()
         }
+    }
+
+    private fun processWithView(id: Int?, params: Map<String, Any>?, result: Result) {
+        val hyperServices = this.hyperServices
+            ?: return result.success(false)
+        val activity = binding?.activity as? FragmentActivity
+            ?: return result.success(false)
+        val view = id?.let { (activity as Activity).findViewById<ViewGroup>(it) }
+            ?: return result.success(false)
+        hyperServices.process(activity, view, JSONObject(params))
+        result.success(true)
     }
 
     private fun onBackPress(result: Result) {
@@ -161,28 +175,6 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
                     )
                 }
             }
-
-            override fun getMerchantView(parent: ViewGroup?, type: MerchantViewType?): View? {
-                return when (type) {
-                    MerchantViewType.HEADER -> {
-                        Log.wtf("HARSHH", "getMerchantView() called with: type = $type")
-                        val activity = binding?.activity ?: return null
-                        val flutterView = FlutterView(activity)
-                        val layoutParams = FrameLayout.LayoutParams(
-                            FrameLayout.LayoutParams.MATCH_PARENT,
-                            FrameLayout.LayoutParams.WRAP_CONTENT
-                        )
-                        flutterView.layoutParams = layoutParams
-                        val flutterEngine = FlutterEngine(activity)
-                        val bundlePath = FlutterInjector.instance().flutterLoader().findAppBundlePath()
-                        flutterEngine.dartExecutor.executeDartEntrypoint(DartExecutor.DartEntrypoint(bundlePath, "temp"))
-                        flutterView.attachToFlutterEngine(flutterEngine)
-//                        parent?.addView(flutterView)
-                        return flutterView
-                    }
-                    else -> super.getMerchantView(parent, type)
-                }
-            }
         }
         if (binding?.activity !is FragmentActivity) {
             Log.e(
@@ -250,7 +242,8 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
         if (activity !is FragmentActivity) {
             throw Exception("Kotlin MainActivity should extend FlutterFragmentActivity instead of FlutterActivity!")
         }
-        HyperCheckoutLite.openPaymentPage(activity,
+        HyperCheckoutLite.openPaymentPage(
+            activity,
             params?.let { JSONObject(it) }, callback
         )
     }
