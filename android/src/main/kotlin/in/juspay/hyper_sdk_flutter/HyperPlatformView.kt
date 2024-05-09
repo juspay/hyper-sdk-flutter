@@ -1,33 +1,33 @@
 package `in`.juspay.hyper_sdk_flutter
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.view.View
 import android.widget.FrameLayout
+import androidx.core.view.ViewCompat
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
 
 class HyperPlatformView(
-    private val context: Context,
+    context: Context,
     viewId: Int,
     binaryMessenger: BinaryMessenger
 ) : PlatformView, MethodChannel.MethodCallHandler {
 
     private val methodChannel: MethodChannel = MethodChannel(binaryMessenger, "hyper_view_$viewId")
+    private val containerView: FrameLayout = FrameLayout(context)
+    private val containerId: Int = ViewCompat.generateViewId()
 
     init {
+        containerView.id = containerId
         methodChannel.setMethodCallHandler(this)
     }
 
     /** Returns the Android view to be embedded in the Flutter hierarchy.  */
     override fun getView(): View {
-        val container = FrameLayout(context)
-        val containerId = View.generateViewId()
-        container.id = containerId
         methodChannel.invokeMethod("hyperViewCreated", containerId)
-        return container
+        return containerView
     }
 
     /**
