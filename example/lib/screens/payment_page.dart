@@ -40,6 +40,7 @@ class _PaymentPageState extends State<PaymentPage> {
   var paymentSuccess = false;
   var paymentFailed = false;
 
+  var orderId = "";
   @override
   Widget build(BuildContext context) {
     // if (!processCalled) {
@@ -64,40 +65,48 @@ class _PaymentPageState extends State<PaymentPage> {
           return true;
         }
       },
-      // block:end:onBackPressed
-      child: Container(
-        color: Colors.white,
-        child: Center(
-            child: showLoader
-                ? const CircularProgressIndicator()
-                : Container(
-                    color: Colors.deepPurple,
-                    padding: const EdgeInsets.all(20.0),
-                    child: AndroidView(
-                      viewType: "HyperSdkViewGroup",
-                      onPlatformViewCreated: (id) async {
-                        print("onPlatformViewCreated called with $id");
-                        var viewChannel = MethodChannel("hyper_view_$id");
-                        var viewId = -1;
-                        Future<dynamic> callbackFunction(MethodCall methodCall) {
-                          print("Method Channel triggered for platform view ${methodCall.method}, ${methodCall.arguments}");
-                          if (methodCall.method == "hyperViewCreated") {
-                            viewId = methodCall.arguments as int;
-                          }
-                          return Future.value(0);
-                        }
+      child: Scaffold(
+        body: Column(children: [
+          Container(
+            height: 700,
+            color: Colors.white,
+            child: Center(
+                child: showLoader
+                    ? const CircularProgressIndicator()
+                    : Container(
+                        // color: Colors.deepPurple,
+                        // padding: const EdgeInsets.all(20.0),
+                        child: AndroidView(
+                          viewType: "HyperSdkViewGroup",
+                          onPlatformViewCreated: (id) async {
+                            print("onPlatformViewCreated called with $id");
+                            var viewChannel = MethodChannel("hyper_view_$id");
+                            var viewId = -1;
+                            Future<dynamic> callbackFunction(
+                                MethodCall methodCall) {
+                              print(
+                                  "Method Channel triggered for platform view ${methodCall.method}, ${methodCall.arguments}");
+                              if (methodCall.method == "hyperViewCreated") {
+                                viewId = methodCall.arguments as int;
+                              }
+                              return Future.value(0);
+                            }
 
-                        viewChannel.setMethodCallHandler(callbackFunction);
-                        var processPayload = await getProcessPayload(
-                            widget.amount,
-                            widget.merchantDetails,
-                            widget.customerDetails);
-
-                        widget.hyperSDK.processWithView(
-                            viewId, processPayload, hyperSDKCallbackHandler);
-                      },
-                    ),
-                  )),
+                            viewChannel.setMethodCallHandler(callbackFunction);
+                            var processPayload = await getProcessPayload(
+                                widget.amount,
+                                widget.merchantDetails,
+                                widget.customerDetails);
+                            var payload = processPayload["payload"];
+                            var orderDetails = payload["orderDetails"];
+                            orderId = jsonDecode(orderDetails)["order_id"];
+                            widget.hyperSDK.processWithView(viewId,
+                                processPayload, hyperSDKCallbackHandler);
+                          },
+                        ),
+                      )),
+          ),
+        ]),
       ),
     );
   }
@@ -109,6 +118,9 @@ class _PaymentPageState extends State<PaymentPage> {
     // block:start:fetch-process-payload
     var processPayload = await getProcessPayload(
         widget.amount, widget.merchantDetails, widget.customerDetails);
+    var payload = processPayload["payload"];
+    var orderDetails = payload["orderDetails"];
+    orderId = jsonDecode(orderDetails)["order_id"];
     // block:end:fetch-process-payload
 
     // Calling process on hyperSDK to open payment page
@@ -136,6 +148,9 @@ class _PaymentPageState extends State<PaymentPage> {
         setState(() {
           showLoader = false;
         });
+        break;
+      case "paymentAttempt":
+        _showBottomSheetForUpdateOrder(context);
         break;
       case "process_result":
         var args = {};
@@ -259,6 +274,25 @@ class _PaymentPageState extends State<PaymentPage> {
   }
   // block:end:callback-handler
 
+  // Define your callback function
+  Future<void> _showBottomSheetForUpdateOrder(BuildContext context) async {
+    // Simulate an asynchronous task, such as fetching data or processing something
+    await Future.delayed(Duration(seconds: 1));
+
+    // Show the modal bottom sheet
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return BottomSheetContent(
+            hyperSDK: widget.hyperSDK,
+            amount: widget.amount,
+            orderId: orderId,
+            merchantDetails: widget.merchantDetails,
+            customerDetails: widget.customerDetails);
+      },
+    );
+  }
+
   void navigateAfterPayment(BuildContext context) {
     if (paymentSuccess) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -271,5 +305,62 @@ class _PaymentPageState extends State<PaymentPage> {
             MaterialPageRoute(builder: (context) => const FailedScreen()));
       });
     }
+  }
+}
+
+class BottomSheetContent extends StatefulWidget {
+  final HyperSDK hyperSDK;
+  final String amount;
+  final Map<String, dynamic> merchantDetails;
+  final Map<String, dynamic> customerDetails;
+  final String orderId;
+
+  const BottomSheetContent(
+      {Key? key,
+      required this.hyperSDK,
+      required this.amount,
+      required this.orderId,
+      required this.merchantDetails,
+      required this.customerDetails})
+      : super(key: key);
+
+  @override
+  _BottomSheetContentState createState() => _BottomSheetContentState();
+}
+
+class _BottomSheetContentState extends State<BottomSheetContent> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 200,
+      padding: EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 16),
+          const TextField(
+            // onChanged: (value) => {},
+            decoration: InputDecoration(
+              labelText: 'Enter something',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 16),
+          TextButton(
+            onPressed: () async {
+              var updateOrderPayload = await getUpdateOrderPayload(
+                  widget.orderId,
+                  widget.merchantDetails,
+                  widget.customerDetails);
+              widget.hyperSDK.process(updateOrderPayload, (p0) {
+                print("Called updated order");
+                Navigator.pop(context);
+              });
+            },
+            child: const Text('Call Update Order'),
+          ),
+        ],
+      ),
+    );
   }
 }
