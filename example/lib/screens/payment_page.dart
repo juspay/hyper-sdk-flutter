@@ -76,34 +76,73 @@ class _PaymentPageState extends State<PaymentPage> {
                     : Container(
                         // color: Colors.deepPurple,
                         // padding: const EdgeInsets.all(20.0),
-                        child: AndroidView(
-                          viewType: "HyperSdkViewGroup",
-                          onPlatformViewCreated: (id) async {
-                            print("onPlatformViewCreated called with $id");
-                            var viewChannel = MethodChannel("hyper_view_$id");
-                            var viewId = -1;
-                            Future<dynamic> callbackFunction(
-                                MethodCall methodCall) {
-                              print(
-                                  "Method Channel triggered for platform view ${methodCall.method}, ${methodCall.arguments}");
-                              if (methodCall.method == "hyperViewCreated") {
-                                viewId = methodCall.arguments as int;
-                              }
-                              return Future.value(0);
-                            }
+                        child: Platform.isAndroid
+                            ? AndroidView(
+                                viewType: "HyperSdkViewGroup",
+                                onPlatformViewCreated: (id) async {
+                                  print(
+                                      "onPlatformViewCreated called with $id");
+                                  var viewChannel =
+                                      MethodChannel("hyper_view_$id");
+                                  var viewId = -1;
+                                  Future<dynamic> callbackFunction(
+                                      MethodCall methodCall) {
+                                    print(
+                                        "Method Channel triggered for platform view ${methodCall.method}, ${methodCall.arguments}");
+                                    if (methodCall.method ==
+                                        "hyperViewCreated") {
+                                      viewId = methodCall.arguments as int;
+                                    }
+                                    return Future.value(0);
+                                  }
 
-                            viewChannel.setMethodCallHandler(callbackFunction);
-                            var processPayload = await getProcessPayload(
-                                widget.amount,
-                                widget.merchantDetails,
-                                widget.customerDetails);
-                            var payload = processPayload["payload"];
-                            var orderDetails = payload["orderDetails"];
-                            orderId = jsonDecode(orderDetails)["order_id"];
-                            widget.hyperSDK.processWithView(viewId,
-                                processPayload, hyperSDKCallbackHandler);
-                          },
-                        ),
+                                  viewChannel
+                                      .setMethodCallHandler(callbackFunction);
+                                  var processPayload = await getProcessPayload(
+                                      widget.amount,
+                                      widget.merchantDetails,
+                                      widget.customerDetails);
+                                  var payload = processPayload["payload"];
+                                  var orderDetails = payload["orderDetails"];
+                                  orderId =
+                                      jsonDecode(orderDetails)["order_id"];
+                                  widget.hyperSDK.processWithView(viewId,
+                                      processPayload, hyperSDKCallbackHandler);
+                                },
+                              )
+                            : UiKitView(
+                                viewType: "HyperSdkViewGroup",
+                                onPlatformViewCreated: (id) async {
+                                  print(
+                                      "onPlatformViewCreated called with $id");
+                                  var viewChannel =
+                                      MethodChannel("hyper_view_$id");
+                                  var viewId = -1;
+                                  Future<dynamic> callbackFunction(
+                                      MethodCall methodCall) {
+                                    print(
+                                        "Method Channel triggered for platform view ${methodCall.method}, ${methodCall.arguments}");
+                                    if (methodCall.method ==
+                                        "hyperViewCreated") {
+                                      viewId = methodCall.arguments as int;
+                                    }
+                                    return Future.value(0);
+                                  }
+
+                                  viewChannel
+                                      .setMethodCallHandler(callbackFunction);
+                                  var processPayload = await getProcessPayload(
+                                      widget.amount,
+                                      widget.merchantDetails,
+                                      widget.customerDetails);
+                                  var payload = processPayload["payload"];
+                                  var orderDetails = payload["orderDetails"];
+                                  orderId =
+                                      jsonDecode(orderDetails)["order_id"];
+                                  widget.hyperSDK.processWithView(viewId,
+                                      processPayload, hyperSDKCallbackHandler);
+                                },
+                              ),
                       )),
           ),
         ]),
@@ -340,6 +379,7 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
           const SizedBox(height: 16),
           const TextField(
             // onChanged: (value) => {},
+            keyboardType: TextInputType.number,
             decoration: InputDecoration(
               labelText: 'Enter something',
               border: OutlineInputBorder(),
