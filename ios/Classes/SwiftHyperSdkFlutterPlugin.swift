@@ -94,8 +94,9 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
         if let uiView = topViewController.view.viewWithTag(viewId) {
             // TODO :: uncomment these lines once hyperServices.process(view, payload) once it is ready
 //            self.hyperServices.baseViewController = topViewController
-//            self.hyperServices.shouldUseViewController = true
-//            self.hyperServices.process(uiView, params)
+//            self.hyperServices.shouldUseViewController = false
+//            self.hyperServices.baseView = uiView
+//            self.hyperServices.process(params)
             // TODO :: remove this
             uiView.backgroundColor = UIColor.green
 
