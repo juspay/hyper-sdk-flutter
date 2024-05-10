@@ -11,10 +11,10 @@ class HyperUIView: UIView {
     private let methodChannel: FlutterMethodChannel?
 
 
-    init(frame: CGRect, methodChannel: FlutterMethodChannel, tag: Int) {
+    init(frame: CGRect, methodChannel: FlutterMethodChannel) {
         self.methodChannel = methodChannel
         super.init(frame: frame)
-        self.tag = tag
+        self.tag = getNewTag()
     }
 
     required init?(coder: NSCoder) {
@@ -24,5 +24,9 @@ class HyperUIView: UIView {
 
     override func didMoveToWindow() {
         methodChannel?.invokeMethod("hyperViewCreated", arguments: tag)
+    }
+
+    private func getNewTag() -> Int {
+        return Int(arc4random_uniform(UInt32.max))
     }
 }
