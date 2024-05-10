@@ -11,6 +11,7 @@ import 'package:hypersdkflutter/hypersdkflutter.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/bottom_button.dart';
 import './payment_page.dart';
+import './payment_page_container.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final int productOneCount;
@@ -33,6 +34,8 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
+  var useContainer = false;
+
   @override
   Widget build(BuildContext context) {
     var screenHeight = MediaQuery.of(context).size.height;
@@ -168,18 +171,55 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
             ],
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(left: 20),
+                child: const Text(
+                  "Use Container?",
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: Color(0xFfFB8D33),
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+              Container(
+                  margin: const EdgeInsets.only(right: 20),
+                  child: Switch(
+                    value: useContainer,
+                    onChanged: (value) {
+                      setState(() {
+                        useContainer = !useContainer;
+                      });
+                    },
+                  ))
+            ],
+          ),
           BottomButton(
-              height: screenHeight / 10,
-              text: "Checkout",
-              onpressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => PaymentPage(
-                            hyperSDK: widget.hyperSDK,
-                            amount: amounts['totalAmount'].toString(),
-                            merchantDetails: widget.merchantDetails,
-                            customerDetails: widget.customerDetails
-                          ))))
+            height: screenHeight / 10,
+            text: "Checkout",
+            onpressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) {
+                if (useContainer) {
+                  print('HH useContainer - true');
+                  return ContainerPaymentPage(
+                      hyperSDK: widget.hyperSDK,
+                      amount: amounts['totalAmount'].toString(),
+                      merchantDetails: widget.merchantDetails,
+                      customerDetails: widget.customerDetails);
+                } else {
+                  print('HH useContainer - false');
+                  return PaymentPage(
+                      hyperSDK: widget.hyperSDK,
+                      amount: amounts['totalAmount'].toString(),
+                      merchantDetails: widget.merchantDetails,
+                      customerDetails: widget.customerDetails);
+                }
+              }),
+            ),
+          )
         ],
       ),
     );

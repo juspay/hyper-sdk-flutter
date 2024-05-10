@@ -17,12 +17,12 @@ import '../utils/generate_payload.dart';
 import './success.dart';
 import './failed.dart';
 
-class PaymentPage extends StatefulWidget {
+class ContainerPaymentPage extends StatefulWidget {
   final HyperSDK hyperSDK;
   final String amount;
   final Map<String, dynamic> merchantDetails;
   final Map<String, dynamic> customerDetails;
-  const PaymentPage(
+  const ContainerPaymentPage(
       {Key? key,
       required this.hyperSDK,
       required this.amount,
@@ -31,22 +31,25 @@ class PaymentPage extends StatefulWidget {
       : super(key: key);
 
   @override
-  _PaymentPageState createState() => _PaymentPageState();
+  _ContainerPaymentPageState createState() => _ContainerPaymentPageState();
 }
 
-class _PaymentPageState extends State<PaymentPage> {
-  var showLoader = true;
+class _ContainerPaymentPageState extends State<ContainerPaymentPage> {
+  var showLoader = false;
   var processCalled = false;
   var paymentSuccess = false;
   var paymentFailed = false;
 
+  var orderId = "";
   @override
   Widget build(BuildContext context) {
-    if (!processCalled) {
-      callProcess();
-    }
+    // if (!processCalled) {
+    //   callProcess();
+    // }
 
     navigateAfterPayment(context);
+    var processPayload = getProcessPayload(
+        widget.amount, widget.merchantDetails, widget.customerDetails);
 
     // Overriding onBackPressed to handle hardware backpress
     // block:start:onBackPressed
@@ -64,12 +67,36 @@ class _PaymentPageState extends State<PaymentPage> {
           return true;
         }
       },
-      // block:end:onBackPressed
-      child: Container(
-        color: Colors.white,
-        child: Center(
-          child: showLoader ? const CircularProgressIndicator() : Container(),
-        ),
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        body: Column(children: [
+          Container(
+            height: MediaQuery.of(context).size.height,
+            color: Colors.white,
+            child: Center(
+                child: showLoader
+                    ? const CircularProgressIndicator()
+                    : Container(
+                        // color: Colors.deepPurple,
+                        // padding: const EdgeInsets.all(20.0),
+                        child: FutureBuilder(
+                            future: processPayload,
+                            builder: (BuildContext context,
+                                AsyncSnapshot<Map<String, dynamic>> snapshot) {
+                              if (snapshot.hasData) {
+                                var processPayload = snapshot.requireData;
+                                var payload = processPayload["payload"];
+                                var orderDetails = payload["orderDetails"];
+                                orderId = jsonDecode(orderDetails)["order_id"];
+                                return widget.hyperSDK.HyperSdkView(
+                                    processPayload, hyperSDKCallbackHandler);
+                              } else {
+                                return const CircularProgressIndicator();
+                              }
+                            }),
+                      )),
+          ),
+        ]),
       ),
     );
   }
@@ -81,6 +108,9 @@ class _PaymentPageState extends State<PaymentPage> {
     // block:start:fetch-process-payload
     var processPayload = await getProcessPayload(
         widget.amount, widget.merchantDetails, widget.customerDetails);
+    var payload = processPayload["payload"];
+    var orderDetails = payload["orderDetails"];
+    orderId = jsonDecode(orderDetails)["order_id"];
     // block:end:fetch-process-payload
 
     // Calling process on hyperSDK to open payment page
@@ -108,6 +138,10 @@ class _PaymentPageState extends State<PaymentPage> {
         setState(() {
           showLoader = false;
         });
+        break;
+      case "paymentAttempt":
+        print("Calling _showBottomSheetForUpdateOrder ");
+        _showBottomSheetForUpdateOrder(context);
         break;
       case "process_result":
         var args = {};
@@ -151,6 +185,7 @@ class _PaymentPageState extends State<PaymentPage> {
           var errorCode = args["errorCode"] ?? " ";
           var errorMessage = args["errorMessage"] ?? " ";
           print("$errorCode, $errorMessage");
+
           switch (status) {
             case "backpressed":
               {
@@ -230,6 +265,26 @@ class _PaymentPageState extends State<PaymentPage> {
   }
   // block:end:callback-handler
 
+  // Define your callback function
+  Future<void> _showBottomSheetForUpdateOrder(BuildContext context) async {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return BottomSheetContent(
+                hyperSDK: widget.hyperSDK,
+                amount: widget.amount,
+                orderId: orderId,
+                merchantDetails: widget.merchantDetails,
+                customerDetails: widget.customerDetails,
+                callback: hyperSDKCallbackHandler);
+          },
+        );
+      },
+    );
+  }
+
   void navigateAfterPayment(BuildContext context) {
     if (paymentSuccess) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -242,5 +297,95 @@ class _PaymentPageState extends State<PaymentPage> {
             MaterialPageRoute(builder: (context) => const FailedScreen()));
       });
     }
+  }
+}
+
+typedef HyperSDKCallback = void Function(MethodCall methodCall);
+
+class BottomSheetContent extends StatefulWidget {
+  final HyperSDK hyperSDK;
+  final String amount;
+  final Map<String, dynamic> merchantDetails;
+  final Map<String, dynamic> customerDetails;
+  final String orderId;
+  final HyperSDKCallback callback;
+
+  const BottomSheetContent({
+    Key? key,
+    required this.hyperSDK,
+    required this.amount,
+    required this.orderId,
+    required this.merchantDetails,
+    required this.customerDetails,
+    required this.callback,
+  }) : super(key: key);
+
+  @override
+  _BottomSheetContentState createState() => _BottomSheetContentState();
+}
+
+class _BottomSheetContentState extends State<BottomSheetContent> {
+  late TextEditingController _myController;
+  late String _newAmount;
+
+  @override
+  void initState() {
+    super.initState();
+    _myController = TextEditingController(text: widget.amount);
+    _newAmount = widget.amount;
+  }
+
+  @override
+  void dispose() {
+    _myController.dispose();
+    super.dispose();
+  }
+
+  void _resetState() {
+    _myController.text = widget.amount;
+    _newAmount = widget.amount;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+        left: 16,
+        right: 16,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 16),
+          TextField(
+            controller: _myController,
+            onChanged: (value) => _newAmount = value,
+            decoration: const InputDecoration(
+              labelText: 'Enter Amount',
+              border: UnderlineInputBorder(),
+            ),
+            autofocus: true,
+            keyboardType: TextInputType.number,
+          ),
+          const SizedBox(height: 16),
+          TextButton(
+            onPressed: () async {
+              var updateOrderPayload = await getUpdateOrderPayload(
+                widget.orderId,
+                widget.merchantDetails,
+                widget.customerDetails,
+                _newAmount,
+              );
+              print("Called updated order");
+              widget.hyperSDK.process(updateOrderPayload, widget.callback);
+              Navigator.of(context).pop();
+              _resetState(); // Reset the state here
+            },
+            child: const Text('Call Update Order'),
+          ),
+        ],
+      ),
+    );
   }
 }
