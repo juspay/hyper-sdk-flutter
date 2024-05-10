@@ -183,8 +183,9 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
     }
 
     private fun process(params: Map<String, Any>, result: Result) {
-        if (hyperServices != null) {
-            hyperServices!!.process(JSONObject(params))
+        val activity = binding?.activity as? FragmentActivity
+        if (hyperServices != null && null != activity) {
+            hyperServices!!.process(activity, JSONObject(params))
             result.success(true)
         } else {
             Log.e(
