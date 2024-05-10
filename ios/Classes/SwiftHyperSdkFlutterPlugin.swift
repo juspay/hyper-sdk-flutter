@@ -92,14 +92,10 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
     private func processWithView(_ viewId: Int, _ params: [String: Any], _ result: @escaping FlutterResult) {
         let topViewController = (UIApplication.shared.keyWindow?.rootViewController)!
         if let uiView = topViewController.view.viewWithTag(viewId) {
-            // TODO :: uncomment these lines once hyperServices.process(view, payload) once it is ready
-//            self.hyperServices.baseViewController = topViewController
-//            self.hyperServices.shouldUseViewController = false
-//            self.hyperServices.baseView = uiView
-//            self.hyperServices.process(params)
-            // TODO :: remove this
-            uiView.backgroundColor = UIColor.green
-
+            self.hyperServices.baseViewController = topViewController
+            self.hyperServices.shouldUseViewController = false
+            self.hyperServices.baseView = uiView
+            self.hyperServices.process(params)
         } else {
             result(false)
         }
