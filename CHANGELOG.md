@@ -1,3 +1,6 @@
+# 4.0.17
+* Removing activity from process call.
+
 # 4.0.16
 
 * Updated HyperSDK version for iOS to 2.1.40.
