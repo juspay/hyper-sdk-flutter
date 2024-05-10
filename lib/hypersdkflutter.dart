@@ -6,7 +6,9 @@
  */
 
 import 'dart:async';
+import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 /// Core class to expose all HyperSDK api's to flutter.
@@ -77,24 +79,6 @@ class HyperSDK {
     return result.toString();
   }
 
-  Future<String> processWithView(int id, Map<String, dynamic> params,
-      void Function(MethodCall) processHandler) async {
-    var result = await hyperSDK.invokeMethod('processWithView', <String, dynamic>{
-      'viewId' : id,
-      'params': params,
-    });
-
-    // Wrapper function to eliminate redundant Future<dynamic> return value
-    Future<dynamic> callbackFunction(MethodCall methodCall) {
-      processHandler(methodCall);
-      return Future.value(0);
-    }
-
-    hyperSDK.setMethodCallHandler(callbackFunction);
-    return result.toString();
-  }
-
-
   /// Kills the SDK and cleans up any extra resources.
   /// {@category Optional}
   Future<String> terminate() async {
@@ -123,5 +107,60 @@ class HyperSDK {
     });
 
     return result.toString();
+  }
+
+  StatefulWidget HyperSdkView(
+      Map<String, dynamic> params, void Function(MethodCall) processHandler) {
+    // Wrapper function to eliminate redundant Future<dynamic> return value
+    Future<dynamic> callbackFunction(MethodCall methodCall) {
+      processHandler(methodCall);
+      return Future.value(0);
+    }
+
+    hyperSDK.setMethodCallHandler(callbackFunction);
+
+    return Platform.isAndroid
+        ? AndroidView(
+            viewType: 'HyperSdkViewGroup',
+            onPlatformViewCreated: (id) async {
+              var viewChannel = MethodChannel('hyper_view_$id');
+              Future<dynamic> viewIdCallback(MethodCall methodCall) async {
+                print(
+                    'Method Channel triggered for platform view ${methodCall.method}, ${methodCall.arguments}');
+                if (methodCall.method == 'hyperViewCreated') {
+                  var viewId = methodCall.arguments as int;
+
+                  await hyperSDK
+                      .invokeMethod('processWithView', <String, dynamic>{
+                    'viewId': viewId,
+                    'params': params,
+                  });
+                }
+                return Future.value(0);
+              }
+
+              viewChannel.setMethodCallHandler(viewIdCallback);
+            },
+          )
+        : UiKitView(
+            viewType: 'HyperSdkViewGroup',
+            onPlatformViewCreated: (id) async {
+              var viewChannel = MethodChannel('hyper_view_$id');
+              Future<dynamic> viewIdCallback(MethodCall methodCall) async {
+                if (methodCall.method == 'hyperViewCreated') {
+                  var viewId = methodCall.arguments as int;
+
+                  await hyperSDK
+                      .invokeMethod('processWithView', <String, dynamic>{
+                    'viewId': viewId,
+                    'params': params,
+                  });
+                }
+                return Future.value(0);
+              }
+
+              viewChannel.setMethodCallHandler(viewIdCallback);
+            },
+          );
   }
 }

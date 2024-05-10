@@ -48,6 +48,8 @@ class _PaymentPageState extends State<PaymentPage> {
     // }
 
     navigateAfterPayment(context);
+    var processPayload = getProcessPayload(
+        widget.amount, widget.merchantDetails, widget.customerDetails);
 
     // Overriding onBackPressed to handle hardware backpress
     // block:start:onBackPressed
@@ -77,73 +79,21 @@ class _PaymentPageState extends State<PaymentPage> {
                     : Container(
                         // color: Colors.deepPurple,
                         // padding: const EdgeInsets.all(20.0),
-                        child: Platform.isAndroid
-                            ? AndroidView(
-                                viewType: "HyperSdkViewGroup",
-                                onPlatformViewCreated: (id) async {
-                                  print(
-                                      "onPlatformViewCreated called with $id");
-                                  var viewChannel =
-                                      MethodChannel("hyper_view_$id");
-                                  var viewId = -1;
-                                  Future<dynamic> callbackFunction(
-                                      MethodCall methodCall) {
-                                    print(
-                                        "Method Channel triggered for platform view ${methodCall.method}, ${methodCall.arguments}");
-                                    if (methodCall.method ==
-                                        "hyperViewCreated") {
-                                      viewId = methodCall.arguments as int;
-                                    }
-                                    return Future.value(0);
-                                  }
-
-                                  viewChannel
-                                      .setMethodCallHandler(callbackFunction);
-                                  var processPayload = await getProcessPayload(
-                                      widget.amount,
-                                      widget.merchantDetails,
-                                      widget.customerDetails);
-                                  var payload = processPayload["payload"];
-                                  var orderDetails = payload["orderDetails"];
-                                  orderId =
-                                      jsonDecode(orderDetails)["order_id"];
-                                  widget.hyperSDK.processWithView(viewId,
-                                      processPayload, hyperSDKCallbackHandler);
-                                },
-                              )
-                            : UiKitView(
-                                viewType: "HyperSdkViewGroup",
-                                onPlatformViewCreated: (id) async {
-                                  print(
-                                      "onPlatformViewCreated called with $id");
-                                  var viewChannel =
-                                      MethodChannel("hyper_view_$id");
-                                  var viewId = -1;
-                                  Future<dynamic> callbackFunction(
-                                      MethodCall methodCall) {
-                                    print(
-                                        "Method Channel triggered for platform view ${methodCall.method}, ${methodCall.arguments}");
-                                    if (methodCall.method ==
-                                        "hyperViewCreated") {
-                                      viewId = methodCall.arguments as int;
-                                    }
-                                    return Future.value(0);
-                                  }
-
-                                  viewChannel
-                                      .setMethodCallHandler(callbackFunction);
-                                  var processPayload = await getProcessPayload(
-                                      widget.amount,
-                                      widget.merchantDetails,
-                                      widget.customerDetails);
-                                  var payload = processPayload["payload"];
-                                  var orderDetails = payload["orderDetails"];
-                                  orderId =
-                                      jsonDecode(orderDetails)["order_id"];
-                                  widget.hyperSDK.processWithView(viewId,
-                                      processPayload, hyperSDKCallbackHandler);
-                                },
-                              ),
+                        child: FutureBuilder(
+                            future: processPayload,
+                            builder: (BuildContext context,
+                                AsyncSnapshot<Map<String, dynamic>> snapshot) {
+                              if (snapshot.hasData) {
+                                var processPayload = snapshot.requireData;
+                                var payload = processPayload["payload"];
+                                var orderDetails = payload["orderDetails"];
+                                orderId = jsonDecode(orderDetails)["order_id"];
+                                return widget.hyperSDK.HyperSdkView(
+                                    processPayload, hyperSDKCallbackHandler);
+                              } else {
+                                return const CircularProgressIndicator();
+                              }
+                            }),
                       )),
           ),
         ]),

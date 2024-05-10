@@ -15,9 +15,7 @@ class HyperPlatformView: NSObject, FlutterPlatformView {
     init(viewId: Int64, messenger: FlutterBinaryMessenger, frame: CGRect) {
         let tag = TagProvider.getNewTag()
         let methodChannel = FlutterMethodChannel(name: "hyper_view_\(viewId)", binaryMessenger: messenger)
-        _view = UIView(frame: frame)
-        _view.tag = tag
-        methodChannel.invokeMethod("hyperViewCreated", arguments: tag)
+        _view = HyperUIView(frame: frame, methodChannel: methodChannel, tag: tag)
         super.init()
     }
 
