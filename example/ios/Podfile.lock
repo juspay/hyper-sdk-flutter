@@ -1,10 +1,10 @@
 PODS:
   - Flutter (1.0.0)
-  - flutter_inappwebview (0.0.1):
+  - flutter_inappwebview_ios (0.0.1):
     - Flutter
-    - flutter_inappwebview/Core (= 0.0.1)
+    - flutter_inappwebview_ios/Core (= 0.0.1)
     - OrderedSet (~> 5.0)
-  - flutter_inappwebview/Core (0.0.1):
+  - flutter_inappwebview_ios/Core (0.0.1):
     - Flutter
     - OrderedSet (~> 5.0)
   - HyperSDK (2.1.39):
@@ -19,7 +19,7 @@ PODS:
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
-  - flutter_inappwebview (from `.symlinks/plugins/flutter_inappwebview/ios`)
+  - flutter_inappwebview_ios (from `.symlinks/plugins/flutter_inappwebview_ios/ios`)
   - hypersdkflutter (from `.symlinks/plugins/hypersdkflutter/ios`)
 
 SPEC REPOS:
@@ -32,14 +32,14 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
-  flutter_inappwebview:
-    :path: ".symlinks/plugins/flutter_inappwebview/ios"
+  flutter_inappwebview_ios:
+    :path: ".symlinks/plugins/flutter_inappwebview_ios/ios"
   hypersdkflutter:
     :path: ".symlinks/plugins/hypersdkflutter/ios"
 
 SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_inappwebview: bfd58618f49dc62f2676de690fc6dcda1d6c3721
+  flutter_inappwebview_ios: 97215cf7d4677db55df76782dbd2930c5e1c1ea0
   HyperSDK: e6c3d949ff7b52db591f25126143cf4c822d8470
   hypersdkflutter: a06ef3d87c3fd31086bf90bf83010e7703199bbf
   JuspaySafeBrowser: 91be796164a40317d5a9153ac6d433a4928ef549
@@ -48,4 +48,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: cba9212f3b66a15bdfc427a805562f0aba11c0e6
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.15.2

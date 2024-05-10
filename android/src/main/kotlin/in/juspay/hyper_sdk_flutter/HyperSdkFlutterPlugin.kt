@@ -80,32 +80,21 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
-            "preFetch" -> preFetch(call.argument<Map<String, Any>>("params"), result)
-            "initiate" -> initiate(call.argument<Map<String, Any>>("params"), result)
-            "process" -> process(call.argument<Map<String, Any>>("params"), result)
+            "preFetch" -> preFetch(call.argument<Map<String, Any>>("params") ?: mapOf(), result)
+            "initiate" -> initiate(call.argument<Map<String, Any>>("params") ?: mapOf(), result)
+            "process" -> process(call.argument<Map<String, Any>>("params") ?: mapOf(), result)
             "terminate" -> terminate(result)
             "isInitialised" -> isInitialised(result)
             "onBackPress" -> onBackPress(result)
             "openPaymentPage" -> openPaymentPage(call.argument<Map<String, Any>>("params"), result)
             "processWithView" -> processWithView(
                 call.argument<Int>("viewId"),
-                call.argument<Map<String, Any>>("params"),
+                call.argument<Map<String, Any>>("params") ?: mapOf(),
                 result
             )
 
             else -> result.notImplemented()
         }
-    }
-
-    private fun processWithView(id: Int?, params: Map<String, Any>?, result: Result) {
-        val hyperServices = this.hyperServices
-            ?: return result.success(false)
-        val activity = binding?.activity as? FragmentActivity
-            ?: return result.success(false)
-        val view = id?.let { (activity as Activity).findViewById<ViewGroup>(it) }
-            ?: return result.success(false)
-        hyperServices.process(activity, view, JSONObject(params))
-        result.success(true)
     }
 
     private fun onBackPress(result: Result) {
@@ -131,7 +120,7 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
         }
     }
 
-    private fun preFetch(params: Map<String, Any>?, result: Result) {
+    private fun preFetch(params: Map<String, Any>, result: Result) {
         try {
             HyperServices.preFetch(binding!!.activity, JSONObject(params))
             result.success(true)
@@ -140,7 +129,7 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
         }
     }
 
-    private fun initiate(params: Map<String, Any>?, result: Result) = try {
+    private fun initiate(params: Map<String, Any>, result: Result) = try {
 
         val fragmentActivity = binding!!.activity as FragmentActivity
         hyperServices = HyperServices(fragmentActivity)
@@ -193,7 +182,7 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
         result.error("INIT_ERROR", e.localizedMessage, e)
     }
 
-    private fun process(params: Map<String, Any>?, result: Result) {
+    private fun process(params: Map<String, Any>, result: Result) {
         if (hyperServices != null) {
             hyperServices!!.process(JSONObject(params))
             result.success(true)
@@ -205,6 +194,18 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             result.success(false)
         }
     }
+
+    private fun processWithView(id: Int?, params: Map<String, Any>, result: Result) {
+        val hyperServices = this.hyperServices
+            ?: return result.success(false)
+        val activity = binding?.activity as? FragmentActivity
+            ?: return result.success(false)
+        val view = id?.let { (activity as Activity).findViewById<ViewGroup>(it) }
+            ?: return result.success(false)
+        hyperServices.process(activity, view, JSONObject(params))
+        result.success(true)
+    }
+
 
     private fun openPaymentPage(params: Map<String, Any>?, result: Result) {
         isHyperCheckOutLiteInteg = true
@@ -246,6 +247,7 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             activity,
             params?.let { JSONObject(it) }, callback
         )
+        result.success(true)
     }
 
     private fun terminate(result: Result) {

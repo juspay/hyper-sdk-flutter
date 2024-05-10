@@ -22,11 +22,11 @@ class HyperPlatformView(
     init {
         containerView.id = containerId
         methodChannel.setMethodCallHandler(this)
+        methodChannel.invokeMethod("hyperViewCreated", containerId)
     }
 
     /** Returns the Android view to be embedded in the Flutter hierarchy.  */
     override fun getView(): View {
-        methodChannel.invokeMethod("hyperViewCreated", containerId)
         return containerView
     }
 
