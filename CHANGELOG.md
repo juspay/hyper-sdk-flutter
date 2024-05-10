@@ -1,3 +1,8 @@
+# 4.0.16
+
+* Updated HyperSDK version for iOS to 2.1.40.
+* Added support to render Payment Page UI within merchant container. Refer [this](README.md#step-31-process-via-container) for more information.
+
 # 4.0.15
 
 * Updated HyperSDK version for IOS to 2.1.39.
