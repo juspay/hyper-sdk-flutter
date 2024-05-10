@@ -89,12 +89,12 @@ String getOrderId() {
 }
 
 Future<Map<String, dynamic>> getUpdateOrderPayload(
-    String orderId, merchantDetails, customerDetails) async {
+    String orderId, merchantDetails, customerDetails, newAmount) async {
   var orderDetails = {
     "order_id": orderId,
     "merchant_id": merchantDetails["merchantId"],
     "client_id": merchantDetails["clientId"],
-    'amount': '10.0',
+    'amount': newAmount,
     "timestamp": (DateTime.now().millisecondsSinceEpoch).toString(),
     "customer_id": customerDetails["customerId"],
     "customer_phone": customerDetails["customerPhone"],

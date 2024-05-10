@@ -66,9 +66,10 @@ class _PaymentPageState extends State<PaymentPage> {
         }
       },
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Column(children: [
           Container(
-            height: 700,
+            height: MediaQuery.of(context).size.height,
             color: Colors.white,
             child: Center(
                 child: showLoader
@@ -189,6 +190,7 @@ class _PaymentPageState extends State<PaymentPage> {
         });
         break;
       case "paymentAttempt":
+        print("Calling _showBottomSheetForUpdateOrder ");
         _showBottomSheetForUpdateOrder(context);
         break;
       case "process_result":
@@ -315,19 +317,20 @@ class _PaymentPageState extends State<PaymentPage> {
 
   // Define your callback function
   Future<void> _showBottomSheetForUpdateOrder(BuildContext context) async {
-    // Simulate an asynchronous task, such as fetching data or processing something
-    await Future.delayed(Duration(seconds: 1));
-
-    // Show the modal bottom sheet
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return BottomSheetContent(
-            hyperSDK: widget.hyperSDK,
-            amount: widget.amount,
-            orderId: orderId,
-            merchantDetails: widget.merchantDetails,
-            customerDetails: widget.customerDetails);
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return BottomSheetContent(
+                hyperSDK: widget.hyperSDK,
+                amount: widget.amount,
+                orderId: orderId,
+                merchantDetails: widget.merchantDetails,
+                customerDetails: widget.customerDetails,
+                callback: hyperSDKCallbackHandler);
+          },
+        );
       },
     );
   }
@@ -347,55 +350,86 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 }
 
+typedef HyperSDKCallback = void Function(MethodCall methodCall);
+
 class BottomSheetContent extends StatefulWidget {
   final HyperSDK hyperSDK;
   final String amount;
   final Map<String, dynamic> merchantDetails;
   final Map<String, dynamic> customerDetails;
   final String orderId;
+  final HyperSDKCallback callback;
 
-  const BottomSheetContent(
-      {Key? key,
-      required this.hyperSDK,
-      required this.amount,
-      required this.orderId,
-      required this.merchantDetails,
-      required this.customerDetails})
-      : super(key: key);
+  BottomSheetContent({
+    Key? key,
+    required this.hyperSDK,
+    required this.amount,
+    required this.orderId,
+    required this.merchantDetails,
+    required this.customerDetails,
+    required this.callback,
+  }) : super(key: key);
 
   @override
   _BottomSheetContentState createState() => _BottomSheetContentState();
 }
 
 class _BottomSheetContentState extends State<BottomSheetContent> {
+  late TextEditingController _myController;
+  late String _newAmount;
+
+  @override
+  void initState() {
+    super.initState();
+    _myController = TextEditingController(text: widget.amount);
+    _newAmount = widget.amount;
+  }
+
+  @override
+  void dispose() {
+    _myController.dispose();
+    super.dispose();
+  }
+
+  void _resetState() {
+    _myController.text = widget.amount;
+    _newAmount = widget.amount;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 200,
-      padding: EdgeInsets.all(16),
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+        left: 16,
+        right: 16,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(height: 16),
-          const TextField(
-            // onChanged: (value) => {},
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              labelText: 'Enter something',
-              border: OutlineInputBorder(),
+          TextField(
+            controller: _myController,
+            onChanged: (value) => _newAmount = value,
+            decoration: const InputDecoration(
+              labelText: 'Enter Amount',
+              border: UnderlineInputBorder(),
             ),
+            autofocus: true,
           ),
           const SizedBox(height: 16),
           TextButton(
             onPressed: () async {
               var updateOrderPayload = await getUpdateOrderPayload(
-                  widget.orderId,
-                  widget.merchantDetails,
-                  widget.customerDetails);
-              widget.hyperSDK.process(updateOrderPayload, (p0) {
-                print("Called updated order");
-                Navigator.pop(context);
-              });
+                widget.orderId,
+                widget.merchantDetails,
+                widget.customerDetails,
+                _newAmount,
+              );
+              print("Called updated order");
+              widget.hyperSDK.process(updateOrderPayload, widget.callback);
+              Navigator.of(context).pop();
+              _resetState(); // Reset the state here
             },
             child: const Text('Call Update Order'),
           ),
