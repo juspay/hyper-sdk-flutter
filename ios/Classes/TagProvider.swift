@@ -8,10 +8,8 @@
 import Foundation
 
 class TagProvider {
-    private static var currentTag = 5000
 
     static func getNewTag() -> Int {
-        currentTag += 1
-        return currentTag
+        return Int(arc4random_uniform(UInt32.max))
     }
 }
