@@ -109,7 +109,7 @@ await hyperSDK.process(processPayload, hyperSDKCallbackHandler)
 ### Step-3.1: Process via Container
 
 This API should be used when Payment Page needs to be rendered within a particular container within the merchant app instead of whole screen.
-This is custom view component that returns a StatefulWidget, AndroidView and UIKitView, for android and iOS respectively.
+This is custom view component that returns a StatefulWidget, AndroidView and UiKitView, for android and iOS respectively.
 
 
 ```dart
