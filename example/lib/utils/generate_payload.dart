@@ -51,8 +51,8 @@ Future<Map<String, dynamic>> getProcessPayload(
         {
           "message": "Extra fee of 35 will be applied on COD",
           "messageType": "INFO",
-          "paymentInstrument": ["cashOD"],
-          "paymentInstrumentGroup": "cashOD"
+          "paymentInstrument": ["COD"],
+          "paymentInstrumentGroup": "giftCard"
         }
       ],
       "environment": merchantDetails["environment"]
