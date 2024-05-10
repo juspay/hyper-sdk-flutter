@@ -366,6 +366,7 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
               border: UnderlineInputBorder(),
             ),
             autofocus: true,
+            keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 16),
           TextButton(
