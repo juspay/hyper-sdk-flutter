@@ -15,7 +15,7 @@ Flutter plugin for juspay SDK.
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
-  s.dependency 'HyperSDK', '2.1.39'
+  s.dependency 'HyperSDK', '2.1.40'
   s.platform = :ios, '12.0'
 
   # Flutter.framework does not contain a i386 slice.
