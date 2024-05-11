@@ -139,6 +139,17 @@ class _ContainerPaymentPageState extends State<ContainerPaymentPage> {
           showLoader = false;
         });
         break;
+      case "button_click":
+        try {
+          var args = json.decode(methodCall.arguments);
+          var innerPayload = args["payload"] ?? {};
+          if (innerPayload["button_name"] == "view_details") {
+            _showBottomSheetForUpdateOrder(context);
+          }
+        } catch (e) {
+          print(e);
+        }
+        break;
       case "paymentAttempt":
         print("Calling _showBottomSheetForUpdateOrder ");
         _showBottomSheetForUpdateOrder(context);
