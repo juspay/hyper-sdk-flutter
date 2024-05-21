@@ -12,7 +12,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'in.juspay:hypersdk.plugin:2.0.6'
+        classpath 'in.juspay:hypersdk.plugin:2.0.7'
     }
 }
 
@@ -79,6 +79,13 @@ static def getHyperSDKVersion(rootProject) {
     return hyperSdkVersion
 }
 
+static def getExcludedMicroSdks(rootProject) {
+    if (!rootProject.hasProperty('excludedMicroSDKs')) {
+        return []
+    }
+    return rootProject.excludedMicroSDKs
+}
+
 static def getClientId(rootProject) {
     if (!rootProject.hasProperty('clientId')) {
         throw new GradleException("clientId parameter is required in ext block of root build.gradle")
@@ -89,4 +96,5 @@ static def getClientId(rootProject) {
 hyperSdkPlugin {
     clientId = getClientId(rootProject)
     sdkVersion = getHyperSDKVersion(rootProject)
+    excludedMicroSDKs = getExcludedMicroSdks(rootProject)
 }

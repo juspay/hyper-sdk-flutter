@@ -6,7 +6,9 @@ buildscript {
     }
 
     ext {
-        clientId = "shoppersstop"
+        clientId = "geddit"
+        hyperSDKVersion = "2.1.25"
+        excludedMicroSDKs = []
     }
 
     dependencies {
