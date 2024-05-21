@@ -1,3 +1,7 @@
+# 4.0.18
+* Added support to exclude microSdks.
+* Updated HyperSdk plugin version to 2.0.7.
+
 # 4.0.17
 * Removing activity from process call.
 
