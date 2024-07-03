@@ -17,6 +17,9 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 version: 1.0.0+1
 
+# Overriding IOS HyperSDK Version for Juspay SDK.
+hyper_sdk_ios_version: "2.1.43"
+
 environment:
   sdk: ">=2.17.0 <4.0.0"
 

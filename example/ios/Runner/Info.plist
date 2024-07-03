@@ -49,6 +49,7 @@
 		<string>slice-upi</string>
 		<string>ppe</string>
 		<string>cugext</string>
+		<string>amazonpay</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
