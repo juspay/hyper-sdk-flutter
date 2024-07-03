@@ -19,7 +19,7 @@ buildscript {
     ext {
         ....
         clientId = "<clientId shared by Juspay team>"
-        hyperSDKVersion = "2.1.25"
+        hyperSDKVersion = "2.1.32"
         excludedMicroSDKs = []
         ....
     }
@@ -67,6 +67,20 @@ Create file `ios/MerchantConfig.txt` with the following content
 
 ```txt
 clientId = <clientId> shared by Juspay Team
+```
+
+Optional : (Optional) Add the following variable in [pubspec.yaml](https://github.com/juspay/hyper-sdk-flutter/blob/main/example/pubspec.yaml) of your project before running pod install if you want to override the base SDK version present in the plugin (the newer version among both would be considered):
+
+In your `pubspec.yaml` file:
+
+```yaml
+# pubspec.yaml
+name: your_flutter_app
+description: A new Flutter project.
+
+# Other configurations...
+
+hyper_sdk_ios_version: "<New version>"
 ```
 
 ## Usage
