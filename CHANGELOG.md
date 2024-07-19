@@ -1,3 +1,6 @@
+# 4.0.19
+* Added support to statically pin hyperAssetVersion.
+
 # 4.0.18
 * Updated HyperSDK version for iOS to 2.1.43 and for Android, 2.1.32.
 * Added HyperSDK Override support for IOS.
