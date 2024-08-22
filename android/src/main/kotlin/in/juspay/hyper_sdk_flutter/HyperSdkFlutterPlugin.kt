@@ -65,13 +65,13 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
     }
 
     override fun onDetachedFromActivity() {
-        this.binding!!.removeActivityResultListener(this)
+        this.binding?.removeActivityResultListener(this)
         this.binding = null
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
         try {
-            hyperServices!!.onActivityResult(requestCode, resultCode, data!!)
+            hyperServices?.onActivityResult(requestCode, resultCode, data)
             return true
         } catch (e: Exception) {
             return false
@@ -103,7 +103,7 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
                 val backPress = HyperCheckoutLite.onBackPressed()
                 result.success(backPress)
             } else {
-                val backPress = hyperServices!!.onBackPressed()
+                val backPress = hyperServices?.onBackPressed() ?: false
                 result.success(backPress)
             }
         } catch (e: Exception) {
@@ -113,7 +113,7 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
 
     private fun isInitialised(result: Result) {
         try {
-            val isInitiated = hyperServices!!.isInitialised
+            val isInitiated = hyperServices?.isInitialised ?: false
             result.success(isInitiated)
         } catch (e: Exception) {
             result.success(false)
@@ -122,82 +122,87 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
 
     private fun preFetch(params: Map<String, Any>, result: Result) {
         try {
-            HyperServices.preFetch(binding!!.activity, JSONObject(params))
+            binding?.let { HyperServices.preFetch(it.activity, JSONObject(params)) }
             result.success(true)
         } catch (e: Exception) {
             result.error("HYPERSDKFLUTTER: prefetch error", e.message, e)
         }
     }
 
-    private fun initiate(params: Map<String, Any>, result: Result) = try {
-
-        val fragmentActivity = binding!!.activity as FragmentActivity
-        hyperServices = HyperServices(fragmentActivity)
-
-        val invokeMethodResult = object : Result {
-            override fun success(result: Any?) {
-                Log.d(this.javaClass.canonicalName, "success: ${result.toString()}")
-                println("result = ${result.toString()}")
+    private fun initiate(params: Map<String, Any>, result: Result) {
+        try {
+            if (binding == null) {
+                Log.e(
+                    "JUSPAY",
+                    "Kotlin MainActivity should extend FlutterFragmentActivity instead of FlutterActivity! JUSPAY Plugin only supports FragmentActivity. Please refer to this doc for more information: https://juspaydev.vercel.app/sections/base-sdk-integration/initiating-sdk?platform=Flutter&product=Payment+Page"
+                )
+                throw Exception("Kotlin MainActivity should extend FlutterFragmentActivity instead of FlutterActivity!")
             }
-
-            override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
-                Log.e(this.javaClass.canonicalName, "$errorCode\n$errorMessage")
+            val fragmentActivity = binding?.activity as? FragmentActivity
+            if (fragmentActivity !is FragmentActivity) {
+                result.error("INIT_ERROR", "FragmentActivity is null, cannot proceed", "")
+                return
             }
+            hyperServices = HyperServices(fragmentActivity)
 
-            override fun notImplemented() {
-                Log.e(this.javaClass.canonicalName, "notImplemented")
-            }
-        }
-        val callback = object : HyperPaymentsCallbackAdapter() {
-            override fun onEvent(data: JSONObject, p1: JuspayResponseHandler?) {
-                try {
-                    channel.invokeMethod(
-                        data.getString("event"),
-                        data.toString(),
-                        invokeMethodResult
-                    )
-                } catch (e: Exception) {
-                    Log.e(
-                        this.javaClass.canonicalName,
-                        "Failed to invoke method from native to dart",
-                        e
-                    )
+            val invokeMethodResult = object : Result {
+                override fun success(result: Any?) {
+                    Log.d(this.javaClass.canonicalName, "success: ${result.toString()}")
+                    println("result = ${result.toString()}")
+                }
+
+                override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
+                    Log.e(this.javaClass.canonicalName, "$errorCode\n$errorMessage")
+                }
+
+                override fun notImplemented() {
+                    Log.e(this.javaClass.canonicalName, "notImplemented")
                 }
             }
-        }
-        if (binding?.activity !is FragmentActivity) {
-            Log.e(
-                "JUSPAY",
-                "Kotlin MainActivity should extend FlutterFragmentActivity instead of FlutterActivity! JUSPAY Plugin only supports FragmentActivity. Please refer to this doc for more information: https://juspaydev.vercel.app/sections/base-sdk-integration/initiating-sdk?platform=Flutter&product=Payment+Page"
+            val callback = object : HyperPaymentsCallbackAdapter() {
+                override fun onEvent(data: JSONObject, p1: JuspayResponseHandler?) {
+                    try {
+                        channel.invokeMethod(
+                            data.getString("event"),
+                            data.toString(),
+                            invokeMethodResult
+                        )
+                    } catch (e: Exception) {
+                        Log.e(
+                            this.javaClass.canonicalName,
+                            "Failed to invoke method from native to dart",
+                            e
+                        )
+                    }
+                }
+            }
+            hyperServices?.initiate(
+                fragmentActivity,
+                JSONObject(params),
+                callback
             )
-            throw Exception("Kotlin MainActivity should extend FlutterFragmentActivity instead of FlutterActivity!")
+            result.success(true)
+        } catch (e: Exception) {
+            result.error("INIT_ERROR", e.localizedMessage, e)
         }
-        hyperServices!!.initiate(
-            binding!!.activity as FragmentActivity,
-            JSONObject(params),
-            callback
-        )
-        result.success(true)
-    } catch (e: Exception) {
-        result.error("INIT_ERROR", e.localizedMessage, e)
     }
 
     private fun process(params: Map<String, Any>, result: Result) {
-        if (hyperServices != null) {
-            hyperServices!!.process(JSONObject(params))
-            result.success(true)
-        } else {
-            Log.e(
-                this.javaClass.canonicalName,
-                "initiate() must be called before calling process()"
-            )
+        val hyperServices = this.hyperServices
+        if (hyperServices == null) {
             result.success(false)
+            return
         }
+        hyperServices.process(JSONObject(params))
+        result.success(true)
     }
 
     private fun processWithView(id: Int?, params: Map<String, Any>, result: Result) {
         val hyperServices = this.hyperServices
-            ?: return result.success(false)
+        if (hyperServices == null) {
+            result.success(false)
+            return
+        }
         val activity = binding?.activity as? FragmentActivity
             ?: return result.success(false)
         val view = id?.let { (activity as Activity).findViewById<ViewGroup>(it) }
@@ -252,7 +257,7 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
 
     private fun terminate(result: Result) {
         if (hyperServices != null) {
-            hyperServices!!.terminate()
+            hyperServices?.terminate()
             result.success(true)
         } else {
             Log.w(this.javaClass.canonicalName, "Terminate called without initiate, skipping")
