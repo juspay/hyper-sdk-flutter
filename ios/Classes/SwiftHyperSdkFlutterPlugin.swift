@@ -81,42 +81,58 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
 
     private func process(_ params: [String: Any], _ result: @escaping FlutterResult) {
         if (self.hyperServices.isInitialised()) {
-            let topViewController = (UIApplication.shared.keyWindow?.rootViewController)!
-            self.hyperServices.baseViewController = topViewController
-            self.hyperServices.shouldUseViewController = true
-            self.hyperServices.process(params)
+            if let topViewController = (UIApplication.shared.delegate?.window??.rootViewController) {
+                self.hyperServices.baseViewController = topViewController
+                self.hyperServices.shouldUseViewController = true
+                self.hyperServices.process(params)
+            } else {
+                result(false)
+                return
+            }
+        } else {
+            result(false)
+            return
         }
         result(true)
     }
 
     private func processWithView(_ viewId: Int, _ params: [String: Any], _ result: @escaping FlutterResult) {
-        let topViewController = (UIApplication.shared.keyWindow?.rootViewController)!
-        if let uiView = topViewController.view.viewWithTag(viewId) {
+        if let topViewController = (UIApplication.shared.delegate?.window??.rootViewController) {
             self.hyperServices.baseViewController = topViewController
-            self.hyperServices.shouldUseViewController = false
-            self.hyperServices.baseView = uiView
-            self.hyperServices.process(params)
+            if let uiView = topViewController.view.viewWithTag(viewId) {
+                self.hyperServices.baseViewController = topViewController
+                self.hyperServices.shouldUseViewController = false
+                self.hyperServices.baseView = uiView
+                self.hyperServices.process(params)
+            } else {
+                result(false)
+                return
+            }
         } else {
             result(false)
+            return
         }
+        result(true)
     }
 
     private func openPaymentPage(_ params: [String: Any], _ result: @escaping FlutterResult) {
-        let topViewController = (UIApplication.shared.keyWindow?.rootViewController)!
-        HyperCheckoutLite.openPaymentPage(topViewController, payload: params, callback: { [unowned self] (response) in
-            if response == nil {
-                return
-            }
-
-            let event = response!["event"] as? String ?? ""
-
-            if let jsonData = try? JSONSerialization.data(withJSONObject: response!, options: .prettyPrinted) {
-                if let jsonString = String(data: jsonData, encoding: .utf8) {
-                    self.juspay.invokeMethod(event, arguments: jsonString)
+        if let topViewController = (UIApplication.shared.delegate?.window??.rootViewController) {
+            HyperCheckoutLite.openPaymentPage(topViewController, payload: params, callback: { [unowned self] (response) in
+                guard let response = response else {
+                    return
                 }
-            }
-        })
-        result(true)
+                let event = response["event"] as? String ?? ""
+                
+                if let jsonData = try? JSONSerialization.data(withJSONObject: response, options: .prettyPrinted) {
+                    if let jsonString = String(data: jsonData, encoding: .utf8) {
+                        self.juspay.invokeMethod(event, arguments: jsonString)
+                    }
+                }
+            })
+            result(true)
+        } else {
+            result(false)
+        }
     }
 
     private func terminate(_ result: @escaping FlutterResult) {

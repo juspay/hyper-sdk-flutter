@@ -1,3 +1,7 @@
+# 4.0.20
+* Crash fix in IOS process call for forcefully unwrapping nil
+* Removed forceful unwrapping in Android
+
 # 4.0.19
 * Added support to statically pin hyperAssetVersion.
 

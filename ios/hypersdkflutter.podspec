@@ -23,7 +23,7 @@ puts ("HyperSDK HyperSDK Version Version: #{hyper_sdk_version}")
 
 Pod::Spec.new do |s|
   s.name             = 'hypersdkflutter'
-  s.version          = '4.0.19'
+  s.version          = '4.0.20'
   s.summary          = 'Flutter plugin for Juspay SDK'
   s.description      = <<-DESC
 Flutter plugin for juspay SDK.
