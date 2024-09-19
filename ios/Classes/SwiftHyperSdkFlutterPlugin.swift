@@ -15,6 +15,7 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
     private lazy var hyperServices: HyperServices = {
         return HyperServices()
     }()
+    private var processedViewId: Int = -1
     private let hyperViewController = UIViewController()
 
     init(_ channel: FlutterMethodChannel, _ registrar: FlutterPluginRegistrar) {
@@ -70,6 +71,10 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
 
             let event = response!["event"] as? String ?? ""
 
+            if (event == "process_result") {
+                self.processedViewId = -1
+            }
+
             if let jsonData = try? JSONSerialization.data(withJSONObject: response!, options: .prettyPrinted) {
                 if let jsonString = String(data: jsonData, encoding: .utf8) {
                     self.juspay.invokeMethod(event, arguments: jsonString)
@@ -97,12 +102,17 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
     }
 
     private func processWithView(_ viewId: Int, _ params: [String: Any], _ result: @escaping FlutterResult) {
+        if viewId == self.processedViewId {
+            result(true)
+            return
+        }
         if let topViewController = (UIApplication.shared.delegate?.window??.rootViewController) {
             self.hyperServices.baseViewController = topViewController
             if let uiView = topViewController.view.viewWithTag(viewId) {
                 self.hyperServices.baseViewController = topViewController
                 self.hyperServices.shouldUseViewController = false
                 self.hyperServices.baseView = uiView
+                self.processedViewId = viewId
                 self.hyperServices.process(params)
             } else {
                 result(false)
@@ -122,7 +132,7 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
                     return
                 }
                 let event = response["event"] as? String ?? ""
-                
+
                 if let jsonData = try? JSONSerialization.data(withJSONObject: response, options: .prettyPrinted) {
                     if let jsonString = String(data: jsonData, encoding: .utf8) {
                         self.juspay.invokeMethod(event, arguments: jsonString)

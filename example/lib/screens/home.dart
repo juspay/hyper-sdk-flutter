@@ -30,8 +30,8 @@ class _HomeScreenState extends State<HomeScreen> {
   var countProductTwo = 0;
 
   var customerDetails = {
-    "customerId" : "",
-    "customerPhone" : "",
+    "customerId": "",
+    "customerPhone": "",
     "customerEmail": ""
   };
 
@@ -100,12 +100,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => CheckoutScreen(
-                            productOneCount: countProductOne,
-                            productTwoCount: countProductTwo,
-                            hyperSDK: widget.hyperSDK,
-                            merchantDetails: merchantDetails,
-                            customerDetails: customerDetails
-                          ))))
+                          productOneCount: countProductOne,
+                          productTwoCount: countProductTwo,
+                          hyperSDK: widget.hyperSDK,
+                          merchantDetails: merchantDetails,
+                          customerDetails: customerDetails))))
         ],
       ),
     );
@@ -137,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Define handler for inititate callback
   // block:start:initiate-callback-handler
-  
+
   void initiateCallbackHandler(MethodCall methodCall) {
     if (methodCall.method == "initiate_result") {
       print("Debug initiate_result " + methodCall.arguments);
