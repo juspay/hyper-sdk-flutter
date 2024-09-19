@@ -109,7 +109,7 @@ class HyperSDK {
     return result.toString();
   }
 
-  StatefulWidget HyperSdkView(
+  StatefulWidget hyperSdkView(
       Map<String, dynamic> params, void Function(MethodCall) processHandler) {
     // Wrapper function to eliminate redundant Future<dynamic> return value
     Future<dynamic> callbackFunction(MethodCall methodCall) {
