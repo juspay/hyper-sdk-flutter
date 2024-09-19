@@ -130,14 +130,14 @@ This is custom view component that returns a StatefulWidget, AndroidView and UiK
 
 
 ```dart
-    hyperSDK.HyperSdkView(processPayload, hyperSDKCallbackHandler)
+    hyperSDK.hyperSdkView(processPayload, hyperSDKCallbackHandler)
 ```
 
 You can attach this within a container of your screen like below:
 ```dart
   Container(
     color: Colors.white,
-    child: hyperSDK.HyperSdkView(processPayload, hyperSDKCallbackHandler)
+    child: hyperSDK.hyperSdkView(processPayload, hyperSDKCallbackHandler)
   )
 ```
 

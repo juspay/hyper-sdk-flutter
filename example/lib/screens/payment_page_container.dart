@@ -88,7 +88,7 @@ class _ContainerPaymentPageState extends State<ContainerPaymentPage> {
                                 var payload = processPayload["payload"];
                                 var orderDetails = payload["orderDetails"];
                                 orderId = jsonDecode(orderDetails)["order_id"];
-                                return widget.hyperSDK.HyperSdkView(
+                                return widget.hyperSDK.hyperSdkView(
                                     processPayload, hyperSDKCallbackHandler);
                               } else {
                                 return const CircularProgressIndicator();

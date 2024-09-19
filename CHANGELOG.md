@@ -1,6 +1,7 @@
 # 4.0.21
 * Bug fix in process with Container API.
 * Updated IOS SDK Version to 2.2.1.7
+* Fixed typo for flutter method hyperSdkView.
 
 # 4.0.20
 * Crash fix in IOS process call for forcefully unwrapping nil
