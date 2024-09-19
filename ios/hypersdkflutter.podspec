@@ -1,6 +1,6 @@
 require "yaml"
 
-hyper_sdk_version = "2.1.43"
+hyper_sdk_version = "2.2.1.7"
 
 begin
   # Read hyper_sdk_version from pubspec.yaml if it exists
@@ -23,7 +23,7 @@ puts ("HyperSDK HyperSDK Version Version: #{hyper_sdk_version}")
 
 Pod::Spec.new do |s|
   s.name             = 'hypersdkflutter'
-  s.version          = '4.0.20'
+  s.version          = '4.0.21'
   s.summary          = 'Flutter plugin for Juspay SDK'
   s.description      = <<-DESC
 Flutter plugin for juspay SDK.
