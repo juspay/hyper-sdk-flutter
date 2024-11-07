@@ -129,7 +129,7 @@ jobs:
           skipTests: true
 
       - name: Publish to pub.dev
-        run: flutter pub publish
+        run: flutter pub publish --force
         env:
           PUB_ENVIRONMENT: github-action
 
