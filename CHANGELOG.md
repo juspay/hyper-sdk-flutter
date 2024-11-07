@@ -1,3 +1,6 @@
+# 4.0.22
+* Added github actions workflow
+
 # 4.0.21
 * Bug fix in process with Container API.
 * Updated IOS SDK Version to 2.2.1.7
