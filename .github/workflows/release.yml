@@ -1,0 +1,254 @@
+name: Publish hypersdkflutter to pub.dev
+on:
+  pull_request_target:
+    branches:
+      - main
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+    types:
+      - closed
+
+permissions:
+  contents: write
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    name: Flutter Pub Publish --dry-run
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.13.0'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run flutter pub publish --dry-run
+        run: flutter pub publish --dry-run
+
+  # tag-version:
+  #   needs: dry-run
+  #   runs-on: ubuntu-latest
+  #   name: Tag New Version
+  #   steps:
+  #     - name: Checkout Code
+  #       uses: actions/checkout@v3
+  #       with:
+  #         repository: ${{ github.event.pull_request.head.repo.full_name }}
+  #         ref: ${{ github.event.pull_request.head.ref }}
+  #         fetch-depth: ${{ github.event.pull_request.commits }}
+
+  #     - name: Get current version
+  #       id: get_version
+  #       run: |
+  #         # Get the current version from pubspec.yaml
+  #         CURRENT_VERSION=$(grep 'version: ' pubspec.yaml | sed 's/version: //;s/+.*//')
+  #         echo "Current version is: $CURRENT_VERSION"
+  #         # Export CURRENT_VERSION as an output so it can be used in subsequent steps
+  #         echo "current_version=$CURRENT_VERSION" >> $GITHUB_ENV
+
+  #     - name: Generate new version
+  #       id: new_version
+  #       run: |
+  #         # Split the current version into major, minor, and patch
+  #         IFS='.' read -r major minor patch <<< "${{ env.current_version }}"
+  #         # Check if the version parts are valid
+  #         if [[ -z "$major" || -z "$minor" || -z "$patch" ]]; then
+  #           echo "Invalid version format: $CURRENT_VERSION"
+  #           exit 1
+  #         fi
+
+  #         # Increment the patch version
+  #         NEW_PATCH=$((patch + 1))
+  #         NEW_VERSION="$major.$minor.$NEW_PATCH"
+  #         echo "New version will be: $NEW_VERSION"
+  #         echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
+
+  #     - name: Tag the new version
+  #       run: |
+  #         git config user.name "github-actions[bot]"
+  #         git config user.email "github-actions[bot]@users.noreply.github.com"
+  #         git tag "v${{ env.new_version }}"
+  #         git push origin "v${{ env.new_version }}"
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.PUB_PUBLISH_TOKEN }}
+
+
+  publish:
+    if: (github.event.pull_request.merged == true && !contains(github.event.pull_request.title, '[skip ci]')) || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    name: Publish Package to Pub.dev
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # - name: Set up Flutter
+      #   uses: subosito/flutter-action@v2
+      - name: Determine release type
+        id: determine-release
+        run: |
+          shopt -s nocasematch
+
+          # Determine release type based on pull request title
+          if [[ "${{ github.event.pull_request.title }}" =~ (\[breaking\]|\[major\]) ]]; then
+            echo "release_type=major" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event.pull_request.title }}" =~ \[minor\] ]]; then
+            echo "release_type=minor" >> $GITHUB_OUTPUT
+          else
+            echo "release_type=patch" >> $GITHUB_OUTPUT
+          fi
+
+          shopt -u nocasematch
+        shell: bash
+
+      - name: Generate new version
+        id: new_version
+        run: |
+          # Get the current version from pubspec.yaml
+          CURRENT_VERSION=$(grep 'version: ' pubspec.yaml | sed 's/version: //;s/+.*//')
+          echo "Current version is: $CURRENT_VERSION"
+
+          # Split the current version into major, minor, and patch
+          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
+          echo "major : $major"
+          echo "minor : $minor"
+          echo "patch : $patch"
+
+          # Check if the version parts are valid
+          if [[ -z "$major" || -z "$minor" || -z "$patch" ]]; then
+            echo "Invalid version format: $CURRENT_VERSION"
+            exit 1
+          fi
+
+          # Determine the release type (major, minor, or patch) based on PR title
+          RELEASE_TYPE="${{ steps.determine-release.outputs.release_type }}"
+
+          if [[ "$RELEASE_TYPE" == "major" ]]; then
+            NEW_MAJOR=$((major + 1))
+            NEW_MINOR=0
+            NEW_PATCH=0
+            NEW_VERSION="$NEW_MAJOR.0.0"
+          elif [[ "$RELEASE_TYPE" == "minor" ]]; then
+            NEW_MINOR=$((minor + 1))
+            NEW_PATCH=0
+            NEW_VERSION="$major.$NEW_MINOR.0"
+          else
+            NEW_PATCH=$((patch + 1))
+            NEW_VERSION="$major.$minor.$NEW_PATCH"
+          fi
+
+          echo "New version will be: $NEW_VERSION"
+          echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
+
+        shell: bash
+      - name: Stash changes
+        run: git reset --hard
+
+      - name: git config
+        run: |
+          git config --local user.name 'hyper-sdk-app[bot]'
+          git config --local user.email '163947841+hyper-sdk-app[bot]@users.noreply.github.com'
+
+      - name: Tag the new version
+        run: |
+          git tag "v${{ env.new_version }}"
+          git push origin "v${{ env.new_version }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Publish to pub.dev
+        uses: k-paxian/dart-package-publisher@v1.5.1
+        with:
+          credentialJson: ${{ secrets.PUB_PUBLISH_TOKEN }}
+          flutter: true
+          skipTests: true
+
+      - name: Publish to pub.dev
+        run: flutter pub publish
+        env:
+          PUB_ENVIRONMENT: github-action
+
+  # merged-pr:
+  #   if: github.event.pull_request.merged == true && !contains(github.event.pull_request.title, '[skip ci]')
+  #   runs-on: ubuntu-latest
+  #   steps:
+
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #       with:
+  #         repository: ${{ github.event.pull_request.head.repo.full_name }}
+  #         token: ${{ steps.generate_app_token.outputs.token }}
+  #         fetch-depth: ${{ github.event.pull_request.commits }}
+
+
+  #     - name: Install dependencies
+  #       run: yarn install --frozen-lockfile
+
+  #     - name: Determine release type
+  #       id: determine-release
+  #       run: |
+  #         shopt -s nocasematch
+
+  #         if [[ "${{ github.event.pull_request.title }}" =~ (\[breaking\]|\[major\]) ]]; then
+  #           echo "release_type=major" >> $GITHUB_OUTPUT
+  #         elif [[ "${{ github.event.pull_request.title }}" =~ \[minor\] ]]; then
+  #           echo "release_type=minor" >> $GITHUB_OUTPUT
+  #         else
+  #           echo "release_type=patch" >> $GITHUB_OUTPUT
+  #         fi
+
+  #         shopt -u nocasematch
+  #       shell: bash
+
+  #     - name: Conventional Changelog Action
+  #       id: changelog
+  #       uses: TriPSs/conventional-changelog-action@v5.1.0
+  #       with:
+  #         github-token: ${{ steps.generate_app_token.outputs.token }}
+  #         release-count: 0
+  #         skip-version-file: "true"
+  #         skip-commit: "true"
+  #         git-push: "false"
+  #         skip-tag: "true"
+  #         skip-bump: "true"
+  #         output-file: "false"
+
+  #     - name: Stash changes
+  #       run: git reset --hard
+
+  #     - name: git config
+  #       run: |
+  #         git config --local user.name 'hyper-sdk-app[bot]'
+  #         git config --local user.email '163947841+hyper-sdk-app[bot]@users.noreply.github.com'
+
+  #     - name: Run standard version
+  #       id: standard-version
+  #       run: |
+  #         npx standard-version --release-as ${{ steps.determine-release.outputs.release_type }}
+  #         echo "tag_name=$(git describe --abbrev=0 --tags)" >>$GITHUB_OUTPUT
+
+  #     - name: Push tags and changelog
+  #       run: git push --follow-tags origin main
+  #       env:
+  #         GH_TOKEN: ${{ steps.generate_app_token.outputs.token }}
+
+  #     - name: create release
+  #       uses: actions/create-release@v1
+  #       env:
+  #         GITHUB_TOKEN: ${{ steps.generate_app_token.outputs.token }}
+  #       with:
+  #         tag_name: "${{ steps.standard-version.outputs.tag_name }}"
+  #         release_name: "${{ steps.standard-version.outputs.tag_name }}"
+  #         body: "${{ steps.changelog.outputs.clean_changelog }}"
+
+  #     - name: Publish package on NPM 📦
+  #       run: npm publish
+  #       env:
+  #         NODE_AUTH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
