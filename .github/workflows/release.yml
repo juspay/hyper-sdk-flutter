@@ -134,8 +134,3 @@ jobs:
           credentialJson: ${{ secrets.PUB_PUBLISH_TOKEN }}
           flutter: true
           skipTests: true
-
-      - name: Publish to pub.dev
-        run: flutter pub publish --force
-        env:
-          PUB_ENVIRONMENT: github-action
