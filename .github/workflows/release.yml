@@ -91,6 +91,10 @@ jobs:
           git config --local user.name 'hyper-sdk-app[bot]'
           git config --local user.email '163947841+hyper-sdk-app[bot]@users.noreply.github.com'
 
+
+      - name: Stash changes
+        run: git reset --hard
+
       - name: Update version in pubspec.yaml
         run: |
           # Update the version in pubspec.yaml
@@ -101,18 +105,7 @@ jobs:
           git add pubspec.yaml
           git add ios/hypersdkflutter.podspec
           git commit -m "chore: bump version to ${{ env.new_version }}"
-          git push origin main
         shell: bash
-
-      - name: Stash changes
-        run: git reset --hard
-
-      - name: Tag the new version
-        run: |
-          git tag "v${{ env.new_version }}"
-          git push origin "v${{ env.new_version }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to pub.dev
         uses: k-paxian/dart-package-publisher@v1.5.1
@@ -120,3 +113,17 @@ jobs:
           credentialJson: ${{ secrets.PUB_PUBLISH_TOKEN }}
           flutter: true
           skipTests: true
+
+      - name: Create tag for new version
+        run: |
+          git tag "v${{ env.new_version }}"
+          git push origin "v${{ env.new_version }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push release commit
+        run: |
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
