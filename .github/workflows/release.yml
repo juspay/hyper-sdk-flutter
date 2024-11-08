@@ -12,24 +12,6 @@ permissions:
   contents: write
 
 jobs:
-  dry-run:
-    runs-on: ubuntu-latest
-    name: Flutter Pub Publish --dry-run
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.13.0'
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Run flutter pub publish --dry-run
-        run: flutter pub publish --dry-run
-
   publish:
     if: (github.event.pull_request.merged == true && !contains(github.event.pull_request.title, '[skip ci]')) || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
