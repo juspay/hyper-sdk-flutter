@@ -115,11 +115,9 @@ jobs:
         run: |
           # Update the version in pubspec.yaml
           sed -i "s/^version: .*/version: ${{ env.new_version }}/" pubspec.yaml
-          sed -i '' "s/^  s.version.*/  s.version          = '${{ env.new_version }}'/" ios/hypersdkflutter.podspec
 
           # Commit the updated pubspec.yaml file
           git add pubspec.yaml
-          git add ios/hypersdkflutter.podspec
           git commit -m "chore: bump version to ${{ env.new_version }}"
         shell: bash
 
