@@ -1,3 +1,6 @@
+# 4.0.24
+* fix: Fixed issue github workflow (#53)
+
 # 4.0.23
 * Fixed issue in github workflow
 
