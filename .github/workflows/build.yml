@@ -10,6 +10,17 @@ on:
       - synchronize
 
 jobs:
+  build-on-pr:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: ${{ github.event.pull_request.commits }}
+
   dry-run:
     runs-on: ubuntu-latest
     name: Flutter Pub Publish --dry-run
