@@ -95,15 +95,21 @@ jobs:
       - name: Stash changes
         run: git reset --hard
 
+      - name: Get changelog
+        id: changelog
+        run: echo "commit_message=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
+
       - name: Update version in pubspec.yaml
         run: |
           # Update the version in pubspec.yaml
           sed -i "s/^version: .*/version: ${{ env.new_version }}/" pubspec.yaml
-          sed -i "s/^ s.version.*/ s.version = '${{ env.new_version }}'/g" ios/hypersdkflutter.podspec
+          sed -i "s/s.version[ ]*=[ ]*'.*'/s.version          = '${{ env.new_version }}'/g" ios/hypersdkflutter.podspec
+          sed -i "1s/^/# ${{ env.new_version }}\n* ${{ env.commit_message }}\n\n/" CHANGELOG.md
 
           # Commit the updated pubspec.yaml file
           git add pubspec.yaml
           git add ios/hypersdkflutter.podspec
+          git add CHANGELOG.md
           git commit -m "chore: bump version to ${{ env.new_version }}"
         shell: bash
 
