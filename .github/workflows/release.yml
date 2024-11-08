@@ -103,8 +103,6 @@ jobs:
           echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
 
         shell: bash
-      - name: Stash changes
-        run: git reset --hard
 
       - name: git config
         run: |
@@ -115,11 +113,17 @@ jobs:
         run: |
           # Update the version in pubspec.yaml
           sed -i "s/^version: .*/version: ${{ env.new_version }}/" pubspec.yaml
+          sed -i "s/^ s.version.*/ s.version = '${{ env.new_version }}'/g" ios/hypersdkflutter.podspec
 
           # Commit the updated pubspec.yaml file
           git add pubspec.yaml
+          git add ios/hypersdkflutter.podspec
           git commit -m "chore: bump version to ${{ env.new_version }}"
+          git push origin main
         shell: bash
+
+      - name: Stash changes
+        run: git reset --hard
 
       - name: Tag the new version
         run: |
