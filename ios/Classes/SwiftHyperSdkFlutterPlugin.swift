@@ -9,7 +9,11 @@ import Flutter
 import UIKit
 import HyperSDK
 
-public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
+
+public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
+
+@objc public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin, HyperDelegate {
+
     private static var CHANNEL_NAME = "hyperSDK"
     private let juspay: FlutterMethodChannel
     private lazy var hyperServices: HyperServices = {
@@ -17,6 +21,7 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
     }()
     private var processedViewId: Int = -1
     private let hyperViewController = UIViewController()
+    private static var webViewCallback: JuspayWebViewConfigurationCallback? = nil
 
     init(_ channel: FlutterMethodChannel, _ registrar: FlutterPluginRegistrar) {
         juspay = channel
@@ -28,6 +33,14 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
         registrar.addMethodCallDelegate(instance, channel: channel)
         let factory = HyperPlatformViewFactory(messenger: registrar.messenger())
         registrar.register(factory, withId: "HyperSdkViewGroup")
+    }
+
+    @objc public func onWebViewReady(_ webView: WKWebView) {
+        SwiftHyperSdkFlutterPlugin.webViewCallback?(webView)
+    }
+
+    @objc public static func setJuspayWebViewConfigurationCallback(_ callback: @escaping JuspayWebViewConfigurationCallback) {
+        self.webViewCallback = callback
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -89,6 +102,7 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
             if let topViewController = (UIApplication.shared.delegate?.window??.rootViewController) {
                 self.hyperServices.baseViewController = topViewController
                 self.hyperServices.shouldUseViewController = true
+                self.hyperServices.hyperDelegate = self
                 self.hyperServices.process(params)
             } else {
                 result(false)
@@ -113,6 +127,7 @@ public class SwiftHyperSdkFlutterPlugin: NSObject, FlutterPlugin {
                 self.hyperServices.shouldUseViewController = false
                 self.hyperServices.baseView = uiView
                 self.processedViewId = viewId
+                self.hyperServices.hyperDelegate = self
                 self.hyperServices.process(params)
             } else {
                 result(false)

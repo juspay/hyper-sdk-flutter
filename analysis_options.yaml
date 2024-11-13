@@ -29,3 +29,4 @@ linter:
     - throw_in_finally
     - unawaited_futures
     - unnecessary_brace_in_string_interps
+    - public_member_api_docs
