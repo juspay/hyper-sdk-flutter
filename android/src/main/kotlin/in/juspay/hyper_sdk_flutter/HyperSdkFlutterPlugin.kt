@@ -14,6 +14,7 @@ import android.util.Log
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
 import `in`.juspay.hypercheckoutlite.HyperCheckoutLite
+import `in`.juspay.hypersdk.core.JuspayWebViewConfigurationCallback
 import `in`.juspay.hypersdk.data.JuspayResponseHandler
 import `in`.juspay.hypersdk.ui.HyperPaymentsCallbackAdapter
 import `in`.juspay.services.HyperServices
@@ -193,6 +194,7 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             result.success(false)
             return
         }
+        webViewConfigurationCallback?.let { hyperServices.setWebViewConfigurationCallback(it) }
         hyperServices.process(JSONObject(params))
         result.success(true)
     }
@@ -207,6 +209,7 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             ?: return result.success(false)
         val view = id?.let { (activity as Activity).findViewById<ViewGroup>(it) }
             ?: return result.success(false)
+        webViewConfigurationCallback?.let { hyperServices.setWebViewConfigurationCallback(it) }
         hyperServices.process(activity, view, JSONObject(params))
         result.success(true)
     }
@@ -263,5 +266,10 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             Log.w(this.javaClass.canonicalName, "Terminate called without initiate, skipping")
             result.success(false)
         }
+    }
+
+    companion object {
+        @JvmStatic
+        var webViewConfigurationCallback: JuspayWebViewConfigurationCallback? = null
     }
 }

@@ -50,6 +50,7 @@
 		<string>ppe</string>
 		<string>cugext</string>
 		<string>amazonpay</string>
+		<string>kiwi</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>

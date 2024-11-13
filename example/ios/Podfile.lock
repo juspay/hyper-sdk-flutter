@@ -10,7 +10,7 @@ PODS:
   - HyperSDK (2.2.1.7):
     - JuspaySafeBrowser (= 0.1.84)
     - Salvator (= 1.0.6)
-  - hypersdkflutter (4.0.22):
+  - hypersdkflutter (4.0.24):
     - Flutter
     - HyperSDK (= 2.2.1.7)
   - JuspaySafeBrowser (0.1.84)
@@ -41,7 +41,7 @@ SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_inappwebview_ios: 97215cf7d4677db55df76782dbd2930c5e1c1ea0
   HyperSDK: 761a9a75197097db5fcd96af8f40892109bb0135
-  hypersdkflutter: 7d7526602b8b8eff585eb59300a3477717da2633
+  hypersdkflutter: 505d1bec6ee4ff1fc590b24d036a549a76144c70
   JuspaySafeBrowser: caa2c1a54405f30210ba9d324cf79224e719134d
   OrderedSet: aaeb196f7fef5a9edf55d89760da9176ad40b93c
   Salvator: 1de69620ac17123ba3491e27a9a8b35bc5b97eaa

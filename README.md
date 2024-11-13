@@ -10,6 +10,7 @@ Get dependency from [pub.dev](https://pub.dev/packages/hypersdkflutter/install)
 ## Android Setup
 
 Add the clientId ext property in root(top) `build.gradle`:
+
 - Override HyperSDK Version by adding hyperSDKVersion - `Optional`
 - Exclude microSDKs provided with HyperSDK for given clientId by adding excludedMicroSDKs - `Optional`
 
@@ -29,8 +30,6 @@ buildscript {
 
 Optionally, you can also provide an override for base SDK version present in plugin (the newer version among both would be considered).
 
-
-
 ### Note
 
 **Your application's `MainActivity` should extend `FlutterFragmentActivity` instead of `FlutterActivity`.**
@@ -45,8 +44,6 @@ class MainActivity: FlutterFragmentActivity() {
 
 }
 ```
-
-
 
 ## iOS Setup
 
@@ -128,12 +125,12 @@ await hyperSDK.process(processPayload, hyperSDKCallbackHandler)
 This API should be used when Payment Page needs to be rendered within a particular container within the merchant app instead of whole screen.
 This is custom view component that returns a StatefulWidget, AndroidView and UiKitView, for android and iOS respectively.
 
-
 ```dart
     hyperSDK.hyperSdkView(processPayload, hyperSDKCallbackHandler)
 ```
 
 You can attach this within a container of your screen like below:
+
 ```dart
   Container(
     color: Colors.white,
@@ -282,6 +279,63 @@ void hyperSDKCallbackHandler(MethodCall methodCall) {
         }
     }
   }
+```
+
+### WebView Configuration Callback (Optional)
+
+The Minkasu SDK requires access to the bank WebView SDK. This can be enabled after whitelisting on Juspay end. Below is a reference to changes required post getting SDK whitelisted. This should be called before calling process.
+
+#### Android
+
+**Kotlin:**
+
+```kotlin
+import `in`.juspay.hyper_sdk_flutter.HyperSdkFlutterPlugin
+import `in`.juspay.hypersdk.core.JuspayWebViewConfigurationCallback
+
+
+HyperSdkFlutterPlugin.webViewConfigurationCallback =
+    JuspayWebViewConfigurationCallback { webview ->
+
+    }
+```
+
+**Java:**
+
+```java
+import in.juspay.hyper_sdk_flutter.HyperSdkFlutterPlugin;
+
+
+HyperSdkFlutterPlugin.setWebViewConfigurationCallback(webView -> {
+
+});
+```
+
+#### iOS
+
+**Swift:**
+
+```swift
+import hypersdkflutter
+
+
+SwiftHyperSdkFlutterPlugin.setJuspayWebViewConfigurationCallback { webView in
+
+}
+```
+
+**Objective-C:**
+
+```objective-c
+#if __has_include(<hypersdkflutter/hypersdkflutter-Swift.h>)
+#import <hypersdkflutter/hypersdkflutter-Swift.h>
+#else
+@import hypersdkflutter;
+#endif
+
+[SwiftHyperSdkFlutterPlugin setJuspayWebViewConfigurationCallback:^(WKWebView * _Nonnull webview) {
+
+}];
 ```
 
 ## Payload Structure
