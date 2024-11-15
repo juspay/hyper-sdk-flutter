@@ -1,3 +1,6 @@
+# 4.0.25
+* feat: added webview configuration callback for minkasu support
+
 # 4.0.24
 * fix: Fixed issue github workflow (#53)
 
