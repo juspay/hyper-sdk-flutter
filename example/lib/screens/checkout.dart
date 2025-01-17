@@ -42,6 +42,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     var amounts = calculateAmount();
 
+    // uncomment for Payment Widget
+    // Map<String, dynamic> payload = getProcessPayload1( "2.0", widget.merchantDetails, widget.customerDetails);
+
     return Scaffold(
       appBar: customAppBar(text: "Checkout Screen"),
       backgroundColor: Colors.white,
@@ -192,6 +195,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       setState(() {
                         useContainer = !useContainer;
                       });
+                      // Uncoment for Update order of Payment Widget
+                      // widget.hyperSDK.process(getUpdateOrderPayload("yJczz4s5b2", widget.merchantDetails, widget.customerDetails, "4.0"), hyperSDKCallbackHandler);
                     },
                   ))
             ],
@@ -219,7 +224,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 }
               }),
             ),
-          )
+          ),
+          // Uncomment for Payment Widget 
+          // Container(
+          //   height: 110,
+          //   width: double.infinity,
+          //   child: widget.hyperSDK.hyperFragmentView (
+          //         110,
+          //         double.infinity,
+          //         "paymentWidget",
+          //         payload, 
+          //         hyperSDKCallbackHandler
+          //       ),
+          // ),
         ],
       ),
     );
@@ -238,4 +255,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     return amounts;
   }
+
+  // uncomment for Payment Widget
+  // void hyperSDKCallbackHandler(MethodCall methodCall) {
+  // }
 }

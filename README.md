@@ -138,6 +138,24 @@ You can attach this within a container of your screen like below:
   )
 ```
 
+### Step 3.2: Process via PaymentWidget
+
+This API should be used when you want to use blended payment widget where users can interact with both product and payment UI at the same time as per convenience.
+This is custom view component that returns a Widget, AndroidView and UiKitView, for android and iOS wrapped inside a container respectively.
+
+```dart
+    hyperSDK.hyperFragmentView(height, width, "paymentWidget", processPayload, hyperSDKCallbackHandler)
+```
+
+You can attach this within a container of your screen like below:
+
+```dart
+  Container(
+    color: Colors.white,
+    child: hyperSDK.hyperFragmentView(height, width, "paymentWidget", processPayload, hyperSDKCallbackHandler)
+  )
+```
+
 ### Step-4: Android Hardware Back-Press Handling
 
 Hyper SDK internally uses an android fragment for opening the bank page and will need the control to hardware back press when the bank page is active.
