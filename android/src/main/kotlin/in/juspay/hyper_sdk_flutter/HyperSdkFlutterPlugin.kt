@@ -11,6 +11,8 @@ package `in`.juspay.hyper_sdk_flutter
 import android.app.Activity
 import android.content.Intent
 import android.util.Log
+import android.view.Choreographer
+import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
 import `in`.juspay.hypercheckoutlite.HyperCheckoutLite
@@ -44,6 +46,10 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
         flutterPluginBinding.platformViewRegistry.registerViewFactory(
             "HyperSdkViewGroup",
             HyperPlatformViewFactory(flutterPluginBinding.binaryMessenger)
+        )
+        flutterPluginBinding.platformViewRegistry.registerViewFactory(
+            "HyperFragmentView",
+            HyperFragmentViewFactory(flutterPluginBinding.binaryMessenger)
         )
         channel.setMethodCallHandler(this)
     }
@@ -91,6 +97,12 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             "processWithView" -> processWithView(
                 call.argument<Int>("viewId"),
                 call.argument<Map<String, Any>>("params") ?: mapOf(),
+                result
+            )
+            "hyperFragmentView" -> hyperFragmentView(
+                call.argument<Int>("viewId"),
+                call.argument<String>("namespace"),
+                call.argument<Map<String, Any>>("payload") ?: mapOf(),
                 result
             )
 
@@ -214,6 +226,52 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
         result.success(true)
     }
 
+    private fun hyperFragmentView(id: Int?, namespace: String?, payload: Map<String, Any>, result: Result) {
+        val hyperServices = this.hyperServices
+        if (hyperServices == null) {
+            result.success(false)
+            return
+        }
+
+        val activity = binding?.activity as? FragmentActivity
+            ?: return result.success(false)
+        val view = id?.let { (activity as Activity).findViewById<ViewGroup>(it) }
+            ?: return result.success(false)
+        
+        // setuplayout
+        setupLayout(view)
+        val jsonPayload = JSONObject(payload)
+        val fragments = JSONObject()
+        fragments.put(namespace, view)
+        jsonPayload.getJSONObject("payload").put("fragmentViewGroups", JSONObject().put(namespace, view));
+        webViewConfigurationCallback?.let { hyperServices.setWebViewConfigurationCallback(it) }
+        hyperServices.process(activity, jsonPayload)
+        result.success(true)
+    }
+
+    private fun setupLayout(view: View) {
+        Choreographer.getInstance().postFrameCallback(object : Choreographer.FrameCallback {
+            override fun doFrame(frameTimeNanos: Long) {
+                try {
+                    manuallyLayoutChildren(view)
+                    view.viewTreeObserver.dispatchOnGlobalLayout()
+                    Choreographer.getInstance().postFrameCallback(this)
+                } catch (ignore: java.lang.Exception) {
+                }
+            }
+        })
+    }
+
+    private fun manuallyLayoutChildren(view: View) {
+        val parent = view.parent as ViewGroup ?: return
+        val height = parent.measuredHeight
+        val width = parent.measuredWidth
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, width, height)
+    }
 
     private fun openPaymentPage(params: Map<String, Any>?, result: Result) {
         isHyperCheckOutLiteInteg = true

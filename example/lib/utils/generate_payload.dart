@@ -103,12 +103,13 @@ Future<Map<String, dynamic>> getUpdateOrderPayload(
     "currency": "INR"
   };
 
-  String signature = await signPayload(
-      jsonEncode(orderDetails), merchantDetails['privateKey']);
+  var stringifiedOrderDetails = jsonEncode(orderDetails);
+
+  String signature = await signPayload(stringifiedOrderDetails, merchantDetails['privateKey']);
 
   Map<String, dynamic> innerPayload = {
     'action': 'updateOrder',
-    'orderDetails': jsonEncode(orderDetails),
+    'orderDetails': stringifiedOrderDetails,
     'signature': signature
   };
 
@@ -120,3 +121,48 @@ Future<Map<String, dynamic>> getUpdateOrderPayload(
 
   return payload;
 }
+
+// uncomment for Payment Widget
+// Map<String, dynamic> getProcessPayload1(
+//     amount, merchantDetails, customerDetails) {
+//   // NOTE: This part of code should be handled in the server NOT THE CLIENT APP
+//   // Merchant should call the session API on their server and return the sdk_payload (sample paylaod hard coded below for reference)
+
+//   var orderId = "yJczz4s5b2";
+//   var orderDetails = {
+//     "order_id": orderId,
+//     "merchant_id": merchantDetails["merchantId"],
+//     "client_id": merchantDetails["clientId"],
+//     "amount": "2.0",
+//     "features": { "paymentWidget": { "enable": true } },
+//     "timestamp": "1728583366610",
+//     "customer_id": customerDetails["customerId"],
+//     "customer_phone": customerDetails["customerPhone"],
+//     "customer_email": customerDetails["customerEmail"],
+//     "return_url": merchantDetails["returnUrl"],
+//     "currency": "INR",
+//   };
+
+//   var stringifiedOrderDetails = '{"order_id":"yJczz4s5b2","merchant_id":"A23Games","client_id":"instaastro","amount":"2.0","timestamp":"1728650286350","features":{"paymentWidget":{"enable":true}},"customer_id":"7288829342","customer_phone":"7288829342","customer_email":"yaswanth6240@gmail.com","return_url":"https://www.google.co.in","currency":"INR"}';
+
+//   return {
+//     "requestId": const Uuid().v4(),
+//     "service": merchantDetails["service"],
+//     "payload": {
+//       "clientId": merchantDetails["clientId"],
+//       "amount": "2.0",
+//       "merchantId": merchantDetails["merchantId"],
+//       "action": "paymentPage",
+//       "customerId": customerDetails["customerId"],
+//       "endUrls": [merchantDetails["returnUrl"]],
+//       "currency": "INR",
+//       "customerPhone": customerDetails["customerPhone"],
+//       "customerEmail": customerDetails["customerEmail"],
+//       "orderId": orderId,
+//       "orderDetails": stringifiedOrderDetails,
+//       "signature": "wm+67Eud90JbD+kbDU5u7+4kmyPwcv6YLMo9ejgIm5872RyDRay7mI07c5H+dRT9TteKijZspvFeeKl1NTVppK37miDA4ezgTjio52/BSwGiu7fZ2B1/MvuRMLtnzFUnpavus6GpNuH63XJgEecGL3a0vs2FMlhKi+jv58tqkrOBGZ9MF8N6/HuaCCwO5dFwvM8pHPeLiCZ3NIpyTzISO4ybZUi1C4L2B4MXQ1X8Nkg6fRtj7zmRgKg4LqpUlKWcjcW2fYIkImk6M8Swp9UaeYI4DeE1ODK6nIQHFamEO+yMw7hoxlzTUscCUwlV8aCA6FWGEAJVHZyiVmYDeDNxzQ==",
+//       "merchantKeyId": merchantDetails["merchantKeyId"],
+//       "environment": merchantDetails["environment"]
+//     }
+//   };
+// }
