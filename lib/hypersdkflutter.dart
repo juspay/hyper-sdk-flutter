@@ -163,4 +163,66 @@ class HyperSDK {
             },
           );
   }
+
+  /// Blended payment widget where users can interact with both product and payment UI at the same time as per convenience.
+  Widget hyperFragmentView(double height, double width, String namespace,
+      Map<String, dynamic> payload, void Function(MethodCall) processHandler) {
+    // Wrapper function to eliminate redundant Future<dynamic> return value
+    Future<dynamic> callbackFunction(MethodCall methodCall) {
+      processHandler(methodCall);
+      return Future.value(0);
+    }
+
+    hyperSDK.setMethodCallHandler(callbackFunction);
+
+    return Platform.isAndroid
+        ? Container(
+            height: height,
+            width: width,
+            child: AndroidView(
+              viewType: 'HyperFragmentView',
+              onPlatformViewCreated: (id) async {
+                var viewChannel = MethodChannel('hyper_fragment_view_$id');
+
+                Future<dynamic> viewIdCallback(MethodCall methodCall) async {
+                  if (methodCall.method == 'hyperFragmentViewCreated') {
+                    var viewId = methodCall.arguments as int;
+                    await hyperSDK.invokeMethod(
+                        'hyperFragmentView', <String, dynamic>{
+                      'viewId': viewId,
+                      'payload': payload,
+                      'namespace': namespace
+                    });
+                  }
+                  return Future.value(0);
+                }
+
+                viewChannel.setMethodCallHandler(viewIdCallback);
+              },
+            ))
+        : Container(
+            height: height,
+            width: width,
+            child: UiKitView(
+              viewType: 'HyperFragmentView',
+              onPlatformViewCreated: (id) async {
+                var viewChannel = MethodChannel('hyper_fragment_view_$id');
+                Future<dynamic> viewIdCallback(MethodCall methodCall) async {
+                  if (methodCall.method == 'hyperFragmentViewCreated') {
+                    var viewId = methodCall.arguments as int;
+
+                    await hyperSDK.invokeMethod(
+                        'hyperFragmentView', <String, dynamic>{
+                      'viewId': viewId,
+                      'params': payload,
+                      'namespace': namespace
+                    });
+                  }
+                  return Future.value(0);
+                }
+
+                viewChannel.setMethodCallHandler(viewIdCallback);
+              },
+            ));
+  }
 }
