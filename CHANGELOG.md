@@ -1,3 +1,6 @@
+# 4.0.26
+* fix : Updated android and iOS sdk version to 2.2.1 & 2.2.2 respectively.
+
 # 4.0.25
 * feat: added webview configuration callback for minkasu support
 

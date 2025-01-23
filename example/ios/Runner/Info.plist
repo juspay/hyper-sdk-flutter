@@ -51,6 +51,11 @@
 		<string>cugext</string>
 		<string>amazonpay</string>
 		<string>kiwi</string>
+		<string>navipay</string>
+		<string>mobikwik</string>
+		<string>tatadigital</string>
+		<string>popclubapp</string>
+		<string>super</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
