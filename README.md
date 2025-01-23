@@ -20,7 +20,7 @@ buildscript {
     ext {
         ....
         clientId = "<clientId shared by Juspay team>"
-        hyperSDKVersion = "2.1.32"
+        hyperSDKVersion = "2.2.1"
         excludedMicroSDKs = []
         ....
     }

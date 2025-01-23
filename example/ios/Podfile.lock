@@ -7,12 +7,12 @@ PODS:
   - flutter_inappwebview_ios/Core (0.0.1):
     - Flutter
     - OrderedSet (~> 5.0)
-  - HyperSDK (2.2.1.7):
+  - HyperSDK (2.2.2):
     - JuspaySafeBrowser (= 0.1.84)
     - Salvator (= 1.0.6)
-  - hypersdkflutter (4.0.24):
+  - hypersdkflutter (4.0.26):
     - Flutter
-    - HyperSDK (= 2.2.1.7)
+    - HyperSDK (= 2.2.2)
   - JuspaySafeBrowser (0.1.84)
   - OrderedSet (5.0.0)
   - Salvator (1.0.6)
@@ -40,12 +40,12 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_inappwebview_ios: 97215cf7d4677db55df76782dbd2930c5e1c1ea0
-  HyperSDK: 761a9a75197097db5fcd96af8f40892109bb0135
-  hypersdkflutter: 505d1bec6ee4ff1fc590b24d036a549a76144c70
+  HyperSDK: 653f618de09696305b9b705555019ecbbacc10b0
+  hypersdkflutter: 78e3dadb52bfab60f6c457d612b93165eaace029
   JuspaySafeBrowser: caa2c1a54405f30210ba9d324cf79224e719134d
   OrderedSet: aaeb196f7fef5a9edf55d89760da9176ad40b93c
   Salvator: 1de69620ac17123ba3491e27a9a8b35bc5b97eaa
 
 PODFILE CHECKSUM: cba9212f3b66a15bdfc427a805562f0aba11c0e6
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2
