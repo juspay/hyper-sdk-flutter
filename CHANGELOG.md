@@ -1,3 +1,6 @@
+# 4.0.27
+* Updated android and iOS sdk version to 2.2.1  2.2.2 respectively (#56)
+
 # 4.0.26
 * fix : Updated android and iOS sdk version to 2.2.1 & 2.2.2 respectively.
 
