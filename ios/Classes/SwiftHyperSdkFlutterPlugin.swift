@@ -20,6 +20,7 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
         return HyperServices()
     }()
     private var processedViewId: Int = -1
+    private var processedFragmentViewId: Int = -1
     private let hyperViewController = UIViewController()
     private static var webViewCallback: JuspayWebViewConfigurationCallback? = nil
 
@@ -33,6 +34,8 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
         registrar.addMethodCallDelegate(instance, channel: channel)
         let factory = HyperPlatformViewFactory(messenger: registrar.messenger())
         registrar.register(factory, withId: "HyperSdkViewGroup")
+        let fragmentViewFactory = HyperFragmentViewFactory(messenger: registrar.messenger())
+        registrar.register(fragmentViewFactory, withId: "HyperFragmentView")
     }
 
     @objc public func onWebViewReady(_ webView: WKWebView) {
@@ -60,6 +63,9 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
         case "processWithView":
             let args = call.arguments as! Dictionary<String, Any>
             processWithView(args["viewId"] as! Int, args["params"] as! [String: Any], result)
+        case "hyperFragmentView":
+            let args = call.arguments as! Dictionary<String, Any>
+            hyperFragmentView(args["viewId"] as! Int, args["params"] as! [String: Any], args["namespace"] as! String, result)
         case "terminate": terminate(result)
         case "isInitialised": isInitialised(result)
         default: result(FlutterMethodNotImplemented)
@@ -140,6 +146,38 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
         result(true)
     }
 
+    private func hyperFragmentView(_ viewId: Int, _ params: [String: Any], _ namespace: String, _ result: @escaping FlutterResult) {
+        if viewId == self.processedFragmentViewId {
+            result(true)
+            return
+        }
+
+        if let topViewController = (UIApplication.shared.delegate?.window??.rootViewController) {
+            if let uiView = topViewController.view.viewWithTag(viewId) {
+                self.hyperServices.baseViewController = topViewController
+                self.manuallyLayoutChildren(uiView)
+                self.processedFragmentViewId = viewId
+                var payload = params["payload"] as! Dictionary<String, Any>
+                let fragments = [namespace: uiView]
+                payload["fragmentViewGroups"] = fragments
+                var updatedPayload = params
+                updatedPayload["payload"] = payload
+                self.hyperServices.hyperDelegate = self
+                self.hyperServices.process(updatedPayload)
+            } else {
+                result(false)
+                return
+            }
+        }
+    }
+
+    private func manuallyLayoutChildren(_ view: UIView) {
+        guard let parent = view.superview else {
+            return
+        }
+        view.frame = parent.bounds
+    }
+ 
     private func openPaymentPage(_ params: [String: Any], _ result: @escaping FlutterResult) {
         if let topViewController = (UIApplication.shared.delegate?.window??.rootViewController) {
             HyperCheckoutLite.openPaymentPage(topViewController, payload: params, callback: { [unowned self] (response) in
