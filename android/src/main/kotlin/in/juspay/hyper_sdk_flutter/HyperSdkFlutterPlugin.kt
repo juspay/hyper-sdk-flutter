@@ -87,6 +87,8 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
+            "createHyperServicesWithTenantId" -> createHyperServicesWithTenantId(call.argument("tenantId"), call.argument("clientId"), result)
+            "createHyperServices" -> createHyperServices(call.argument("clientId"), result)
             "preFetch" -> preFetch(call.argument<Map<String, Any>>("params") ?: mapOf(), result)
             "initiate" -> initiate(call.argument<Map<String, Any>>("params") ?: mapOf(), result)
             "process" -> process(call.argument<Map<String, Any>>("params") ?: mapOf(), result)
@@ -108,6 +110,19 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
 
             else -> result.notImplemented()
         }
+    }
+
+    private fun createHyperServicesWithTenantId(tenantId: String?, clientId: String?, result: Result) {
+        val fragmentActivity = binding?.activity as? FragmentActivity
+        if (fragmentActivity !is FragmentActivity) {
+            result.error("INIT_ERROR", "FragmentActivity is null, cannot proceed", "")
+            return
+        }
+        if (tenantId == null || clientId == null) {
+            result.error("INIT_ERROR", "tenantId or clientId cannot be null", "")
+            return
+        }
+        hyperServices = HyperServices(fragmentActivity, tenantId, clientId)
     }
 
     private fun onBackPress(result: Result) {
@@ -142,6 +157,19 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
         }
     }
 
+    private fun createHyperServices(clientId: String?, result: Result) {
+        val fragmentActivity = binding?.activity as? FragmentActivity
+        if (fragmentActivity !is FragmentActivity) {
+            result.error("INIT_ERROR", "FragmentActivity is null, cannot proceed", "")
+            return
+        }
+        if (clientId == null) {
+            result.error("INIT_ERROR", "clientId cannot be null", "")
+            return
+        }
+        hyperServices = HyperServices(fragmentActivity, clientId)
+    }
+
     private fun initiate(params: Map<String, Any>, result: Result) {
         try {
             if (binding == null) {
@@ -156,7 +184,9 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
                 result.error("INIT_ERROR", "FragmentActivity is null, cannot proceed", "")
                 return
             }
-            hyperServices = HyperServices(fragmentActivity)
+            if (hyperServices == null) {
+                hyperServices = HyperServices(fragmentActivity)
+            }
 
             val invokeMethodResult = object : Result {
                 override fun success(result: Any?) {

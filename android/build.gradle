@@ -1,3 +1,5 @@
+import in.juspay.payments.core.ClientConfig
+
 group 'in.juspay.hyper_sdk_flutter'
 version '1.0-SNAPSHOT'
 
@@ -12,7 +14,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'in.juspay:hypersdk.plugin:2.0.7'
+        classpath 'in.juspay:hypersdk.plugin:2.2.8'
     }
 }
 
@@ -67,7 +69,7 @@ static def mostRecentVersion(List<String> versions) {
 }
 
 static def getHyperSDKVersion(rootProject) {
-    def hyperSdkVersion = '2.2.1'
+    def hyperSdkVersion = '2.2.2'
     if (!rootProject.hasProperty('hyperSDKVersion')) {
         return hyperSdkVersion
     }
@@ -93,12 +95,53 @@ static def getClientId(rootProject) {
     return rootProject.clientId
 }
 
+static def getClientConfigs(rootProject, Project project) {
+    def clientConfigs = rootProject.clientConfigs
+
+    def namedDomainObjectContainer = project.container(ClientConfig) { name ->
+        def clientConfig = new ClientConfig(name)
+
+        // Find the configuration closure for the given name
+        def configClosure = clientConfigs.get(name)
+
+        if (configClosure instanceof Closure) {
+            def configMap = configClosure.call() // Execute the closure
+
+            if (configMap instanceof Map) {
+                if (configMap.containsKey("tenantName")) {
+                    clientConfig.tenantName = configMap.tenantName
+                }
+                if (configMap.containsKey("assetVersion")) {
+                    clientConfig.assetVersion = configMap.assetVersion
+                }
+            }
+        }
+
+        return clientConfig
+    }
+
+    // Iterate and create configs
+    clientConfigs.each { key, configClosure ->
+        if (configClosure instanceof Closure) {
+            namedDomainObjectContainer.create(key)
+        }
+    }
+
+    return namedDomainObjectContainer
+}
+
 hyperSdkPlugin {
-    clientId = getClientId(rootProject)
     sdkVersion = getHyperSDKVersion(rootProject)
     excludedMicroSDKs = getExcludedMicroSdks(rootProject)
 }
 
 if(rootProject.hasProperty('hyperAssetVersion')) {
     hyperSdkPlugin.assetVersion = rootProject.hyperAssetVersion
+}
+
+if (rootProject.hasProperty("clientId")) {
+    hyperSdkPlugin.clientId = getClientId(rootProject)
+}
+if (!rootProject.hasProperty("clientId") && rootProject.hasProperty("clientConfigs")) {
+    hyperSdkPlugin.clientConfigs = getClientConfigs(rootProject, project)
 }
