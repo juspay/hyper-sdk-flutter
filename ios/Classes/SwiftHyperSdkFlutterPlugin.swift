@@ -16,9 +16,7 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
 
     private static var CHANNEL_NAME = "hyperSDK"
     private let juspay: FlutterMethodChannel
-    private lazy var hyperServices: HyperServices = {
-        return HyperServices()
-    }()
+    private var hyperServices: HyperServices? = nil
     private var processedViewId: Int = -1
     private var processedFragmentViewId: Int = -1
     private let hyperViewController = UIViewController()
@@ -48,6 +46,12 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
+        case "createHyperServicesWithTenantId":
+            let args = call.arguments as! Dictionary<String, Any>
+            createHyperServicesWithTenantId(args["tenantId"] as? String, args["clientId"] as? String, result);
+        case "createHyperServices":
+            let args = call.arguments as! Dictionary<String, Any>
+            createHyperServices(args["clientId"] as? String, result);
         case "preFetch":
             let args = call.arguments as! Dictionary<String, Any>
             preFetch(args["params"] as! [String: Any], result)
@@ -72,8 +76,28 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
         }
     }
 
+    private func createHyperServicesWithTenantId(_ tenantId: String?, _ clientId: String?, _ result: @escaping FlutterResult) {
+        if (self.hyperServices != nil) {
+            result(true)
+            return
+        }
+        if (tenantId == nil || clientId == nil) {
+            result(false)
+            return
+        }
+        self.hyperServices = HyperServices(tenantId: tenantId!, clientId: clientId!)
+    }
+
+    private func createHyperServices(_ clientId: String?, _ result: @escaping FlutterResult) {
+        if (self.hyperServices != nil) {
+            result(true)
+            return
+        }
+        self.hyperServices = HyperServices()
+    }
+
     private func isInitialised(_ result: @escaping FlutterResult) {
-        result(hyperServices.isInitialised())
+        result(hyperServices?.isInitialised())
     }
 
     private func preFetch(_ params: [String: Any], _ result: @escaping FlutterResult) {
@@ -82,8 +106,11 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
     }
 
     private func initiate(_ params: [String: Any], _ result: @escaping FlutterResult) {
+        if (self.hyperServices == nil) {
+            self.hyperServices = HyperServices()
+        }
         hyperViewController.modalPresentationStyle = .overFullScreen
-        hyperServices.initiate(hyperViewController, payload: params, callback: { [unowned self] (response) in
+        self.hyperServices?.initiate(hyperViewController, payload: params, callback: { [unowned self] (response) in
             if response == nil {
                 return
             }
@@ -104,12 +131,12 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
     }
 
     private func process(_ params: [String: Any], _ result: @escaping FlutterResult) {
-        if (self.hyperServices.isInitialised()) {
+        if ((self.hyperServices?.isInitialised()) != nil) {
             if let topViewController = (UIApplication.shared.delegate?.window??.rootViewController) {
-                self.hyperServices.baseViewController = topViewController
-                self.hyperServices.shouldUseViewController = true
-                self.hyperServices.hyperDelegate = self
-                self.hyperServices.process(params)
+                self.hyperServices?.baseViewController = topViewController
+                self.hyperServices?.shouldUseViewController = true
+                self.hyperServices?.hyperDelegate = self
+                self.hyperServices?.process(params)
             } else {
                 result(false)
                 return
@@ -127,14 +154,14 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
             return
         }
         if let topViewController = (UIApplication.shared.delegate?.window??.rootViewController) {
-            self.hyperServices.baseViewController = topViewController
+            self.hyperServices?.baseViewController = topViewController
             if let uiView = topViewController.view.viewWithTag(viewId) {
-                self.hyperServices.baseViewController = topViewController
-                self.hyperServices.shouldUseViewController = false
-                self.hyperServices.baseView = uiView
+                self.hyperServices?.baseViewController = topViewController
+                self.hyperServices?.shouldUseViewController = false
+                self.hyperServices?.baseView = uiView
                 self.processedViewId = viewId
-                self.hyperServices.hyperDelegate = self
-                self.hyperServices.process(params)
+                self.hyperServices?.hyperDelegate = self
+                self.hyperServices?.process(params)
             } else {
                 result(false)
                 return
@@ -199,7 +226,7 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
     }
 
     private func terminate(_ result: @escaping FlutterResult) {
-        hyperServices.terminate()
+        hyperServices?.terminate()
         result(true)
     }
 }

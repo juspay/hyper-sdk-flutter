@@ -29,6 +29,18 @@ class HyperSDK {
     return await hyperSDK.invokeMethod('isInitialised') == true ? true : false;
   }
 
+  /// Creates HyperServices instance with tenantId & clientId.
+  /// {@category Optional}
+  Future<void> createHyperServicesWithTenantId(
+      String tenantId, String clientId) async {
+    await hyperSDK.invokeMethod('createHyperServicesWithTenantId',
+        <String, dynamic>{'tenantId': tenantId, 'clientId': clientId});
+  }
+
+  Future<void> createHyperServices(String clientId) async {
+    await hyperSDK.invokeMethod('createHyperServices', <String, dynamic>{'clientId': clientId});
+  }
+
   /// Fetches dynamic assets for SDK.
   /// {@category Optional}
   static Future<String> preFetch(Map<String, dynamic> params) async {

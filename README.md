@@ -111,6 +111,18 @@ Note: This method is mandatory and is required to call any other subsequent meth
 final hyperSDK = HyperSDK();
 ```
 
+
+### Step-1.1: Create Instance of HyperService (Optional)
+
+This step is required if your app has multiple tenants or different clientIds.
+
+Note: This method is not mandatory and is required only if the same app has multiple clientIds.
+Please reach out to Juspay Merchant Spoc to get information of your tenant & clientIds.
+
+```dart
+hyperSDK.createHyperServicesWithTenantId("<tenantName>", "clientId");
+```
+
 ### Step-2: Initiate
 
 This method should be called on the render of the host screen. This will boot up the SDK and start the Hyper engine. It takes a stringified JSON as its argument which will contain the base parameters for the entire session and remains static throughout one SDK instance lifetime. It also takes a function to handle initiate callbacks.
