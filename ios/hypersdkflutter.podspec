@@ -1,6 +1,6 @@
 require "yaml"
 
-hyper_sdk_version = "2.2.2"
+hyper_sdk_version = "2.2.2.5"
 
 begin
   # Read hyper_sdk_version from pubspec.yaml if it exists
