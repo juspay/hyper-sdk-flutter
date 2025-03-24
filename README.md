@@ -9,7 +9,7 @@ Get dependency from [pub.dev](https://pub.dev/packages/hypersdkflutter/install)
 
 ## Android Setup
 
-Add the clientId ext property in root(top) `build.gradle`:
+Add the clientId ext property in root(top) `build.gradle`. Depending on the flutter version or the build.gradle format, kindly use either the groovy code snippet or the Kotlin one:
 
 - Override HyperSDK Version by adding hyperSDKVersion - `Optional`
 - Exclude microSDKs provided with HyperSDK for given clientId by adding excludedMicroSDKs - `Optional`
@@ -20,10 +20,19 @@ buildscript {
     ext {
         ....
         clientId = "<clientId shared by Juspay team>"
-        hyperSDKVersion = "2.2.1"
+        hyperSDKVersion = "<Version shared by Juspay team>"
         excludedMicroSDKs = []
         ....
     }
+    ....
+}
+```
+
+```Kotlin DSL
+buildscript {
+    ....
+    extra["clientId"] = "<clientId shared by Juspay team>"
+    extra["hyperSDKVersion"] = "<Version shared by Juspay team>"
     ....
 }
 ```
