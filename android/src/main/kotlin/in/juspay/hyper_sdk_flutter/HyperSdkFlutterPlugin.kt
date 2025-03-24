@@ -126,7 +126,7 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
 
     private fun isInitialised(result: Result) {
         try {
-            val isInitiated = hyperServices?.isInitialised ?: false
+            val isInitiated = hyperServices?.isInitialised() ?: false
             result.success(isInitiated)
         } catch (e: Exception) {
             result.success(false)

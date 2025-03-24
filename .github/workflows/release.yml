@@ -97,7 +97,9 @@ jobs:
 
       - name: Get changelog
         id: changelog
-        run: echo "commit_message=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
+        run: |
+          commit_message=$(git log -1 --pretty=%B | tr -d '\n' | tr -d '\r')
+          echo "commit_message=$commit_message" >> $GITHUB_ENV
 
       - name: Update version in pubspec.yaml
         run: |
