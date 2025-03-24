@@ -1,3 +1,6 @@
+# 4.0.28
+* fix: invoking isInitialised method (#63)
+
 # 4.0.27
 * Updated android and iOS sdk version to 2.2.1  2.2.2 respectively (#56)
 
