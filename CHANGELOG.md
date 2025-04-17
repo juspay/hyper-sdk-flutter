@@ -1,3 +1,6 @@
+# 4.0.29
+* added support for multiple tenants in plugin
+
 # 4.0.28
 * fix: invoking isInitialised method (#63)
 
