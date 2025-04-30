@@ -181,7 +181,7 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
 
         if let topViewController = (UIApplication.shared.delegate?.window??.rootViewController) {
             if let uiView = topViewController.view.viewWithTag(viewId) {
-                self.hyperServices.baseViewController = topViewController
+                self.hyperServices?.baseViewController = topViewController
                 self.manuallyLayoutChildren(uiView)
                 self.processedFragmentViewId = viewId
                 var payload = params["payload"] as! Dictionary<String, Any>
@@ -189,8 +189,8 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
                 payload["fragmentViewGroups"] = fragments
                 var updatedPayload = params
                 updatedPayload["payload"] = payload
-                self.hyperServices.hyperDelegate = self
-                self.hyperServices.process(updatedPayload)
+                self.hyperServices?.hyperDelegate = self
+                self.hyperServices?.process(updatedPayload)
             } else {
                 result(false)
                 return
