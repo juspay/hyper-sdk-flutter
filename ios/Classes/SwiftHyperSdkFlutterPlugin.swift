@@ -131,72 +131,60 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
     }
 
     private func process(_ params: [String: Any], _ result: @escaping FlutterResult) {
-        if ((self.hyperServices?.isInitialised()) != nil) {
-            if let topViewController = (UIApplication.shared.delegate?.window??.rootViewController) {
-                self.hyperServices?.baseViewController = topViewController
-                self.hyperServices?.shouldUseViewController = true
-                self.hyperServices?.hyperDelegate = self
-                self.hyperServices?.process(params)
-            } else {
-                result(false)
-                return
-            }
-        } else {
+        guard let hyperServices = self.hyperServices, hyperServices.isInitialised() else {
             result(false)
             return
+        }
+
+        if let topViewController = UIApplication.shared.delegate?.window??.rootViewController {
+            hyperServices.baseViewController = topViewController
+            hyperServices.shouldUseViewController = true
+            hyperServices.hyperDelegate = self
+            hyperServices.process(params)
+            result(true)
+        } else {
+            result(false)
         }
         result(true)
     }
 
     private func processWithView(_ viewId: Int, _ params: [String: Any], _ result: @escaping FlutterResult) {
-        if viewId == self.processedViewId {
-            result(true)
-            return
-        }
-        if let topViewController = (UIApplication.shared.delegate?.window??.rootViewController) {
-            self.hyperServices?.baseViewController = topViewController
-            if let uiView = topViewController.view.viewWithTag(viewId) {
-                self.hyperServices?.baseViewController = topViewController
-                self.hyperServices?.shouldUseViewController = false
-                self.hyperServices?.baseView = uiView
-                self.processedViewId = viewId
-                self.hyperServices?.hyperDelegate = self
-                self.hyperServices?.process(params)
-            } else {
-                result(false)
-                return
-            }
-        } else {
+        guard let hyperServices = self.hyperServices, hyperServices.isInitialised() else {
             result(false)
             return
         }
-        result(true)
+
+        if let topViewController = UIApplication.shared.delegate?.window??.rootViewController {
+            hyperServices.baseViewController = topViewController
+            hyperServices.shouldUseViewController = true
+            hyperServices.hyperDelegate = self
+            hyperServices.process(params)
+            result(true)
+        } else {
+            result(false)
+        }
     }
 
+
+
     private func hyperFragmentView(_ viewId: Int, _ params: [String: Any], _ namespace: String, _ result: @escaping FlutterResult) {
-        if viewId == self.processedFragmentViewId {
-            result(true)
+        guard let hyperServices = self.hyperServices, hyperServices.isInitialised() else {
+            result(false)
             return
         }
 
-        if let topViewController = (UIApplication.shared.delegate?.window??.rootViewController) {
-            if let uiView = topViewController.view.viewWithTag(viewId) {
-                self.hyperServices.baseViewController = topViewController
-                self.manuallyLayoutChildren(uiView)
-                self.processedFragmentViewId = viewId
-                var payload = params["payload"] as! Dictionary<String, Any>
-                let fragments = [namespace: uiView]
-                payload["fragmentViewGroups"] = fragments
-                var updatedPayload = params
-                updatedPayload["payload"] = payload
-                self.hyperServices.hyperDelegate = self
-                self.hyperServices.process(updatedPayload)
-            } else {
-                result(false)
-                return
-            }
+        if let topViewController = UIApplication.shared.delegate?.window??.rootViewController {
+            hyperServices.baseViewController = topViewController
+            hyperServices.shouldUseViewController = false
+            hyperServices.hyperDelegate = self
+            hyperServices.process(params)
+            result(true)
+        } else {
+            result(false)
         }
     }
+
+
 
     private func manuallyLayoutChildren(_ view: UIView) {
         guard let parent = view.superview else {
@@ -204,7 +192,7 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
         }
         view.frame = parent.bounds
     }
- 
+
     private func openPaymentPage(_ params: [String: Any], _ result: @escaping FlutterResult) {
         if let topViewController = (UIApplication.shared.delegate?.window??.rootViewController) {
             HyperCheckoutLite.openPaymentPage(topViewController, payload: params, callback: { [unowned self] (response) in
