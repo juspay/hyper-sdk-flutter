@@ -1,3 +1,6 @@
+# 4.0.30
+* fixed ios compile issue (#66)Co-authored-by: Sahaya Gebin <sahaya.gebin@Sahaya-Gebin-JGC9HGHHCW.local>
+
 # 4.0.29
 * added support for multiple tenants in plugin
 
