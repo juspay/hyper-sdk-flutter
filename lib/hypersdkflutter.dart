@@ -237,4 +237,24 @@ class HyperSDK {
               },
             ));
   }
+
+
+  Future<String> processWithActivity(Map<String, dynamic> params,
+    void Function(MethodCall) processHandler) async {
+      if (Platform.isIOS) {
+        return process(params, processHandler);
+      }
+      var result = await hyperSDK.invokeMethod('processWithActivity', <String, dynamic>{
+        'params': params,
+      });
+
+    // Wrapper function to eliminate redundant Future<dynamic> return value
+    Future<dynamic> callbackFunction(MethodCall methodCall) {
+      processHandler(methodCall);
+      return Future.value(0);
+    }
+
+    hyperSDK.setMethodCallHandler(callbackFunction);
+    return result.toString();
+  }
 }

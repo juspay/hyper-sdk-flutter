@@ -1,1 +1,11 @@
-<manifest />
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="in.juspay.hyper_sdk_flutter">
+
+    <application>
+        <activity 
+            android:name=".HyperProcessActivity"
+            android:theme="@style/HyperProcessTheme" />
+    </application>
+
+</manifest>
