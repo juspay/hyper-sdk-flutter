@@ -14,10 +14,13 @@ import android.util.Log
 import android.view.Choreographer
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebViewClient
 import androidx.fragment.app.FragmentActivity
 import `in`.juspay.hypercheckoutlite.HyperCheckoutLite
 import `in`.juspay.hypersdk.core.JuspayWebViewConfigurationCallback
+import `in`.juspay.hypersdk.core.MerchantViewType
 import `in`.juspay.hypersdk.data.JuspayResponseHandler
+import `in`.juspay.hypersdk.ui.HyperPaymentsCallback
 import `in`.juspay.hypersdk.ui.HyperPaymentsCallbackAdapter
 import `in`.juspay.services.HyperServices
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -30,7 +33,6 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry
 import org.json.JSONObject
-
 
 class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
     PluginRegistry.ActivityResultListener {
@@ -98,6 +100,10 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             "openPaymentPage" -> openPaymentPage(call.argument<Map<String, Any>>("params"), result)
             "processWithView" -> processWithView(
                 call.argument<Int>("viewId"),
+                call.argument<Map<String, Any>>("params") ?: mapOf(),
+                result
+            )
+            "processWithActivity" -> processWithActivity(
                 call.argument<Map<String, Any>>("params") ?: mapOf(),
                 result
             )
@@ -170,6 +176,34 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
         hyperServices = HyperServices(fragmentActivity, clientId)
     }
 
+    private fun updateHyperPaymentsCallback(hyperPaymentsCallback: HyperPaymentsCallback): HyperPaymentsCallback {
+        return object : HyperPaymentsCallback {
+            override fun onStartWaitingDialogCreated(parent: View?) {
+                hyperPaymentsCallback.onStartWaitingDialogCreated(parent)
+            }
+
+            override fun onEvent(event: JSONObject?, handler: JuspayResponseHandler?) {
+                if (event != null && event.optString("event") == "process_result") {
+                    val processActivity = HyperProcessActivity.getCurrentActivity()
+                    if (processActivity != null) {
+                        processActivity.finish()
+                        processActivity.overridePendingTransition(0, android.R.anim.fade_out)
+                    }
+                    HyperProcessActivity.setActivityCallback(null)
+                }
+                hyperPaymentsCallback.onEvent(event, handler)
+            }
+
+            override fun getMerchantView(parent: ViewGroup?, viewType: MerchantViewType?): View? {
+                return hyperPaymentsCallback.getMerchantView(parent, viewType)
+            }
+
+            override fun createJuspaySafeWebViewClient(): WebViewClient? {
+                return hyperPaymentsCallback.createJuspaySafeWebViewClient()
+            }
+        }
+    }
+
     private fun initiate(params: Map<String, Any>, result: Result) {
         try {
             if (binding == null) {
@@ -222,7 +256,7 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             hyperServices?.initiate(
                 fragmentActivity,
                 JSONObject(params),
-                callback
+                updateHyperPaymentsCallback(callback)
             )
             result.success(true)
         } catch (e: Exception) {
@@ -256,6 +290,36 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
         result.success(true)
     }
 
+    private fun processWithActivity(params: Map<String, Any>, result: Result) {
+        val activity = binding?.activity as? FragmentActivity
+            ?: return result.success(false)
+
+        try {
+            val hyperServices = this.hyperServices
+            if (hyperServices == null) {
+                result.success(false)
+                return
+            }
+
+            HyperProcessActivity.setActivityCallback(object : ActivityCallback {
+                override fun onCreated(fragmentActivity: FragmentActivity) {
+                    hyperServices.process(fragmentActivity,  JSONObject(params))
+                }
+
+                override fun onBackPressed(): Boolean {
+                    return hyperServices.onBackPressed()
+                }
+            })
+
+            val intent = Intent(activity, HyperProcessActivity::class.java)
+            activity.startActivity(intent)
+            result.success(true)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            result.success(false)
+        }
+    }
+
     private fun hyperFragmentView(id: Int?, namespace: String?, payload: Map<String, Any>, result: Result) {
         val hyperServices = this.hyperServices
         if (hyperServices == null) {
@@ -267,7 +331,7 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             ?: return result.success(false)
         val view = id?.let { (activity as Activity).findViewById<ViewGroup>(it) }
             ?: return result.success(false)
-        
+
         // setuplayout
         setupLayout(view)
         val jsonPayload = JSONObject(payload)
