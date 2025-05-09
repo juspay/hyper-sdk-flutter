@@ -1,7 +1,7 @@
 name: hypersdkflutter
 description: >-
   Flutter plugin for HyperSDK which enables payment orchestration via different dynamic modules.
-version: 4.0.30
+version: 4.0.31
 repository: https://github.com/juspay/hyper-sdk-flutter
 homepage: https://juspay.in/
 
