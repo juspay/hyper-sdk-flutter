@@ -1,6 +1,6 @@
 require "yaml"
 
-hyper_sdk_version = "2.2.3"
+hyper_sdk_version = "2.2.4"
 
 begin
   # Read hyper_sdk_version from pubspec.yaml if it exists
@@ -36,6 +36,7 @@ Flutter plugin for juspay SDK.
   s.dependency 'Flutter'
   s.dependency 'HyperSDK', hyper_sdk_version
   s.platform = :ios, '12.0'
+  s.swift_version = "5.0"
 
   # Flutter.framework does not contain an i386 slice.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
