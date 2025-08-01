@@ -8,7 +8,7 @@
 import Flutter
 import UIKit
 import HyperSDK
-
+import HyperCore
 
 public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
 
@@ -131,16 +131,11 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
     }
 
     private func process(_ params: [String: Any], _ result: @escaping FlutterResult) {
-        if ((self.hyperServices?.isInitialised()) != nil) {
-            if let topViewController = (UIApplication.shared.delegate?.window??.rootViewController) {
-                self.hyperServices?.baseViewController = topViewController
-                self.hyperServices?.shouldUseViewController = true
-                self.hyperServices?.hyperDelegate = self
-                self.hyperServices?.process(params)
-            } else {
-                result(false)
-                return
-            }
+        if (self.hyperServices?.isInitialised() ?? false) {
+            self.hyperServices?.baseViewController = HPJPHelpers.topViewController()
+            self.hyperServices?.shouldUseViewController = true
+            self.hyperServices?.hyperDelegate = self
+            self.hyperServices?.process(params)
         } else {
             result(false)
             return
@@ -153,19 +148,14 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
             result(true)
             return
         }
-        if let topViewController = (UIApplication.shared.delegate?.window??.rootViewController) {
-            self.hyperServices?.baseViewController = topViewController
-            if let uiView = topViewController.view.viewWithTag(viewId) {
-                self.hyperServices?.baseViewController = topViewController
-                self.hyperServices?.shouldUseViewController = false
-                self.hyperServices?.baseView = uiView
-                self.processedViewId = viewId
-                self.hyperServices?.hyperDelegate = self
-                self.hyperServices?.process(params)
-            } else {
-                result(false)
-                return
-            }
+        let vc = HPJPHelpers.topViewController()
+        if let uiView = vc.view.viewWithTag(viewId) {
+            self.hyperServices?.baseViewController = vc
+            self.hyperServices?.shouldUseViewController = false
+            self.hyperServices?.baseView = uiView
+            self.processedViewId = viewId
+            self.hyperServices?.hyperDelegate = self
+            self.hyperServices?.process(params)
         } else {
             result(false)
             return
@@ -178,23 +168,21 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
             result(true)
             return
         }
-
-        if let topViewController = (UIApplication.shared.delegate?.window??.rootViewController) {
-            if let uiView = topViewController.view.viewWithTag(viewId) {
-                self.hyperServices?.baseViewController = topViewController
-                self.manuallyLayoutChildren(uiView)
-                self.processedFragmentViewId = viewId
-                var payload = params["payload"] as! Dictionary<String, Any>
-                let fragments = [namespace: uiView]
-                payload["fragmentViewGroups"] = fragments
-                var updatedPayload = params
-                updatedPayload["payload"] = payload
-                self.hyperServices?.hyperDelegate = self
-                self.hyperServices?.process(updatedPayload)
-            } else {
-                result(false)
-                return
-            }
+        let vc = HPJPHelpers.topViewController()
+        if let uiView = vc.view.viewWithTag(viewId) {
+            self.hyperServices?.baseViewController = vc
+            self.manuallyLayoutChildren(uiView)
+            self.processedFragmentViewId = viewId
+            var payload = params["payload"] as! Dictionary<String, Any>
+            let fragments = [namespace: uiView]
+            payload["fragmentViewGroups"] = fragments
+            var updatedPayload = params
+            updatedPayload["payload"] = payload
+            self.hyperServices?.hyperDelegate = self
+            self.hyperServices?.process(updatedPayload)
+        } else {
+            result(false)
+            return
         }
     }
 
@@ -204,25 +192,21 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
         }
         view.frame = parent.bounds
     }
- 
-    private func openPaymentPage(_ params: [String: Any], _ result: @escaping FlutterResult) {
-        if let topViewController = (UIApplication.shared.delegate?.window??.rootViewController) {
-            HyperCheckoutLite.openPaymentPage(topViewController, payload: params, callback: { [unowned self] (response) in
-                guard let response = response else {
-                    return
-                }
-                let event = response["event"] as? String ?? ""
 
-                if let jsonData = try? JSONSerialization.data(withJSONObject: response, options: .prettyPrinted) {
-                    if let jsonString = String(data: jsonData, encoding: .utf8) {
-                        self.juspay.invokeMethod(event, arguments: jsonString)
-                    }
+    private func openPaymentPage(_ params: [String: Any], _ result: @escaping FlutterResult) {
+        HyperCheckoutLite.openPaymentPage(HPJPHelpers.topViewController(), payload: params, callback: { [unowned self] (response) in
+            guard let response = response else {
+                return
+            }
+            let event = response["event"] as? String ?? ""
+
+            if let jsonData = try? JSONSerialization.data(withJSONObject: response, options: .prettyPrinted) {
+                if let jsonString = String(data: jsonData, encoding: .utf8) {
+                    self.juspay.invokeMethod(event, arguments: jsonString)
                 }
-            })
-            result(true)
-        } else {
-            result(false)
-        }
+            }
+        })
+        result(true)
     }
 
     private func terminate(_ result: @escaping FlutterResult) {
