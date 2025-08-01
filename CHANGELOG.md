@@ -1,3 +1,6 @@
+# 4.0.32
+* fixed view controller + updated swift and hypersdk version (#71)
+
 # 4.0.31
 * added processWithActivity
 
