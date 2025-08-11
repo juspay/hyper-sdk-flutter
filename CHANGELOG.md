@@ -1,3 +1,6 @@
+# 4.0.33
+* Removed EXCLUDED_ARCHS config from podspec (#73)
+
 # 4.0.32
 * fixed view controller + updated swift and hypersdk version (#71)
 
