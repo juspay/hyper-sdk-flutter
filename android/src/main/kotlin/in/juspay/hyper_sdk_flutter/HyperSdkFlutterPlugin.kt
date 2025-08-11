@@ -41,6 +41,7 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
     private var hyperServices: HyperServices? = null
     private var isHyperCheckOutLiteInteg: Boolean = false
     private var flutterPluginBinding: FlutterPluginBinding? = null
+    private var initiatedWithApplicationContext: Boolean = false
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "hyperSDK")
@@ -119,16 +120,24 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
     }
 
     private fun createHyperServicesWithTenantId(tenantId: String?, clientId: String?, result: Result) {
-        val fragmentActivity = binding?.activity as? FragmentActivity
-        if (fragmentActivity !is FragmentActivity) {
-            result.error("INIT_ERROR", "FragmentActivity is null, cannot proceed", "")
+        val activity = binding?.activity
+        if (activity == null) {
+            result.error("INIT_ERROR", "Activity is null, cannot proceed", "")
             return
         }
         if (tenantId == null || clientId == null) {
             result.error("INIT_ERROR", "tenantId or clientId cannot be null", "")
             return
         }
-        hyperServices = HyperServices(fragmentActivity, tenantId, clientId)
+
+        if (activity is FragmentActivity) {
+            hyperServices = HyperServices(activity, tenantId, clientId)
+            initiatedWithApplicationContext = false
+        } else {
+            hyperServices = HyperServices(activity.applicationContext, tenantId, clientId)
+            initiatedWithApplicationContext = true
+        }
+        result.success(true)
     }
 
     private fun onBackPress(result: Result) {
@@ -164,16 +173,24 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
     }
 
     private fun createHyperServices(clientId: String?, result: Result) {
-        val fragmentActivity = binding?.activity as? FragmentActivity
-        if (fragmentActivity !is FragmentActivity) {
-            result.error("INIT_ERROR", "FragmentActivity is null, cannot proceed", "")
+        val activity = binding?.activity
+        if (activity == null) {
+            result.error("INIT_ERROR", "Activity is null, cannot proceed", "")
             return
         }
         if (clientId == null) {
             result.error("INIT_ERROR", "clientId cannot be null", "")
             return
         }
-        hyperServices = HyperServices(fragmentActivity, clientId)
+
+        if (activity is FragmentActivity) {
+            hyperServices = HyperServices(activity, clientId)
+            initiatedWithApplicationContext = false
+        } else {
+            hyperServices = HyperServices(activity.applicationContext, clientId)
+            initiatedWithApplicationContext = true
+        }
+        result.success(true)
     }
 
     private fun updateHyperPaymentsCallback(hyperPaymentsCallback: HyperPaymentsCallback): HyperPaymentsCallback {
@@ -206,19 +223,16 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
 
     private fun initiate(params: Map<String, Any>, result: Result) {
         try {
-            if (binding == null) {
-                Log.e(
-                    "JUSPAY",
-                    "Kotlin MainActivity should extend FlutterFragmentActivity instead of FlutterActivity! JUSPAY Plugin only supports FragmentActivity. Please refer to this doc for more information: https://juspaydev.vercel.app/sections/base-sdk-integration/initiating-sdk?platform=Flutter&product=Payment+Page"
-                )
-                throw Exception("Kotlin MainActivity should extend FlutterFragmentActivity instead of FlutterActivity!")
-            }
-            val fragmentActivity = binding?.activity as? FragmentActivity
-            if (fragmentActivity !is FragmentActivity) {
-                result.error("INIT_ERROR", "FragmentActivity is null, cannot proceed", "")
+            if (binding?.activity == null) {
+                result.error("INIT_ERROR", "Activity binding is not available", null)
                 return
             }
-            if (hyperServices == null) {
+            val fragmentActivity = binding?.activity as? FragmentActivity
+            if (hyperServices == null && fragmentActivity == null) {
+                result.error("INIT_ERROR", "HyperServices has not been initialized. Please call createHyperServices first.", null)
+                return
+            }
+            if (hyperServices == null && fragmentActivity is FragmentActivity) {
                 hyperServices = HyperServices(fragmentActivity)
             }
 
@@ -253,11 +267,20 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
                     }
                 }
             }
-            hyperServices?.initiate(
-                fragmentActivity,
-                JSONObject(params),
-                updateHyperPaymentsCallback(callback)
-            )
+
+            val activity = binding?.activity
+            if (!initiatedWithApplicationContext && activity is FragmentActivity) {
+                hyperServices?.initiate(
+                        activity,
+                        JSONObject(params),
+                        updateHyperPaymentsCallback(callback)
+                )
+            } else {
+                hyperServices?.initiate(
+                        JSONObject(params),
+                        updateHyperPaymentsCallback(callback)
+                )
+            }
             result.success(true)
         } catch (e: Exception) {
             result.error("INIT_ERROR", e.localizedMessage, e)
@@ -271,8 +294,31 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             return
         }
         webViewConfigurationCallback?.let { hyperServices.setWebViewConfigurationCallback(it) }
-        hyperServices.process(JSONObject(params))
-        result.success(true)
+
+        val activity = binding?.activity
+        if (activity == null) {
+            result.error("PROCESS_ERROR", "Activity is null.", null)
+            return
+        }
+
+        if (initiatedWithApplicationContext) {
+            HyperProcessActivity.setActivityCallback(object : ActivityCallback {
+                override fun onCreated(fragmentActivity: FragmentActivity) {
+                    hyperServices.process(fragmentActivity, JSONObject(params))
+                }
+
+                override fun onBackPressed(): Boolean {
+                    return hyperServices.onBackPressed()
+                }
+            })
+
+            val intent = Intent(activity, HyperProcessActivity::class.java)
+            activity.startActivity(intent)
+            result.success(true)
+        } else {
+            hyperServices.process(JSONObject(params))
+            result.success(true)
+        }
     }
 
     private fun processWithView(id: Int?, params: Map<String, Any>, result: Result) {

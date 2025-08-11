@@ -43,20 +43,36 @@ buildscript {
 
 Optionally, you can also provide an override for base SDK version present in plugin (the newer version among both would be considered).
 
-### Note
+### Activity Setup
 
-**Your application's `MainActivity` should extend `FlutterFragmentActivity` instead of `FlutterActivity`.**
+#### 1. Using `FlutterFragmentActivity` (Recommended)
 
-_`HyperSDK` only supports `FragmentActivity`._
+Your application's `MainActivity` should extend `FlutterFragmentActivity` instead of `FlutterActivity` for a more seamless experience.
 
 ```kotlin
 import io.flutter.embedding.android.FlutterFragmentActivity
 
-
-class MainActivity: FlutterFragmentActivity() {
+class MainActivity : FlutterFragmentActivity() {
 
 }
 ```
+
+#### 2. Using `FlutterActivity`
+
+Alternatively, your application's `MainActivity` can extend `FlutterActivity`.
+
+```kotlin
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity : FlutterActivity() {
+
+}
+```
+
+> **Note:**  
+> If you use `FlutterActivity`, always call `createHyperServices` or `createHyperServicesWithTenantId` before calling `initiate`.
+> Use `FlutterFragmentActivity` if possible.
+
 
 ## iOS Setup
 
