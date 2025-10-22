@@ -271,7 +271,14 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             return
         }
         webViewConfigurationCallback?.let { hyperServices.setWebViewConfigurationCallback(it) }
-        hyperServices.process(JSONObject(params))
+        
+        val activity = binding?.activity
+            ?: return result.success(false)
+        if (activity !is FragmentActivity) {
+            throw Exception("Kotlin MainActivity should extend FlutterFragmentActivity instead of FlutterActivity!")
+        }
+        
+        hyperServices.process(activity,JSONObject(params))
         result.success(true)
     }
 
