@@ -1,3 +1,6 @@
+# 4.0.34
+* fix: QR-6714: added activity context in Process
+
 # 4.0.33
 * Removed EXCLUDED_ARCHS config from podspec (#73)
 
