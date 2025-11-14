@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:hypersdkflutter/hypersdkflutter.dart';
 
@@ -35,6 +36,13 @@ class CheckoutScreen extends StatefulWidget {
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   var useContainer = false;
+  final TextEditingController _payloadController = TextEditingController();
+
+  @override
+  void dispose() {
+    _payloadController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,9 +56,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     return Scaffold(
       appBar: customAppBar(text: "Checkout Screen"),
       backgroundColor: Colors.white,
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
+      body: SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: screenHeight - AppBar().preferredSize.height - MediaQuery.of(context).padding.top,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
           Container(
             color: const Color(0xFFF8F5F5),
             height: screenHeight / 12,
@@ -174,13 +187,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
             ],
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
             children: [
               Container(
-                margin: const EdgeInsets.only(left: 20),
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.only(left: 20, top: 15),
+                margin: const EdgeInsets.only(bottom: 10),
                 child: const Text(
-                  "Use Container?",
+                  "Custom Payload (Optional)",
                   style: TextStyle(
                       fontSize: 18,
                       color: Color(0xFfFB8D33),
@@ -188,42 +202,107 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
               ),
               Container(
-                  margin: const EdgeInsets.only(right: 20),
-                  child: Switch(
-                    value: useContainer,
-                    onChanged: (value) {
-                      setState(() {
-                        useContainer = !useContainer;
-                      });
-                      // Uncoment for Update order of Payment Widget
-                      // widget.hyperSDK.process(getUpdateOrderPayload("yJczz4s5b2", widget.merchantDetails, widget.customerDetails, "4.0"), hyperSDKCallbackHandler);
-                    },
-                  ))
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  border: Border.all(color: const Color(0xFFf5f5f5)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: TextField(
+                  controller: _payloadController,
+                  maxLines: 4,
+                  decoration: const InputDecoration(
+                    hintText: "Paste or type custom payload JSON here (leave empty to use auto-generated payload)",
+                    border: InputBorder.none,
+                    hintStyle: TextStyle(color: Colors.grey),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(left: 20),
+                    child: const Text(
+                      "Use Container?",
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Color(0xFfFB8D33),
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Container(
+                      margin: const EdgeInsets.only(right: 20),
+                      child: Switch(
+                        value: useContainer,
+                        onChanged: (value) {
+                          setState(() {
+                            useContainer = !useContainer;
+                          });
+                          // Uncoment for Update order of Payment Widget
+                          // widget.hyperSDK.process(getUpdateOrderPayload("yJczz4s5b2", widget.merchantDetails, widget.customerDetails, "4.0"), hyperSDKCallbackHandler);
+                        },
+                      ))
+                ],
+              ),
             ],
           ),
           BottomButton(
             height: screenHeight / 10,
             text: "Checkout",
-            onpressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) {
-                if (useContainer) {
-                  print('HH useContainer - true');
-                  return ContainerPaymentPage(
-                      hyperSDK: widget.hyperSDK,
-                      amount: amounts['totalAmount'].toString(),
-                      merchantDetails: widget.merchantDetails,
-                      customerDetails: widget.customerDetails);
-                } else {
-                  print('HH useContainer - false');
-                  return PaymentPage(
-                      hyperSDK: widget.hyperSDK,
-                      amount: amounts['totalAmount'].toString(),
-                      merchantDetails: widget.merchantDetails,
-                      customerDetails: widget.customerDetails);
+            onpressed: () {
+              Map<String, dynamic>? customPayload;
+              
+              // Check if custom payload is provided
+              if (_payloadController.text.trim().isNotEmpty) {
+                try {
+                  customPayload = json.decode(_payloadController.text.trim());
+                  print('Using custom payload: $customPayload');
+                } catch (e) {
+                  // Show error dialog for invalid JSON
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Invalid Payload'),
+                        content: const Text('The payload you entered is not valid JSON. Please check and try again.'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                  return;
                 }
-              }),
-            ),
+              }
+              
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) {
+                  if (useContainer) {
+                    print('HH useContainer - true');
+                    return ContainerPaymentPage(
+                        hyperSDK: widget.hyperSDK,
+                        amount: amounts['totalAmount'].toString(),
+                        merchantDetails: widget.merchantDetails,
+                        customerDetails: widget.customerDetails,
+                        customPayload: customPayload);
+                  } else {
+                    print('HH useContainer - false');
+                    return PaymentPage(
+                        hyperSDK: widget.hyperSDK,
+                        amount: amounts['totalAmount'].toString(),
+                        merchantDetails: widget.merchantDetails,
+                        customerDetails: widget.customerDetails,
+                        customPayload: customPayload);
+                  }
+                }),
+              );
+            },
           ),
           // Uncomment for Payment Widget 
           // Container(
@@ -237,7 +316,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           //         hyperSDKCallbackHandler
           //       ),
           // ),
-        ],
+            ],
+          ),
+        ),
       ),
     );
   }

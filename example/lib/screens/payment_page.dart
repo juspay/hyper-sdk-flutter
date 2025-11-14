@@ -22,12 +22,14 @@ class PaymentPage extends StatefulWidget {
   final String amount;
   final Map<String, dynamic> merchantDetails;
   final Map<String, dynamic> customerDetails;
+  final Map<String, dynamic>? customPayload;
   const PaymentPage(
       {Key? key,
       required this.hyperSDK,
       required this.amount,
       required this.merchantDetails,
-      required this.customerDetails})
+      required this.customerDetails,
+      this.customPayload})
       : super(key: key);
 
   @override
@@ -77,15 +79,23 @@ class _PaymentPageState extends State<PaymentPage> {
   void callProcess() async {
     processCalled = true;
 
-    // Get process payload from backend
-    // block:start:fetch-process-payload
-    var processPayload = await getProcessPayload(
-        widget.amount, widget.merchantDetails, widget.customerDetails);
-    // block:end:fetch-process-payload
+    Map<String, dynamic> processPayload;
+    
+    // Check if custom payload is provided
+    if (widget.customPayload != null) {
+      processPayload = widget.customPayload!;
+      print('Using custom payload: $processPayload');
+    } else {
+      // Get process payload from backend
+      // block:start:fetch-process-payload
+      processPayload = await getProcessPayload(
+          widget.amount, widget.merchantDetails, widget.customerDetails);
+      // block:end:fetch-process-payload
+      print('Using auto-generated payload: $processPayload');
+    }
 
     // Calling process on hyperSDK to open payment page
     // block:start:process-sdk
-    print('The process payload $processPayload');
     await widget.hyperSDK.process(processPayload, hyperSDKCallbackHandler);
     //block:end:process-sdk
   }

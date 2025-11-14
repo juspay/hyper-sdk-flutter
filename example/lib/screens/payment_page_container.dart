@@ -22,12 +22,14 @@ class ContainerPaymentPage extends StatefulWidget {
   final String amount;
   final Map<String, dynamic> merchantDetails;
   final Map<String, dynamic> customerDetails;
+  final Map<String, dynamic>? customPayload;
   const ContainerPaymentPage(
       {Key? key,
       required this.hyperSDK,
       required this.amount,
       required this.merchantDetails,
-      required this.customerDetails})
+      required this.customerDetails,
+      this.customPayload})
       : super(key: key);
 
   @override
@@ -48,8 +50,17 @@ class _ContainerPaymentPageState extends State<ContainerPaymentPage> {
     // }
 
     navigateAfterPayment(context);
-    var processPayload = getProcessPayload(
-        widget.amount, widget.merchantDetails, widget.customerDetails);
+    
+    // Use custom payload if provided, otherwise generate one
+    Future<Map<String, dynamic>> processPayload;
+    if (widget.customPayload != null) {
+      processPayload = Future.value(widget.customPayload!);
+      print('Using custom payload in container: ${widget.customPayload}');
+    } else {
+      processPayload = getProcessPayload(
+          widget.amount, widget.merchantDetails, widget.customerDetails);
+      print('Using auto-generated payload in container');
+    }
 
     // Overriding onBackPressed to handle hardware backpress
     // block:start:onBackPressed
