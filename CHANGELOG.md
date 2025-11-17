@@ -1,3 +1,6 @@
+# 4.0.35
+* migration to android studio narwhal
+
 # 4.0.34
 * fix: QR-6714: added activity context in Process
 
