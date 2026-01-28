@@ -3,10 +3,6 @@ on:
   push:
     branches:
       - main
-    tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
-    types:
-      - closed
 
 permissions:
   contents: write
@@ -17,6 +13,7 @@ jobs:
     if: (github.event.pull_request.merged == true && !contains(github.event.pull_request.title, '[skip ci]')) || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     name: Publish Package to Pub.dev
+    environment: production
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
