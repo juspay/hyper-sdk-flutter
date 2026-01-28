@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   publish:
@@ -116,15 +118,11 @@ jobs:
           git commit -m "chore: bump version to ${{ env.new_version }}"
         shell: bash
 
+      - name: Set up Dart (for pub.dev)
+        uses: dart-lang/setup-dart@v1
+
       - name: Publish to pub.dev
-        uses: k-paxian/dart-package-publisher@v2.0.2
-        with:
-          flutter: true
-          skipTests: true
-          useGitHubOidc: true
-          accessToken: ""
-          refreshToken: ""
-          credentialJson: ""
+        run: dart pub publish --force
 
       - name: Create tag for new version
         run: |
