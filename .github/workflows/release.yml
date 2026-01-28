@@ -4,16 +4,19 @@ on:
     branches:
       - main
 
-permissions:
-  contents: write
-  id-token: write
-
 jobs:
   publish:
-    if: (github.event.pull_request.merged == true && !contains(github.event.pull_request.title, '[skip ci]')) || github.ref == 'refs/heads/main'
+    if: |
+      github.ref == 'refs/heads/main' &&
+      !contains(github.actor, 'bot') &&
+      !contains(github.event.head_commit.message, '[skip ci]')
+
     runs-on: ubuntu-latest
     name: Publish Package to Pub.dev
     environment: production
+    permissions:
+      contents: write
+      id-token: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -114,11 +117,14 @@ jobs:
         shell: bash
 
       - name: Publish to pub.dev
-        uses: k-paxian/dart-package-publisher@v1.5.1
+        uses: k-paxian/dart-package-publisher@v2.0.2
         with:
           flutter: true
           skipTests: true
           useGitHubOidc: true
+          accessToken: ""
+          refreshToken: ""
+          credentialJson: ""
 
       - name: Create tag for new version
         run: |
