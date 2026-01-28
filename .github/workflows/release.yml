@@ -1,6 +1,6 @@
 name: Publish hypersdkflutter to pub.dev
 on:
-  pull_request_target:
+  push:
     branches:
       - main
     tags:
@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   publish:
@@ -118,7 +119,6 @@ jobs:
       - name: Publish to pub.dev
         uses: k-paxian/dart-package-publisher@v1.5.1
         with:
-          credentialJson: ${{ secrets.PUB_PUBLISH_TOKEN }}
           flutter: true
           skipTests: true
 
