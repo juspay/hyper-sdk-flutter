@@ -118,6 +118,7 @@ jobs:
         with:
           flutter: true
           skipTests: true
+          useGitHubOidc: true
 
       - name: Create tag for new version
         run: |
