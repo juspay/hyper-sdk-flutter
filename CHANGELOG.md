@@ -1,3 +1,6 @@
+# 4.0.36
+* publishing only with tags
+
 # 4.0.35
 * migration to android studio narwhal
 
