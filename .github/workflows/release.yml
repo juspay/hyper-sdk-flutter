@@ -1,24 +1,21 @@
-name: Publish hypersdkflutter to pub.dev
+name: Release hypersdkflutter to pub.dev
 on:
   push:
     branches:
       - main
-    tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
-  publish:
+  release:
     if: |
       github.ref == 'refs/heads/main' &&
       !contains(github.actor, 'bot') &&
       !contains(github.event.head_commit.message, '[skip ci]')
 
     runs-on: ubuntu-latest
-    name: Publish Package to Pub.dev
+    name: Create Release Tag
     environment: production
     permissions:
       contents: write
-      id-token: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -117,12 +114,6 @@ jobs:
           git add CHANGELOG.md
           git commit -m "chore: bump version to ${{ env.new_version }}"
         shell: bash
-
-      - name: Set up Dart (for pub.dev)
-        uses: dart-lang/setup-dart@v1
-
-      - name: Publish to pub.dev
-        run: dart pub publish --force
 
       - name: Create tag for new version
         run: |
