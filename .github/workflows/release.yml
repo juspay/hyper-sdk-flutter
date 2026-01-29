@@ -13,12 +13,28 @@ jobs:
 
     runs-on: ubuntu-latest
     name: Create Release Tag
-    environment: production
+    environment: tag-creation
     permissions:
       contents: write
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+          fetch-depth: 0
+
+      - name: Setup SSH using DEPLOY_KEY
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+          git config --global core.sshCommand "ssh -i ~/.ssh/id_rsa -o IdentitiesOnly=yes"
+          git remote set-url origin git@github.com:${{ github.repository }}.git
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -119,12 +135,8 @@ jobs:
         run: |
           git tag "v${{ env.new_version }}"
           git push origin "v${{ env.new_version }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push release commit
         run: |
           git push origin main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
