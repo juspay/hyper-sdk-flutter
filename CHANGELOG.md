@@ -1,3 +1,6 @@
+# 4.0.39
+* chore: bump version to 4.0.38
+
 # 4.0.38
 * push using SSH instead of GITHUB_TOKEN
 
