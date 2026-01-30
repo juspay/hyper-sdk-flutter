@@ -1,3 +1,6 @@
+# 4.0.43
+* chore: bump version to 4.0.42
+
 # 4.0.42
 * chore: bump version to 4.0.41
 
