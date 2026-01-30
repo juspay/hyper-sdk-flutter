@@ -7,9 +7,11 @@ on:
 jobs:
   release:
     if: |
+      github.ref_type == 'branch' &&
       github.ref == 'refs/heads/main' &&
       !contains(github.actor, 'bot') &&
-      !contains(github.event.head_commit.message, '[skip ci]')
+      !contains(github.event.head_commit.message, '[skip ci]') &&
+      !contains(github.event.head_commit.message, 'chore:')
 
     runs-on: ubuntu-latest
     name: Create Release Tag
