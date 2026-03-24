@@ -1,3 +1,6 @@
+# 4.0.51
+* chore: bump version to 4.0.50
+
 # 4.0.50
 * QR-7094: Fix typecasting of topviewcontroller (#88)
 
