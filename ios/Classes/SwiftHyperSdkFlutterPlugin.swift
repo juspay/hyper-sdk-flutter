@@ -148,8 +148,8 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
             result(true)
             return
         }
-        let vc = HPJPHelpers.topViewController()
-        if let uiView = vc.view.viewWithTag(viewId) {
+        if let vc = HPJPHelpers.topViewController() as UIViewController?,
+           let uiView = vc.view.viewWithTag(viewId) {
             self.hyperServices?.baseViewController = vc
             self.hyperServices?.shouldUseViewController = false
             self.hyperServices?.baseView = uiView
@@ -168,8 +168,8 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
             result(true)
             return
         }
-        let vc = HPJPHelpers.topViewController()
-        if let uiView = vc.view.viewWithTag(viewId) {
+        if let vc = HPJPHelpers.topViewController() as UIViewController?,
+           let uiView = vc.view.viewWithTag(viewId) {
             self.hyperServices?.baseViewController = vc
             self.manuallyLayoutChildren(uiView)
             self.processedFragmentViewId = viewId
@@ -194,7 +194,7 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
     }
 
     private func openPaymentPage(_ params: [String: Any], _ result: @escaping FlutterResult) {
-        HyperCheckoutLite.openPaymentPage(HPJPHelpers.topViewController(), payload: params, callback: { [unowned self] (response) in
+        HyperCheckoutLite.openPaymentPage(HPJPHelpers.topViewController() as! UIViewController, payload: params, callback: { [unowned self] (response) in
             guard let response = response else {
                 return
             }
