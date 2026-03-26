@@ -1,3 +1,6 @@
+# 4.0.53
+* Fixed infinite loop (#87)
+
 # 4.0.52
 * chore: bump version to 4.0.51
 
