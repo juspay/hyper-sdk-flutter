@@ -1,3 +1,6 @@
+# 4.0.54
+* Replace deprecated jcenter() with mavenCentral()
+
 # 4.0.53
 * Fixed infinite loop (#87)
 
