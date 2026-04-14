@@ -207,10 +207,6 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
     private fun initiate(params: Map<String, Any>, result: Result) {
         try {
             if (binding == null) {
-                Log.e(
-                    "JUSPAY",
-                    "Kotlin MainActivity should extend FlutterFragmentActivity instead of FlutterActivity! JUSPAY Plugin only supports FragmentActivity. Please refer to this doc for more information: https://juspaydev.vercel.app/sections/base-sdk-integration/initiating-sdk?platform=Flutter&product=Payment+Page"
-                )
                 throw Exception("Kotlin MainActivity should extend FlutterFragmentActivity instead of FlutterActivity!")
             }
             val fragmentActivity = binding?.activity as? FragmentActivity
