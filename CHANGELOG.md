@@ -1,3 +1,6 @@
+# 4.0.55
+* remove unnecessary logline
+
 # 4.0.54
 * Replace deprecated jcenter() with mavenCentral()
 
