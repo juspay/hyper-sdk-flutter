@@ -1,6 +1,6 @@
 # Hyper SDK Flutter
 
-Flutter plugin for HyperSDK which enables payment orchestration via different dynamic modules.
+Flutter plugin for HyperSDK which enables payment orchestration via different dynamic modules. It is easy!
 
 ## Flutter Setup
 
