@@ -52,18 +52,13 @@ class _PaymentPageState extends State<PaymentPage> {
 
     // Overriding onBackPressed to handle hardware backpress
     // block:start:onBackPressed
-    return WillPopScope(
-      onWillPop: () async {
-        if (Platform.isAndroid) {
-          var backpressResult = await widget.hyperSDK.onBackPress();
-
-          if (backpressResult.toLowerCase() == "true") {
-            return false;
-          } else {
-            return true;
-          }
-        } else {
-          return true;
+    return PopScope(
+      canPop: !Platform.isAndroid,
+      onPopInvokedWithResult: (bool didPop, dynamic result) async {
+        if (didPop) return;
+        var backpressResult = await widget.hyperSDK.onBackPress();
+        if (backpressResult.toLowerCase() != "true") {
+          if (context.mounted) Navigator.of(context).pop(result);
         }
       },
       // block:end:onBackPressed
