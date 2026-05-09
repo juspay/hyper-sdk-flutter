@@ -87,25 +87,21 @@ class _ContainerPaymentPageState extends State<ContainerPaymentPage> {
             child: Center(
                 child: showLoader
                     ? const CircularProgressIndicator()
-                    : Container(
-                        // color: Colors.deepPurple,
-                        // padding: const EdgeInsets.all(20.0),
-                        child: FutureBuilder(
-                            future: processPayload,
-                            builder: (BuildContext context,
-                                AsyncSnapshot<Map<String, dynamic>> snapshot) {
-                              if (snapshot.hasData) {
-                                var processPayload = snapshot.requireData;
-                                var payload = processPayload["payload"];
-                                var orderDetails = payload["orderDetails"];
-                                orderId = jsonDecode(orderDetails)["order_id"];
-                                return widget.hyperSDK.hyperSdkView(
-                                    processPayload, hyperSDKCallbackHandler);
-                              } else {
-                                return const CircularProgressIndicator();
-                              }
-                            }),
-                      )),
+                    : FutureBuilder(
+                        future: processPayload,
+                        builder: (BuildContext context,
+                            AsyncSnapshot<Map<String, dynamic>> snapshot) {
+                          if (snapshot.hasData) {
+                            var processPayload = snapshot.requireData;
+                            var payload = processPayload["payload"];
+                            var orderDetails = payload["orderDetails"];
+                            orderId = jsonDecode(orderDetails)["order_id"];
+                            return widget.hyperSDK.hyperSdkView(
+                                processPayload, hyperSDKCallbackHandler);
+                          } else {
+                            return const CircularProgressIndicator();
+                          }
+                        })),
           ),
         ]),
       ),
