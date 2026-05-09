@@ -55,11 +55,11 @@ class _ContainerPaymentPageState extends State<ContainerPaymentPage> {
     Future<Map<String, dynamic>> processPayload;
     if (widget.customPayload != null) {
       processPayload = Future.value(widget.customPayload!);
-      print('Using custom payload in container: ${widget.customPayload}');
+      debugPrint('Using custom payload in container: ${widget.customPayload}');
     } else {
       processPayload = getProcessPayload(
           widget.amount, widget.merchantDetails, widget.customerDetails);
-      print('Using auto-generated payload in container');
+      debugPrint('Using auto-generated payload in container');
     }
 
     // Overriding onBackPressed to handle hardware backpress
@@ -126,7 +126,7 @@ class _ContainerPaymentPageState extends State<ContainerPaymentPage> {
 
     // Calling process on hyperSDK to open payment page
     // block:start:process-sdk
-    print('The process payload $processPayload');
+    debugPrint('The process payload $processPayload');
     await widget.hyperSDK.process(processPayload, hyperSDKCallbackHandler);
     //block:end:process-sdk
   }
@@ -158,11 +158,11 @@ class _ContainerPaymentPageState extends State<ContainerPaymentPage> {
             _showBottomSheetForUpdateOrder(context);
           }
         } catch (e) {
-          print(e);
+          debugPrint(e.toString());
         }
         break;
       case "paymentAttempt":
-        print("Calling _showBottomSheetForUpdateOrder ");
+        debugPrint("Calling _showBottomSheetForUpdateOrder ");
         _showBottomSheetForUpdateOrder(context);
         break;
       case "process_result":
@@ -171,7 +171,7 @@ class _ContainerPaymentPageState extends State<ContainerPaymentPage> {
         try {
           args = json.decode(methodCall.arguments);
         } catch (e) {
-          print(e);
+          debugPrint(e.toString());
         }
 
         var error = args["error"] ?? false;
@@ -181,7 +181,7 @@ class _ContainerPaymentPageState extends State<ContainerPaymentPage> {
         var status = innerPayload["status"] ?? " ";
         var pi = innerPayload["paymentInstrument"] ?? " ";
         var pig = innerPayload["paymentInstrumentGroup"] ?? " ";
-        print("$pi, $pig");
+        debugPrint("$pi, $pig");
 
         if (!error) {
           switch (status) {
@@ -206,7 +206,7 @@ class _ContainerPaymentPageState extends State<ContainerPaymentPage> {
         } else {
           var errorCode = args["errorCode"] ?? " ";
           var errorMessage = args["errorMessage"] ?? " ";
-          print("$errorCode, $errorMessage");
+          debugPrint("$errorCode, $errorMessage");
 
           switch (status) {
             case "backpressed":
@@ -399,7 +399,7 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
                 widget.customerDetails,
                 _newAmount,
               );
-              print("Called updated order");
+              debugPrint("Called updated order");
               widget.hyperSDK.process(updateOrderPayload, widget.callback);
               Navigator.of(context).pop();
               _resetState(); // Reset the state here

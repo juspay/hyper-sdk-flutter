@@ -139,9 +139,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void initiateCallbackHandler(MethodCall methodCall) {
     if (methodCall.method == "initiate_result") {
-      print("Debug initiate_result " + methodCall.arguments);
+      debugPrint("Debug initiate_result " + methodCall.arguments);
     } else if (methodCall.method == "process_result") {
-      print("Debug process_result " + methodCall.arguments);
+      debugPrint("Debug process_result " + methodCall.arguments);
     }
   }
 

@@ -84,14 +84,14 @@ class _PaymentPageState extends State<PaymentPage> {
     // Check if custom payload is provided
     if (widget.customPayload != null) {
       processPayload = widget.customPayload!;
-      print('Using custom payload: $processPayload');
+      debugPrint('Using custom payload: $processPayload');
     } else {
       // Get process payload from backend
       // block:start:fetch-process-payload
       processPayload = await getProcessPayload(
           widget.amount, widget.merchantDetails, widget.customerDetails);
       // block:end:fetch-process-payload
-      print('Using auto-generated payload: $processPayload');
+      debugPrint('Using auto-generated payload: $processPayload');
     }
 
     // Calling process on hyperSDK to open payment page
@@ -125,7 +125,7 @@ class _PaymentPageState extends State<PaymentPage> {
         try {
           args = json.decode(methodCall.arguments);
         } catch (e) {
-          print(e);
+          debugPrint(e.toString());
         }
 
         var error = args["error"] ?? false;
@@ -135,7 +135,7 @@ class _PaymentPageState extends State<PaymentPage> {
         var status = innerPayload["status"] ?? " ";
         var pi = innerPayload["paymentInstrument"] ?? " ";
         var pig = innerPayload["paymentInstrumentGroup"] ?? " ";
-        print("$pi, $pig");
+        debugPrint("$pi, $pig");
 
         if (!error) {
           switch (status) {
@@ -160,7 +160,7 @@ class _PaymentPageState extends State<PaymentPage> {
         } else {
           var errorCode = args["errorCode"] ?? " ";
           var errorMessage = args["errorMessage"] ?? " ";
-          print("$errorCode, $errorMessage");
+          debugPrint("$errorCode, $errorMessage");
           switch (status) {
             case "backpressed":
               {

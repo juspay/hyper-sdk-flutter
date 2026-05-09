@@ -7,6 +7,7 @@
 
 import 'dart:convert';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 
@@ -69,7 +70,7 @@ Future<String> signPayload(String payload, String privateKey) async {
   final response = await http.get(url);
 
   if (response.statusCode == 200) {
-    print('The encrypted signature : ${utf8.decode(response.bodyBytes)}');
+    debugPrint('The encrypted signature : ${utf8.decode(response.bodyBytes)}');
     return utf8.decode(response.bodyBytes);
   } else {
     throw Exception('Failed to sign payload: ${response.reasonPhrase}');
@@ -84,7 +85,7 @@ String getOrderId() {
   for (var i = 0; i < 10; i++) {
     result += characters[(Random().nextDouble() * charactersLength).floor()];
   }
-  print('The order id $result');
+  debugPrint('The order id $result');
   return result;
 }
 
