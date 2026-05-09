@@ -137,7 +137,7 @@ class HyperSDK {
             onPlatformViewCreated: (id) async {
               var viewChannel = MethodChannel('hyper_view_$id');
               Future<dynamic> viewIdCallback(MethodCall methodCall) async {
-                print(
+                debugPrint(
                     'Method Channel triggered for platform view ${methodCall.method}, ${methodCall.arguments}');
                 if (methodCall.method == 'hyperViewCreated') {
                   var viewId = methodCall.arguments as int;
