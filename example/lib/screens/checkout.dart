@@ -258,7 +258,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               if (_payloadController.text.trim().isNotEmpty) {
                 try {
                   customPayload = json.decode(_payloadController.text.trim());
-                  print('Using custom payload: $customPayload');
+                  debugPrint('Using custom payload: $customPayload');
                 } catch (e) {
                   // Show error dialog for invalid JSON
                   showDialog(
@@ -284,7 +284,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 context,
                 MaterialPageRoute(builder: (context) {
                   if (useContainer) {
-                    print('HH useContainer - true');
+                    debugPrint('HH useContainer - true');
                     return ContainerPaymentPage(
                         hyperSDK: widget.hyperSDK,
                         amount: amounts['totalAmount'].toString(),
@@ -292,7 +292,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         customerDetails: widget.customerDetails,
                         customPayload: customPayload);
                   } else {
-                    print('HH useContainer - false');
+                    debugPrint('HH useContainer - false');
                     return PaymentPage(
                         hyperSDK: widget.hyperSDK,
                         amount: amounts['totalAmount'].toString(),
