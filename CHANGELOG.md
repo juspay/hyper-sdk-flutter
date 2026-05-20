@@ -1,3 +1,6 @@
+# 4.0.56
+* fix: remove unnecessary Container wrapper
+
 # 4.0.55
 * remove unnecessary logline
 
