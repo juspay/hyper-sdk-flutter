@@ -1,3 +1,6 @@
+# 4.0.57
+* fix: replace print with debugPrint
+
 # 4.0.56
 * fix: remove unnecessary Container wrapper
 
