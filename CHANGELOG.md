@@ -1,3 +1,6 @@
+# 4.0.58
+* fix: updating android + ios sdk versions
+
 # 4.0.57
 * fix: replace print with debugPrint
 
