@@ -42,3 +42,6 @@ jobs:
 
       - name: Run flutter pub publish --dry-run
         run: flutter pub publish --dry-run
+
+      - name: Lint Check
+        run: flutter analyze
