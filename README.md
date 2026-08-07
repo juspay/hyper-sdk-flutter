@@ -191,25 +191,24 @@ You can attach this within a container of your screen like below:
 
 Hyper SDK internally uses an android fragment for opening the bank page and will need the control to hardware back press when the bank page is active.
 
-For Android, this can be done by wrapping your scaffold widget(or any other parent widget) with `WillPopScope` [Flutter Doumentation](https://api.flutter.dev/flutter/widgets/WillPopScope-class.html)
+For Android, this can be done by wrapping your scaffold widget(or any other parent widget) with `PopScope` [Flutter Documentation](https://api.flutter.dev/flutter/widgets/PopScope-class.html)
 
-Call `await juspay.onBackPress();` inside `onWillPop` within `WillPopScope`.
+Call `await juspay.onBackPress();` inside `onPopInvokedWithResult` within `PopScope`.
 
-Handling Android Hardware Back-Press can be done using `WillPopScope` as shown below
+Handling Android Hardware Back-Press can be done using `PopScope` as shown below
 
 ```dart
-onWillPop: () async {
-        if (Platform.isAndroid) {
-          var backpressResult = await hyperSDK.onBackPress();
-          if (backpressResult.toLowerCase() == "true") {
-            return false;
-          } else {
-            return true;
-          }
-        } else {
-          return true;
-        }
-      }
+PopScope(
+  canPop: !Platform.isAndroid,
+  onPopInvokedWithResult: (bool didPop, dynamic result) async {
+    if (didPop) return;
+    var backpressResult = await hyperSDK.onBackPress();
+    if (backpressResult.toLowerCase() != "true") {
+      if (context.mounted) Navigator.of(context).pop(result);
+    }
+  },
+  child: ...,
+)
 ```
 
 ### Step-5: Terminate
