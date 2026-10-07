@@ -1,3 +1,6 @@
+# 4.0.59
+* fix: HYPSDK-86724: bump hypersdk.plugin to 2.2.14 for regional tenant assetsPlugin 2.2.8 resolves clientConfigs tenantName only for juspayglobal, sojp_as1 and jp_global fell back to the India asset group. 2.2.14 knowsboth tenants and fetches their asset AARs from the regional hosts.
+
 # 4.0.58
 * fix: updating android + ios sdk versions
 
