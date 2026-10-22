@@ -1,6 +1,6 @@
 require "yaml"
 
-hyper_sdk_version = "2.2.8.3"
+hyper_sdk_version = "2.2.9"
 
 begin
   # Read hyper_sdk_version from pubspec.yaml if it exists
@@ -32,9 +32,9 @@ Flutter plugin for juspay SDK.
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'Juspay' => 'support@juspay.in' }
   s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*'
+  s.source_files = 'hypersdkflutter/Sources/hypersdkflutter/**/*.swift'
   s.dependency 'Flutter'
   s.dependency 'HyperSDK', hyper_sdk_version
-  s.platform = :ios, '12.0'
+  s.platform = :ios, '13.0'
   s.swift_version = "5.0"
 end

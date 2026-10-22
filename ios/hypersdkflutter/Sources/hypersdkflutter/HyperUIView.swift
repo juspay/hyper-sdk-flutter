@@ -5,7 +5,8 @@
 //  Created by Harsh Garg on 10/05/24.
 //
 
-import Foundation
+import Flutter
+import UIKit
 
 class HyperUIView: UIView {
     private let methodChannel: FlutterMethodChannel?
