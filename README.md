@@ -60,28 +60,17 @@ class MainActivity: FlutterFragmentActivity() {
 
 ## iOS Setup
 
-Add the following post_install script in the Podfile (`ios/Podfile`)
+Place a `MerchantConfig.json` file inside the `ios/` folder of your project. This file doesn't need to be added to the Xcode project. The content of the file should be as below
 
-```sh
-post_install do |installer|
-  fuse_path = "./Pods/HyperSDK/Fuse.rb"
-  clean_assets = true
-  if File.exist?(fuse_path)
-    if system("ruby", fuse_path.to_s, clean_assets.to_s)
-    end
-  end
-end
+```json
+{
+  "clientConfigs": {
+    "<clientId shared by Juspay Team>": {}
+  }
+}
 ```
 
-Create file `ios/MerchantConfig.txt` with the following content
-
-```txt
-clientId = <clientId> shared by Juspay Team
-```
-
-Optional : (Optional) Add the following variable in [pubspec.yaml](https://github.com/juspay/hyper-sdk-flutter/blob/main/example/pubspec.yaml) of your project before running pod install if you want to override the base SDK version present in the plugin (the newer version among both would be considered):
-
-In your `pubspec.yaml` file:
+(Optional) Add the following variable in [pubspec.yaml](https://github.com/juspay/hyper-sdk-flutter/blob/main/example/pubspec.yaml) of your project if you want to override the base SDK version present in the plugin (the newer version among both would be considered):
 
 ```yaml
 # pubspec.yaml
@@ -91,6 +80,58 @@ description: A new Flutter project.
 # Other configurations...
 
 hyper_sdk_ios_version: "<New version>"
+```
+
+
+### CocoaPods
+
+The plugin supports both CocoaPods and Swift Package Manager. When Flutter's Swift Package Manager support is enabled (the default in recent Flutter versions), Flutter integrates this plugin with Swift Package Manager. To keep using CocoaPods, disable Swift Package Manager for your project in `pubspec.yaml`:
+
+```yaml
+flutter:
+  config:
+    enable-swift-package-manager: false
+```
+
+Add the following post_install script in the Podfile (`ios/Podfile`)
+
+```sh
+post_install do |installer|
+  fuse_path = "./Pods/HyperSDK/Fuse.rb"
+  if File.exist?(fuse_path)
+    if system("ruby", fuse_path.to_s)
+    end
+  end
+end
+```
+
+Run `pod install` inside the `ios/` folder after adding or changing `hyper_sdk_ios_version`.
+
+See [example](https://github.com/juspay/hyper-sdk-flutter/blob/main/example) for a complete project.
+
+### Swift Package Manager
+
+In Xcode, open `ios/Runner.xcworkspace`, go to **Product → Scheme → Edit Scheme**, expand **Build**, select **Pre-actions**, click **+** and choose **New Run Script Action**. Set **Provide build settings from** to the App target, place it after Flutter's "Run Prepare Flutter Framework Script" and add:
+
+```sh
+PACKAGE_DIR="${BUILD_DIR%Build/*}SourcePackages/artifacts/hypersdk-ios/HyperSDK"
+[ -d "$PACKAGE_DIR" ] || PACKAGE_DIR="${BUILD_DIR}/SourcePackages/artifacts/hypersdk-ios/HyperSDK"
+XCFRAMEWORK_DIR="${PACKAGE_DIR}/HyperSDK.xcframework"
+FUSE_SCRIPT="${PACKAGE_DIR}/Fuse.rb"
+FUSE_MARKER="${XCFRAMEWORK_DIR}/.fuse_completed"
+VALIDATION_SCRIPT="${PACKAGE_DIR}/ValidateHyperSDK.rb"
+
+[ ! -f "$FUSE_MARKER" ] || [ "${ACTION}" == "clean" ] && { cd "${PROJECT_DIR}"; echo "Running Fuse.rb script..."; ruby "$FUSE_SCRIPT"; }
+
+ruby "$VALIDATION_SCRIPT" && touch "$FUSE_MARKER" || exit 1
+```
+
+The script downloads the HyperSDK assets on the first build and after a clean.
+
+After adding or changing `hyper_sdk_ios_version`, run from your project's root folder:
+
+```sh
+dart run hypersdkflutter:sync_hypersdk_version
 ```
 
 ## Usage
