@@ -1,3 +1,6 @@
+# 4.0.61
+* fix: HYPSDK-86895 stop reading pubspec.yaml in Package.swift to avoid stale cached HyperSDK version
+
 # 4.0.60
 * feat: HYPSDK-86895 Adding Swift package manager support
 
