@@ -12,7 +12,7 @@
 //
 //   dart run hypersdkflutter:sync_hypersdk_version
 //
-// It rewrites the `var hyperSdkVersion` line in this plugin's
+// It rewrites the `let hyperSdkVersion` line in this plugin's
 // ios/hypersdkflutter/Package.swift. SwiftPM caches manifests by their
 // contents, so changing that line makes SwiftPM evaluate the manifest again
 // and resolve the new version.
@@ -20,11 +20,11 @@
 import 'dart:io';
 import 'dart:isolate';
 
-// Same rules as ios/hypersdkflutter/Package.swift.
+// Accepts the CocoaPods version (2.2.9.7) or the hypersdk-ios tag (2.2.9-rc.7).
 final _overridePattern = RegExp(r'''^hyper_sdk_ios_version:[ \t]*["']?([^"'#\s]*)''', multiLine: true);
 final _validVersionPattern = RegExp(r'^\d+\.\d+\.\d+((\.|-rc\.)\d+)?$');
 final _defaultVersionPattern = RegExp(r'let defaultHyperSdkVersion = "([^"]+)"');
-final _versionLinePattern = RegExp(r'^var hyperSdkVersion = .*$', multiLine: true);
+final _versionLinePattern = RegExp(r'^let hyperSdkVersion = .*$', multiLine: true);
 
 Future<void> main(List<String> args) async {
   if (args.isNotEmpty) {
@@ -64,8 +64,8 @@ Future<void> main(List<String> args) async {
   }
 
   final versionLine = expectedVersion == defaultVersion
-      ? 'var hyperSdkVersion = defaultHyperSdkVersion'
-      : 'var hyperSdkVersion = "$expectedVersion"';
+      ? 'let hyperSdkVersion = defaultHyperSdkVersion'
+      : 'let hyperSdkVersion = "$expectedVersion"';
   final updatedManifest = manifest.replaceFirst(_versionLinePattern, versionLine);
   if (updatedManifest != manifest) {
     packageSwift.writeAsStringSync(updatedManifest);
