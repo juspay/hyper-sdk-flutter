@@ -10,6 +10,8 @@ package `in`.juspay.hyper_sdk_flutter
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.Choreographer
 import android.view.View
@@ -32,15 +34,26 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 import org.json.JSONObject
 
 class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
     PluginRegistry.ActivityResultListener {
     private lateinit var channel: MethodChannel
     private var binding: ActivityPluginBinding? = null
+    // Set on the worker in call order; onBackPress and onActivityResult read it on main.
+    @Volatile
     private var hyperServices: HyperServices? = null
     private var isHyperCheckOutLiteInteg: Boolean = false
     private var flutterPluginBinding: FlutterPluginBinding? = null
+
+    private val mainHandler = Handler(Looper.getMainLooper())
+
+    @Volatile
+    private var detached = false
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "hyperSDK")
@@ -58,6 +71,8 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
 
     override fun onDetachedFromEngine(binding: FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
+        // Calls still waiting are dropped: nothing can receive their replies once the engine is gone.
+        detached = true
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
@@ -89,37 +104,114 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
-            "createHyperServicesWithTenantId" -> createHyperServicesWithTenantId(call.argument("tenantId"), call.argument("clientId"), result)
-            "createHyperServices" -> createHyperServices(call.argument("clientId"), result)
-            "preFetch" -> preFetch(call.argument<Map<String, Any>>("params") ?: mapOf(), result)
-            "initiate" -> initiate(call.argument<Map<String, Any>>("params") ?: mapOf(), result)
-            "process" -> process(call.argument<Map<String, Any>>("params") ?: mapOf(), result)
-            "terminate" -> terminate(result)
-            "isInitialised" -> isInitialised(result)
+            "createHyperServicesWithTenantId" -> onWorker(result) { activity -> createHyperServicesWithTenantId(activity, call.argument("tenantId"), call.argument("clientId"), mainResult(result)) }
+            "createHyperServices" -> onWorker(result) { activity -> createHyperServices(activity, call.argument("clientId"), mainResult(result)) }
+            "preFetch" -> onWorker(result) { activity -> preFetch(activity, call.argument<Map<String, Any>>("params") ?: mapOf(), mainResult(result)) }
+            "initiate" -> onWorker(result) { activity -> initiate(activity, call.argument<Map<String, Any>>("params") ?: mapOf(), mainResult(result)) }
+            "process" -> onMainInOrder(result) { process(call.argument<Map<String, Any>>("params") ?: mapOf(), result) }
+            "terminate" -> onMainInOrder(result) { terminate(result) }
+            "isInitialised" -> onMainInOrder(result) { isInitialised(result) }
             "onBackPress" -> onBackPress(result)
             "openPaymentPage" -> openPaymentPage(call.argument<Map<String, Any>>("params"), result)
-            "processWithView" -> processWithView(
-                call.argument<Int>("viewId"),
-                call.argument<Map<String, Any>>("params") ?: mapOf(),
-                result
-            )
-            "processWithActivity" -> processWithActivity(
-                call.argument<Map<String, Any>>("params") ?: mapOf(),
-                result
-            )
-            "hyperFragmentView" -> hyperFragmentView(
-                call.argument<Int>("viewId"),
-                call.argument<String>("namespace"),
-                call.argument<Map<String, Any>>("payload") ?: mapOf(),
-                result
-            )
+            "processWithView" -> onMainInOrder(result) {
+                processWithView(
+                    call.argument<Int>("viewId"),
+                    call.argument<Map<String, Any>>("params") ?: mapOf(),
+                    result
+                )
+            }
+            "processWithActivity" -> onMainInOrder(result) {
+                processWithActivity(
+                    call.argument<Map<String, Any>>("params") ?: mapOf(),
+                    result
+                )
+            }
+            "hyperFragmentView" -> onMainInOrder(result) {
+                hyperFragmentView(
+                    call.argument<Int>("viewId"),
+                    call.argument<String>("namespace"),
+                    call.argument<Map<String, Any>>("payload") ?: mapOf(),
+                    result
+                )
+            }
 
             else -> result.notImplemented()
         }
     }
 
-    private fun createHyperServicesWithTenantId(tenantId: String?, clientId: String?, result: Result) {
-        val fragmentActivity = binding?.activity as? FragmentActivity
+    // The activity is read on main once earlier calls' main-thread work (such as the SDK's setup after initiate) has run.
+    private fun onWorker(result: Result, task: (Activity?) -> Unit) {
+        worker.execute {
+            val activity = onMainAndWait { binding?.activity }
+            if (detached) return@execute
+            try {
+                task(activity)
+            } catch (e: Exception) {
+                mainHandler.post { replyLikeFlutter(result, e) }
+            }
+        }
+    }
+
+    // The worker waits until the call has run on main, so a later call can't overtake it.
+    private fun onMainInOrder(result: Result, task: () -> Unit) {
+        worker.execute {
+            onMainAndWait {
+                if (detached) return@onMainAndWait
+                try {
+                    task()
+                } catch (e: Exception) {
+                    replyLikeFlutter(result, e)
+                }
+            }
+        }
+    }
+
+    // Main runs posts in order, so when this returns, everything posted to main before it has run too.
+    private fun <T> onMainAndWait(block: () -> T): T? {
+        var value: T? = null
+        val done = CountDownLatch(1)
+        mainHandler.post {
+            try {
+                value = block()
+            } finally {
+                done.countDown()
+            }
+        }
+        try {
+            done.await()
+        } catch (e: InterruptedException) {
+            Thread.currentThread().interrupt()
+        }
+        return value
+    }
+
+    // The reply Flutter gives when a handler throws, so these calls fail the same way they did when they ran inline.
+    private fun replyLikeFlutter(result: Result, e: Exception) {
+        Log.e("HyperSdkFlutterPlugin", "Failed to handle method call", e)
+        if (e is RuntimeException) result.error("error", e.message, null) else result.notImplemented()
+    }
+
+    // Replies from the worker are sent on the main thread, like every other reply.
+    private fun mainResult(result: Result): Result = object : Result {
+        override fun success(value: Any?) {
+            mainHandler.post { result.success(value) }
+        }
+
+        override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
+            mainHandler.post { result.error(errorCode, errorMessage, errorDetails) }
+        }
+
+        override fun notImplemented() {
+            mainHandler.post { result.notImplemented() }
+        }
+    }
+
+    private fun runOnMain(task: () -> Unit) {
+        if (Looper.myLooper() == Looper.getMainLooper()) task() else mainHandler.post(task)
+    }
+
+    private fun createHyperServicesWithTenantId(activity: Activity?, tenantId: String?, clientId: String?, result: Result) {
+        val fragmentActivity = activity as? FragmentActivity
         if (fragmentActivity !is FragmentActivity) {
             result.error("INIT_ERROR", "FragmentActivity is null, cannot proceed", "")
             return
@@ -129,6 +221,7 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             return
         }
         hyperServices = HyperServices(fragmentActivity, tenantId, clientId)
+        result.success(true)
     }
 
     private fun onBackPress(result: Result) {
@@ -154,17 +247,17 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
         }
     }
 
-    private fun preFetch(params: Map<String, Any>, result: Result) {
+    private fun preFetch(activity: Activity?, params: Map<String, Any>, result: Result) {
         try {
-            binding?.let { HyperServices.preFetch(it.activity, JSONObject(params)) }
+            activity?.let { HyperServices.preFetch(it, JSONObject(params)) }
             result.success(true)
         } catch (e: Exception) {
             result.error("HYPERSDKFLUTTER: prefetch error", e.message, e)
         }
     }
 
-    private fun createHyperServices(clientId: String?, result: Result) {
-        val fragmentActivity = binding?.activity as? FragmentActivity
+    private fun createHyperServices(activity: Activity?, clientId: String?, result: Result) {
+        val fragmentActivity = activity as? FragmentActivity
         if (fragmentActivity !is FragmentActivity) {
             result.error("INIT_ERROR", "FragmentActivity is null, cannot proceed", "")
             return
@@ -174,6 +267,7 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             return
         }
         hyperServices = HyperServices(fragmentActivity, clientId)
+        result.success(true)
     }
 
     private fun updateHyperPaymentsCallback(hyperPaymentsCallback: HyperPaymentsCallback): HyperPaymentsCallback {
@@ -204,18 +298,15 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
         }
     }
 
-    private fun initiate(params: Map<String, Any>, result: Result) {
+    private fun initiate(activity: Activity?, params: Map<String, Any>, result: Result) {
         try {
-            if (binding == null) {
+            if (activity == null) {
                 throw Exception("Kotlin MainActivity should extend FlutterFragmentActivity instead of FlutterActivity!")
             }
-            val fragmentActivity = binding?.activity as? FragmentActivity
+            val fragmentActivity = activity as? FragmentActivity
             if (fragmentActivity !is FragmentActivity) {
                 result.error("INIT_ERROR", "FragmentActivity is null, cannot proceed", "")
                 return
-            }
-            if (hyperServices == null) {
-                hyperServices = HyperServices(fragmentActivity)
             }
 
             val invokeMethodResult = object : Result {
@@ -234,26 +325,26 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             }
             val callback = object : HyperPaymentsCallbackAdapter() {
                 override fun onEvent(data: JSONObject, p1: JuspayResponseHandler?) {
-                    try {
-                        channel.invokeMethod(
-                            data.getString("event"),
-                            data.toString(),
-                            invokeMethodResult
-                        )
-                    } catch (e: Exception) {
-                        Log.e(
-                            this.javaClass.canonicalName,
-                            "Failed to invoke method from native to dart",
-                            e
-                        )
+                    // Events raised inside initiate arrive on the worker, and Flutter only takes calls into Dart on the main thread.
+                    runOnMain {
+                        try {
+                            channel.invokeMethod(
+                                data.getString("event"),
+                                data.toString(),
+                                invokeMethodResult
+                            )
+                        } catch (e: Exception) {
+                            Log.e(
+                                this.javaClass.canonicalName,
+                                "Failed to invoke method from native to dart",
+                                e
+                            )
+                        }
                     }
                 }
             }
-            hyperServices?.initiate(
-                fragmentActivity,
-                JSONObject(params),
-                updateHyperPaymentsCallback(callback)
-            )
+            val services = hyperServices ?: HyperServices(fragmentActivity).also { hyperServices = it }
+            services.initiate(fragmentActivity, JSONObject(params), updateHyperPaymentsCallback(callback))
             result.success(true)
         } catch (e: Exception) {
             result.error("INIT_ERROR", e.localizedMessage, e)
@@ -426,5 +517,9 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
     companion object {
         @JvmStatic
         var webViewConfigurationCallback: JuspayWebViewConfigurationCallback? = null
+
+        // One thread takes every engine's calls in arrival order, as main did; disk work runs here and the thread stops when idle.
+        private val worker = ThreadPoolExecutor(1, 1, 30, TimeUnit.SECONDS, LinkedBlockingQueue()) { Thread(it, "hypersdkflutter") }
+            .apply { allowCoreThreadTimeOut(true) }
     }
 }
