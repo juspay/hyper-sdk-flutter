@@ -27,7 +27,18 @@ rootProject.allprojects {
 }
 
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+
+// AGP 9 compiles Kotlin itself ("built-in Kotlin") and fails the build if the Kotlin Gradle
+// plugin is applied too. Apply it only when the app's AGP doesn't compile Kotlin: AGP 8 and
+// earlier, or AGP 9 with built-in Kotlin turned off (android.builtInKotlin=false), so apps on
+// either side of AGP 9 keep building. AGP 10 removes the switch.
+// See https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin
+def agpMajorVersion = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')[0] as int
+def builtInKotlinDisabled = project.findProperty('android.builtInKotlin')?.toString()?.trim() == 'false'
+def usesBuiltInKotlin = agpMajorVersion >= 10 || (agpMajorVersion == 9 && !builtInKotlinDisabled)
+if (!usesBuiltInKotlin) {
+    apply plugin: 'kotlin-android'
+}
 apply plugin: 'hypersdk.plugin'
 
 android {
@@ -38,8 +49,12 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    kotlinOptions {
-        jvmTarget = '1.8'
+    // Built-in Kotlin takes its jvmTarget from compileOptions, so this is only needed with the
+    // Kotlin Gradle plugin.
+    if (!usesBuiltInKotlin) {
+        kotlinOptions {
+            jvmTarget = '1.8'
+        }
     }
 
     sourceSets {
