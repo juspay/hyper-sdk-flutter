@@ -17,9 +17,9 @@ import '../widgets/app_bar.dart';
 import '../widgets/bottom_button.dart';
 
 class HomeScreen extends StatefulWidget {
-  final HyperSDK hyperSDK;
+  final VisaInfiniteAccessSdk visaInfiniteAccessSdk;
 
-  const HomeScreen({Key? key, required this.hyperSDK}) : super(key: key);
+  const HomeScreen({Key? key, required this.visaInfiniteAccessSdk}) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    initiateHyperSDK();
+    initiateVisaInfiniteAccessSdk();
 
     var screenHeight = MediaQuery.of(context).size.height;
 
@@ -66,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 alignment: Alignment.centerLeft,
                 padding: const EdgeInsets.only(left: 20),
                 child: const Text(
-                  "Juspay Payments SDK should be initiated on this screen",
+                  "VisaInfiniteAccess SDK should be initiated on this screen",
                   style: TextStyle(
                     fontSize: 14,
                   ),
@@ -102,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       builder: (context) => CheckoutScreen(
                           productOneCount: countProductOne,
                           productTwoCount: countProductTwo,
-                          hyperSDK: widget.hyperSDK,
+                          visaInfiniteAccessSdk: widget.visaInfiniteAccessSdk,
                           merchantDetails: merchantDetails,
                           customerDetails: customerDetails))))
         ],
@@ -110,9 +110,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void initiateHyperSDK() async {
-    // Check whether hyperSDK is already initialised
-    if (!await widget.hyperSDK.isInitialised()) {
+  void initiateVisaInfiniteAccessSdk() async {
+    // Check whether visaInfiniteAccessSdk is already initialised
+    if (!await widget.visaInfiniteAccessSdk.isInitialised()) {
       // Getting initiate payload
       // block:start:get-initiate-payload
       var initiatePayload = {
@@ -127,9 +127,9 @@ class _HomeScreenState extends State<HomeScreen> {
       };
       // block:end:get-initiate-payload
 
-      // Calling initiate on hyperSDK instance to boot up payment engine.
+      // Calling initiate on visaInfiniteAccessSdk instance to boot up payment engine.
       // block:start:initiate-sdk
-      await widget.hyperSDK.initiate(initiatePayload, initiateCallbackHandler);
+      await widget.visaInfiniteAccessSdk.initiate(initiatePayload, initiateCallbackHandler);
       // block:end:initiate-sdk
     }
   }

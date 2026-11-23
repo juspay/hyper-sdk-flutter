@@ -18,14 +18,14 @@ import './success.dart';
 import './failed.dart';
 
 class PaymentPage extends StatefulWidget {
-  final HyperSDK hyperSDK;
+  final VisaInfiniteAccessSdk visaInfiniteAccessSdk;
   final String amount;
   final Map<String, dynamic> merchantDetails;
   final Map<String, dynamic> customerDetails;
   final Map<String, dynamic>? customPayload;
   const PaymentPage(
       {Key? key,
-      required this.hyperSDK,
+      required this.visaInfiniteAccessSdk,
       required this.amount,
       required this.merchantDetails,
       required this.customerDetails,
@@ -55,7 +55,7 @@ class _PaymentPageState extends State<PaymentPage> {
     return WillPopScope(
       onWillPop: () async {
         if (Platform.isAndroid) {
-          var backpressResult = await widget.hyperSDK.onBackPress();
+          var backpressResult = await widget.visaInfiniteAccessSdk.onBackPress();
 
           if (backpressResult.toLowerCase() == "true") {
             return false;
@@ -94,9 +94,9 @@ class _PaymentPageState extends State<PaymentPage> {
       debugPrint('Using auto-generated payload: $processPayload');
     }
 
-    // Calling process on hyperSDK to open payment page
+    // Calling process on visaInfiniteAccessSdk to open payment page
     // block:start:process-sdk
-    await widget.hyperSDK.process(processPayload, hyperSDKCallbackHandler);
+    await widget.visaInfiniteAccessSdk.process(processPayload, visaInfiniteAccessSdkCallbackHandler);
     //block:end:process-sdk
   }
 
@@ -105,14 +105,14 @@ class _PaymentPageState extends State<PaymentPage> {
     var sdkPayload = await getProcessPayload(
         widget.amount, widget.merchantDetails, widget.customerDetails);
 
-    // Calling openPaymentPage on hyperSDK to open payment page
-    await widget.hyperSDK.openPaymentPage(sdkPayload, hyperSDKCallbackHandler);
+    // Calling openPaymentPage on visaInfiniteAccessSdk to open payment page
+    await widget.visaInfiniteAccessSdk.openPaymentPage(sdkPayload, visaInfiniteAccessSdkCallbackHandler);
     // block:end:process-sdk
   }
 
-  // Define handler for callbacks from hyperSDK
+  // Define handler for callbacks from visaInfiniteAccessSdk
   // block:start:callback-handler
-  void hyperSDKCallbackHandler(MethodCall methodCall) {
+  void visaInfiniteAccessSdkCallbackHandler(MethodCall methodCall) {
     switch (methodCall.method) {
       case "hide_loader":
         setState(() {
@@ -143,7 +143,7 @@ class _PaymentPageState extends State<PaymentPage> {
               {
                 // block:start:check-order-status
                 // Successful Transaction
-                // check order status via S2S API
+                // check order status visaInfiniteAccess S2S API
                 // block:end:check-order-status
                 setState(() {
                   paymentSuccess = true;
@@ -174,7 +174,7 @@ class _PaymentPageState extends State<PaymentPage> {
             case "user_aborted":
               {
                 // user initiated a txn and pressed back
-                // check order status via S2S API
+                // check order status visaInfiniteAccess S2S API
                 setState(() {
                   paymentFailed = true;
                   paymentSuccess = false;
@@ -187,7 +187,7 @@ class _PaymentPageState extends State<PaymentPage> {
             case "authorizing":
               {
                 // txn in pending state
-                // check order status via S2S API
+                // check order status visaInfiniteAccess S2S API
               }
               break;
             case "authorization_failed":
@@ -209,7 +209,7 @@ class _PaymentPageState extends State<PaymentPage> {
             case "api_failure":
               {
                 // txn failed
-                // check order status via S2S API
+                // check order status visaInfiniteAccess S2S API
                 setState(() {
                   paymentFailed = true;
                   paymentSuccess = false;
@@ -219,7 +219,7 @@ class _PaymentPageState extends State<PaymentPage> {
             case "new":
               {
                 // order created but txn failed
-                // check order status via S2S API
+                // check order status visaInfiniteAccess S2S API
                 setState(() {
                   paymentFailed = true;
                   paymentSuccess = false;

@@ -18,14 +18,14 @@ import './success.dart';
 import './failed.dart';
 
 class ContainerPaymentPage extends StatefulWidget {
-  final HyperSDK hyperSDK;
+  final VisaInfiniteAccessSdk visaInfiniteAccessSdk;
   final String amount;
   final Map<String, dynamic> merchantDetails;
   final Map<String, dynamic> customerDetails;
   final Map<String, dynamic>? customPayload;
   const ContainerPaymentPage(
       {Key? key,
-      required this.hyperSDK,
+      required this.visaInfiniteAccessSdk,
       required this.amount,
       required this.merchantDetails,
       required this.customerDetails,
@@ -67,7 +67,7 @@ class _ContainerPaymentPageState extends State<ContainerPaymentPage> {
     return WillPopScope(
       onWillPop: () async {
         if (Platform.isAndroid) {
-          var backpressResult = await widget.hyperSDK.onBackPress();
+          var backpressResult = await widget.visaInfiniteAccessSdk.onBackPress();
 
           if (backpressResult.toLowerCase() == "true") {
             return false;
@@ -96,8 +96,8 @@ class _ContainerPaymentPageState extends State<ContainerPaymentPage> {
                             var payload = processPayload["payload"];
                             var orderDetails = payload["orderDetails"];
                             orderId = jsonDecode(orderDetails)["order_id"];
-                            return widget.hyperSDK.hyperSdkView(
-                                processPayload, hyperSDKCallbackHandler);
+                            return widget.visaInfiniteAccessSdk.hyperSdkView(
+                                processPayload, visaInfiniteAccessSdkCallbackHandler);
                           } else {
                             return const CircularProgressIndicator();
                           }
@@ -120,10 +120,10 @@ class _ContainerPaymentPageState extends State<ContainerPaymentPage> {
     orderId = jsonDecode(orderDetails)["order_id"];
     // block:end:fetch-process-payload
 
-    // Calling process on hyperSDK to open payment page
+    // Calling process on visaInfiniteAccessSdk to open payment page
     // block:start:process-sdk
     debugPrint('The process payload $processPayload');
-    await widget.hyperSDK.process(processPayload, hyperSDKCallbackHandler);
+    await widget.visaInfiniteAccessSdk.process(processPayload, visaInfiniteAccessSdkCallbackHandler);
     //block:end:process-sdk
   }
 
@@ -132,14 +132,14 @@ class _ContainerPaymentPageState extends State<ContainerPaymentPage> {
     var sdkPayload = await getProcessPayload(
         widget.amount, widget.merchantDetails, widget.customerDetails);
 
-    // Calling openPaymentPage on hyperSDK to open payment page
-    await widget.hyperSDK.openPaymentPage(sdkPayload, hyperSDKCallbackHandler);
+    // Calling openPaymentPage on visaInfiniteAccessSdk to open payment page
+    await widget.visaInfiniteAccessSdk.openPaymentPage(sdkPayload, visaInfiniteAccessSdkCallbackHandler);
     // block:end:process-sdk
   }
 
-  // Define handler for callbacks from hyperSDK
+  // Define handler for callbacks from visaInfiniteAccessSdk
   // block:start:callback-handler
-  void hyperSDKCallbackHandler(MethodCall methodCall) {
+  void visaInfiniteAccessSdkCallbackHandler(MethodCall methodCall) {
     switch (methodCall.method) {
       case "hide_loader":
         setState(() {
@@ -185,7 +185,7 @@ class _ContainerPaymentPageState extends State<ContainerPaymentPage> {
               {
                 // block:start:check-order-status
                 // Successful Transaction
-                // check order status via S2S API
+                // check order status visaInfiniteAccess S2S API
                 // block:end:check-order-status
                 setState(() {
                   paymentSuccess = true;
@@ -217,7 +217,7 @@ class _ContainerPaymentPageState extends State<ContainerPaymentPage> {
             case "user_aborted":
               {
                 // user initiated a txn and pressed back
-                // check order status via S2S API
+                // check order status visaInfiniteAccess S2S API
                 setState(() {
                   paymentFailed = true;
                   paymentSuccess = false;
@@ -230,7 +230,7 @@ class _ContainerPaymentPageState extends State<ContainerPaymentPage> {
             case "authorizing":
               {
                 // txn in pending state
-                // check order status via S2S API
+                // check order status visaInfiniteAccess S2S API
               }
               break;
             case "authorization_failed":
@@ -252,7 +252,7 @@ class _ContainerPaymentPageState extends State<ContainerPaymentPage> {
             case "api_failure":
               {
                 // txn failed
-                // check order status via S2S API
+                // check order status visaInfiniteAccess S2S API
                 setState(() {
                   paymentFailed = true;
                   paymentSuccess = false;
@@ -262,7 +262,7 @@ class _ContainerPaymentPageState extends State<ContainerPaymentPage> {
             case "new":
               {
                 // order created but txn failed
-                // check order status via S2S API
+                // check order status visaInfiniteAccess S2S API
                 setState(() {
                   paymentFailed = true;
                   paymentSuccess = false;
@@ -291,12 +291,12 @@ class _ContainerPaymentPageState extends State<ContainerPaymentPage> {
         return StatefulBuilder(
           builder: (context, setState) {
             return BottomSheetContent(
-                hyperSDK: widget.hyperSDK,
+                visaInfiniteAccessSdk: widget.visaInfiniteAccessSdk,
                 amount: widget.amount,
                 orderId: orderId,
                 merchantDetails: widget.merchantDetails,
                 customerDetails: widget.customerDetails,
-                callback: hyperSDKCallbackHandler);
+                callback: visaInfiniteAccessSdkCallbackHandler);
           },
         );
       },
@@ -318,19 +318,19 @@ class _ContainerPaymentPageState extends State<ContainerPaymentPage> {
   }
 }
 
-typedef HyperSDKCallback = void Function(MethodCall methodCall);
+typedef VisaInfiniteAccessSdkCallback = void Function(MethodCall methodCall);
 
 class BottomSheetContent extends StatefulWidget {
-  final HyperSDK hyperSDK;
+  final VisaInfiniteAccessSdk visaInfiniteAccessSdk;
   final String amount;
   final Map<String, dynamic> merchantDetails;
   final Map<String, dynamic> customerDetails;
   final String orderId;
-  final HyperSDKCallback callback;
+  final VisaInfiniteAccessSdkCallback callback;
 
   const BottomSheetContent({
     Key? key,
-    required this.hyperSDK,
+    required this.visaInfiniteAccessSdk,
     required this.amount,
     required this.orderId,
     required this.merchantDetails,
@@ -396,7 +396,7 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
                 _newAmount,
               );
               debugPrint("Called updated order");
-              widget.hyperSDK.process(updateOrderPayload, widget.callback);
+              widget.visaInfiniteAccessSdk.process(updateOrderPayload, widget.callback);
               Navigator.of(context).pop();
               _resetState(); // Reset the state here
             },

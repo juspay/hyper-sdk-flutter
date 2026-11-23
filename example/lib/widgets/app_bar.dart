@@ -13,7 +13,7 @@ AppBar customAppBar({required String text}) {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-      const Text("Juspay SDK Integration Demo",style: TextStyle(fontSize: 12)),
+      const Text("VisaInfiniteAccess SDK Integration Demo",style: TextStyle(fontSize: 12)),
       const SizedBox(height: 5,),
       Text(text,style: const TextStyle(fontSize: 16)),
     ]),

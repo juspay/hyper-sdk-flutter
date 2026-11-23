@@ -26,7 +26,7 @@ class SuccessScreen extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: const Text(
-                    "Call process on HyperServices instance on Checkout Button Click",
+                    "Call process on VisaInfiniteAccessSdk instance on Checkout Button Click",
                     style: TextStyle(
                       fontSize: 14,
                     ),

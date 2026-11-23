@@ -17,8 +17,8 @@ void main() async {
   if (Platform.isAndroid) {
     await InAppWebViewController.setWebContentsDebuggingEnabled(true);
   }
-  final hyperSDK = HyperSDK();
-  runApp(MyApp(hyperSDK: hyperSDK));
+  final visaInfiniteAccessSdk = VisaInfiniteAccessSdk();
+  runApp(MyApp(visaInfiniteAccessSdk: visaInfiniteAccessSdk));
 }
 
 void temp() async {
@@ -26,11 +26,11 @@ void temp() async {
 }
 
 class MyApp extends StatelessWidget {
-  // Create Juspay Object
+  // Create VisaInfiniteAccessSdk object
   // // block:start:create-hyper-sdk-instance
-  final HyperSDK hyperSDK;
+  final VisaInfiniteAccessSdk visaInfiniteAccessSdk;
   // // block:end:create-hyper-sdk-instance
-  const MyApp({Key? key, required this.hyperSDK}) : super(key: key);
+  const MyApp({Key? key, required this.visaInfiniteAccessSdk}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: HomeScreen(
-        hyperSDK: hyperSDK,
+        visaInfiniteAccessSdk: visaInfiniteAccessSdk,
       ),
     );
   }

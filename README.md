@@ -22,8 +22,8 @@ buildscript {
     ....
     ext {
         ....
-        clientId = "<clientId shared by Juspay team>"
-        hyperSDKVersion = "<Version shared by Juspay team>"
+        clientId = "<clientId shared by VIA team>"
+        hyperSDKVersion = "<Version shared by VIA team>"
         excludedMicroSDKs = []
         ....
     }
@@ -35,8 +35,8 @@ Kotlin DSL Format
 ```Kotlin DSL
 buildscript {
     ....
-    extra["clientId"] = "<clientId shared by Juspay team>"
-    extra["hyperSDKVersion"] = "<Version shared by Juspay team>"
+    extra["clientId"] = "<clientId shared by VIA team>"
+    extra["hyperSDKVersion"] = "<Version shared by VIA team>"
     ....
 }
 ```
@@ -47,7 +47,7 @@ Optionally, you can also provide an override for base SDK version present in plu
 
 **Your application's `MainActivity` should extend `FlutterFragmentActivity` instead of `FlutterActivity`.**
 
-_`HyperSDK` only supports `FragmentActivity`._
+_`VIASdk` only supports `FragmentActivity`._
 
 ```kotlin
 import io.flutter.embedding.android.FlutterFragmentActivity
@@ -65,7 +65,7 @@ Place a `MerchantConfig.json` file inside the `ios/` folder of your project. Thi
 ```json
 {
   "clientConfigs": {
-    "<clientId shared by Juspay Team>": {}
+    "<clientId shared by VIA Team>": {}
   }
 }
 ```
@@ -136,20 +136,20 @@ dart run hypersdkflutter:sync_hypersdk_version
 
 ## Usage
 
-### Import HyperSDK
+### Import VIASdk
 
 ```dart
 import 'package:hypersdk/hypersdkflutter.dart';
 ```
 
-### Step-1: Create Juspay Object
+### Step-1: Create VIASdk Object
 
-This method creates an instance of Juspay class on which all the HyperSDK APIs / methods are triggered.
+This method creates an instance of VIASdk class on which all the VIASdk APIs / methods are triggered.
 
-Note: This method is mandatory and is required to call any other subsequent methods from HyperSDK.
+Note: This method is mandatory and is required to call any other subsequent methods from VIASdk.
 
 ```dart
-final hyperSDK = HyperSDK();
+final viaSdk = VIASdk();
 ```
 
 
@@ -158,10 +158,10 @@ final hyperSDK = HyperSDK();
 This step is required if your app has multiple tenants or different clientIds.
 
 Note: This method is not mandatory and is required only if the same app has multiple clientIds.
-Please reach out to Juspay Merchant Spoc to get information of your tenant & clientIds.
+Please reach out to VIA Merchant Spoc to get information of your tenant & clientIds.
 
 ```dart
-hyperSDK.createHyperServicesWithTenantId("<tenantName>", "clientId");
+viaSdk.createHyperServicesWithTenantId("<tenantName>", "clientId");
 ```
 
 ### Step-2: Initiate
@@ -171,25 +171,25 @@ This method should be called on the render of the host screen. This will boot up
 Note: It is highly recommended to initiate SDK from the order summary page (at least 5 seconds before opening your payment page) for seamless user experience.
 
 ```dart
-await hyperSDK.initiate(initiatePayload, initiateCallbackHandler);
+await viaSdk.initiate(initiatePayload, initiateCallbackHandler);
 ```
 
 ### Step-3: Process
 
-This API should be triggered for all operations required from HyperSDK. The operation may be related to:
+This API should be triggered for all operations required from VIASdk. The operation may be related to:
 
 Displaying payment options on your payment page
 Performing a transaction
 User's payment profile management
 
 ```dart
-await hyperSDK.process(processPayload, hyperSDKCallbackHandler)
+await viaSdk.process(processPayload, viaSdkCallbackHandler)
 ```
 
 This API should be used when you want to open the payment page in a new activity created by hyper-sdk-flutter.
 
 ```dart
-await hyperSDK.processWithActivity(processPayload, hyperSDKCallbackHandler)
+await viaSdk.processWithActivity(processPayload, viaSdkCallbackHandler)
 ```
 
 ### Step-3.1: Process via Container
@@ -198,7 +198,7 @@ This API should be used when Payment Page needs to be rendered within a particul
 This is custom view component that returns a StatefulWidget, AndroidView and UiKitView, for android and iOS respectively.
 
 ```dart
-    hyperSDK.hyperSdkView(processPayload, hyperSDKCallbackHandler)
+    viaSdk.hyperSdkView(processPayload, viaSdkCallbackHandler)
 ```
 
 You can attach this within a container of your screen like below:
@@ -206,7 +206,7 @@ You can attach this within a container of your screen like below:
 ```dart
   Container(
     color: Colors.white,
-    child: hyperSDK.hyperSdkView(processPayload, hyperSDKCallbackHandler)
+    child: viaSdk.hyperSdkView(processPayload, viaSdkCallbackHandler)
   )
 ```
 
@@ -216,7 +216,7 @@ This API should be used when you want to use blended payment widget where users 
 This is custom view component that returns a Widget, AndroidView and UiKitView, for android and iOS wrapped inside a container respectively.
 
 ```dart
-    hyperSDK.hyperFragmentView(height, width, "paymentWidget", processPayload, hyperSDKCallbackHandler)
+    viaSdk.hyperFragmentView(height, width, "paymentWidget", processPayload, viaSdkCallbackHandler)
 ```
 
 You can attach this within a container of your screen like below:
@@ -224,7 +224,7 @@ You can attach this within a container of your screen like below:
 ```dart
   Container(
     color: Colors.white,
-    child: hyperSDK.hyperFragmentView(height, width, "paymentWidget", processPayload, hyperSDKCallbackHandler)
+    child: viaSdk.hyperFragmentView(height, width, "paymentWidget", processPayload, viaSdkCallbackHandler)
   )
 ```
 
@@ -234,14 +234,14 @@ Hyper SDK internally uses an android fragment for opening the bank page and will
 
 For Android, this can be done by wrapping your scaffold widget(or any other parent widget) with `WillPopScope` [Flutter Doumentation](https://api.flutter.dev/flutter/widgets/WillPopScope-class.html)
 
-Call `await juspay.onBackPress();` inside `onWillPop` within `WillPopScope`.
+Call `await viaSdk.onBackPress();` inside `onWillPop` within `WillPopScope`.
 
 Handling Android Hardware Back-Press can be done using `WillPopScope` as shown below
 
 ```dart
 onWillPop: () async {
         if (Platform.isAndroid) {
-          var backpressResult = await hyperSDK.onBackPress();
+          var backpressResult = await viaSdk.onBackPress();
           if (backpressResult.toLowerCase() == "true") {
             return false;
           } else {
@@ -255,10 +255,10 @@ onWillPop: () async {
 
 ### Step-5: Terminate
 
-This method shall be triggered when HyperSDK is no longer required.
+This method shall be triggered when VIASdk is no longer required.
 
 ```dart
-await hyperSDK.terminate();
+await viaSdk.terminate();
 ```
 
 ### Optional: Is Initialised
@@ -266,7 +266,7 @@ await hyperSDK.terminate();
 This is a helper / optional method to check whether SDK has been initialised after step-2. It returns a boolean.
 
 ```dart
-await hyperSDK.isInitialised();
+await viaSdk.isInitialised();
 ```
 
 ## Callbacks
@@ -288,7 +288,7 @@ void initiateCallbackHandler(MethodCall methodCall) {
 Use this function to get results from process.
 
 ```dart
-void hyperSDKCallbackHandler(MethodCall methodCall) {
+void viaSdkCallbackHandler(MethodCall methodCall) {
     switch (methodCall.method) {
       case "hide_loader":
         break;
@@ -373,7 +373,7 @@ void hyperSDKCallbackHandler(MethodCall methodCall) {
 
 ### WebView Configuration Callback (Optional)
 
-The Minkasu SDK requires access to the bank WebView SDK. This can be enabled after whitelisting on Juspay end. Below is a reference to changes required post getting SDK whitelisted. This should be called before calling process.
+The Minkasu SDK requires access to the bank WebView SDK. This can be enabled after whitelisting on VIA end. Below is a reference to changes required post getting SDK whitelisted. This should be called before calling process.
 
 #### Android
 

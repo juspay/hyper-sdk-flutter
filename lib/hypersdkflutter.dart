@@ -11,10 +11,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-/// Core class to expose all HyperSDK api's to flutter.
+/// Core class to expose all VisaInfiniteAccessSdk APIs to Flutter.
 ///
 /// Proper integration constructs to be followed.
-class HyperSDK {
+class VisaInfiniteAccessSdk {
   /// @nodoc
   static MethodChannel hyperSDK = const MethodChannel('hyperSDK');
 
@@ -106,9 +106,9 @@ class HyperSDK {
   }
 
   Future<String> openPaymentPage(Map<String, dynamic> params,
-      void Function(MethodCall) hyperSdkCallBackHandler) async {
+      void Function(MethodCall) visaInfiniteAccessSdkCallbackHandler) async {
     Future<dynamic> callbackFunction(MethodCall methodCall) {
-      hyperSdkCallBackHandler(methodCall);
+      visaInfiniteAccessSdkCallbackHandler(methodCall);
       return Future.value(0);
     }
 

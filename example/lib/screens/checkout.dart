@@ -17,7 +17,7 @@ import './payment_page_container.dart';
 class CheckoutScreen extends StatefulWidget {
   final int productOneCount;
   final int productTwoCount;
-  final HyperSDK hyperSDK;
+  final VisaInfiniteAccessSdk visaInfiniteAccessSdk;
   final Map<String, dynamic> merchantDetails;
   final Map<String, dynamic> customerDetails;
 
@@ -25,7 +25,7 @@ class CheckoutScreen extends StatefulWidget {
       {Key? key,
       required this.productOneCount,
       required this.productTwoCount,
-      required this.hyperSDK,
+      required this.visaInfiniteAccessSdk,
       required this.merchantDetails,
       required this.customerDetails})
       : super(key: key);
@@ -72,7 +72,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 alignment: Alignment.centerLeft,
                 padding: const EdgeInsets.only(left: 20),
                 child: const Text(
-                  "Call process on HyperServices instance on Checkout Button Click",
+                  "Call process on VisaInfiniteAccessSdk instance on Checkout Button Click",
                   style: TextStyle(
                     fontSize: 14,
                   ),
@@ -241,7 +241,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             useContainer = !useContainer;
                           });
                           // Uncoment for Update order of Payment Widget
-                          // widget.hyperSDK.process(getUpdateOrderPayload("yJczz4s5b2", widget.merchantDetails, widget.customerDetails, "4.0"), hyperSDKCallbackHandler);
+                          // widget.visaInfiniteAccessSdk.process(getUpdateOrderPayload("yJczz4s5b2", widget.merchantDetails, widget.customerDetails, "4.0"), visaInfiniteAccessSdkCallbackHandler);
                         },
                       ))
                 ],
@@ -286,7 +286,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   if (useContainer) {
                     debugPrint('HH useContainer - true');
                     return ContainerPaymentPage(
-                        hyperSDK: widget.hyperSDK,
+                        visaInfiniteAccessSdk: widget.visaInfiniteAccessSdk,
                         amount: amounts['totalAmount'].toString(),
                         merchantDetails: widget.merchantDetails,
                         customerDetails: widget.customerDetails,
@@ -294,7 +294,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   } else {
                     debugPrint('HH useContainer - false');
                     return PaymentPage(
-                        hyperSDK: widget.hyperSDK,
+                        visaInfiniteAccessSdk: widget.visaInfiniteAccessSdk,
                         amount: amounts['totalAmount'].toString(),
                         merchantDetails: widget.merchantDetails,
                         customerDetails: widget.customerDetails,
@@ -308,12 +308,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           // Container(
           //   height: 110,
           //   width: double.infinity,
-          //   child: widget.hyperSDK.hyperFragmentView (
+          //   child: widget.visaInfiniteAccessSdk.hyperFragmentView (
           //         110,
           //         double.infinity,
           //         "paymentWidget",
           //         payload, 
-          //         hyperSDKCallbackHandler
+          //         visaInfiniteAccessSdkCallbackHandler
           //       ),
           // ),
             ],
@@ -338,6 +338,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   // uncomment for Payment Widget
-  // void hyperSDKCallbackHandler(MethodCall methodCall) {
+  // void visaInfiniteAccessSdkCallbackHandler(MethodCall methodCall) {
   // }
 }
