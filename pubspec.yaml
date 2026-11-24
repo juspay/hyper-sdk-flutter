@@ -1,7 +1,7 @@
-name: hypersdkflutter
+name: visa_infinite_access_sdk_flutter
 description: >-
-  Flutter plugin for HyperSDK which enables payment orchestration via different dynamic modules.
-version: 4.0.62
+  Flutter wrapper for Visa Infinite Access, enabling cardholder benefit journeys on Android and iOS.
+version: 0.0.1
 repository: https://github.com/juspay/hyper-sdk-flutter
 homepage: https://juspay.in/
 

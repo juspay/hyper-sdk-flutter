@@ -10,10 +10,10 @@
 //
 // Run from the app's root folder after changing hyper_sdk_ios_version:
 //
-//   dart run hypersdkflutter:sync_hypersdk_version
+//   dart run visa_infinite_access_sdk_flutter:sync_hypersdk_version
 //
 // It rewrites the `let hyperSdkVersion` line in this plugin's
-// ios/hypersdkflutter/Package.swift. SwiftPM caches manifests by their
+// ios/visa_infinite_access_sdk_flutter/Package.swift. SwiftPM caches manifests by their
 // contents, so changing that line makes SwiftPM evaluate the manifest again
 // and resolve the new version.
 
@@ -28,7 +28,7 @@ final _versionLinePattern = RegExp(r'^let hyperSdkVersion = .*$', multiLine: tru
 
 Future<void> main(List<String> args) async {
   if (args.isNotEmpty) {
-    _fail('Unknown argument: ${args.first}\nUsage: dart run hypersdkflutter:sync_hypersdk_version', exitCode: 64);
+    _fail('Unknown argument: ${args.first}\nUsage: dart run visa_infinite_access_sdk_flutter:sync_hypersdk_version', exitCode: 64);
   }
 
   final appPubspec = File('pubspec.yaml');
@@ -36,11 +36,11 @@ Future<void> main(List<String> args) async {
     _fail('pubspec.yaml not found in ${Directory.current.path}. Run this command from your app\'s root folder.');
   }
 
-  final libUri = await Isolate.resolvePackageUri(Uri.parse('package:hypersdkflutter/hypersdkflutter.dart'));
+  final libUri = await Isolate.resolvePackageUri(Uri.parse('package:visa_infinite_access_sdk_flutter/visa_infinite_access_sdk_flutter.dart'));
   if (libUri == null) {
-    _fail('Could not locate the hypersdkflutter package. Run `flutter pub get` first.');
+    _fail('Could not locate the visa_infinite_access_sdk_flutter package. Run `flutter pub get` first.');
   }
-  final packageSwift = File.fromUri(libUri.resolve('../ios/hypersdkflutter/Package.swift'));
+  final packageSwift = File.fromUri(libUri.resolve('../ios/visa_infinite_access_sdk_flutter/Package.swift'));
   if (!packageSwift.existsSync()) {
     _fail('Package.swift not found at ${packageSwift.path}.');
   }

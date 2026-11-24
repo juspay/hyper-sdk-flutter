@@ -1,91 +1,114 @@
-# Hyper SDK Flutter
+# Visa Infinite Access SDK for Flutter
 
-Flutter plugin for HyperSDK which enables payment orchestration via different dynamic modules.
+## Requirements
 
-## Flutter Setup
+- Android minimum SDK 21.
+- iOS 13 or later.
 
-Add flutter plugin dependency in `pubspec.yaml`.
-Get dependency from [pub.dev](https://pub.dev/packages/hypersdkflutter/install)
+## Install
 
-## Android Setup
+```sh
+flutter pub add visa_infinite_access_sdk_flutter
+flutter pub get
+```
 
-Add the clientId ext property in root(top) `build.gradle`. 
+## Android setup
 
-- Override HyperSDK Version by adding hyperSDKVersion - `Optional`
-- Exclude microSDKs provided with HyperSDK for given clientId by adding excludedMicroSDKs - `Optional`
+Add the VIA plugin repository, classpath, and asset repository to the root `android/build.gradle` or `android/build.gradle.kts`.
 
-Depending on the flutter version or the build.gradle format, kindly use either the below groovy code snippet or the Kotlin one:
+Groovy:
 
-Groovy Format
 ```groovy
 buildscript {
-    ....
-    ext {
-        ....
-        clientId = "<clientId shared by VIA team>"
-        hyperSDKVersion = "<Version shared by VIA team>"
-        excludedMicroSDKs = []
-        ....
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://visabenefits.me1.juspay.io/hyper-sdk/" }
     }
-    ....
+    dependencies {
+        classpath "com.visa:visainfiniteaccess.plugin:0.0.3"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://visabenefits.me1.juspay.io/hyper-sdk/" }
+    }
 }
 ```
 
-Kotlin DSL Format
-```Kotlin DSL
+Kotlin DSL:
+
+```kotlin
 buildscript {
-    ....
-    extra["clientId"] = "<clientId shared by VIA team>"
-    extra["hyperSDKVersion"] = "<Version shared by VIA team>"
-    ....
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = uri("https://visabenefits.me1.juspay.io/hyper-sdk/") }
+    }
+    dependencies {
+        classpath("com.visa:visainfiniteaccess.plugin:0.0.3")
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = uri("https://visabenefits.me1.juspay.io/hyper-sdk/") }
+    }
 }
 ```
 
-Optionally, you can also provide an override for base SDK version present in plugin (the newer version among both would be considered).
+Apply and configure the plugin in the application's `android/app/build.gradle` or `android/app/build.gradle.kts`.
 
-### Note
+Groovy:
 
-**Your application's `MainActivity` should extend `FlutterFragmentActivity` instead of `FlutterActivity`.**
+```groovy
+apply plugin: "visainfiniteaccess.plugin"
 
-_`VIASdk` only supports `FragmentActivity`._
+visaInfiniteAccessPlugin {
+    clientId = "viaglobal"
+}
+```
+
+Kotlin DSL:
+
+```kotlin
+apply(plugin = "visainfiniteaccess.plugin")
+
+configure<com.visa.visainfiniteaccess.VisaInfiniteAccessPluginExtension> {
+    clientId.set("viaglobal")
+}
+```
+
+The application's `MainActivity` must extend `FlutterFragmentActivity`:
 
 ```kotlin
 import io.flutter.embedding.android.FlutterFragmentActivity
 
-
-class MainActivity: FlutterFragmentActivity() {
-
-}
+class MainActivity : FlutterFragmentActivity()
 ```
 
-## iOS Setup
+## iOS setup
 
-Place a `MerchantConfig.json` file inside the `ios/` folder of your project. This file doesn't need to be added to the Xcode project. The content of the file should be as below
+Create `ios/VisaInfiniteAccessConfig.json`. This file does not need to be added to the Xcode target:
 
 ```json
 {
   "clientConfigs": {
-    "<clientId shared by VIA Team>": {}
+    "viaglobal": {}
   }
 }
 ```
 
-(Optional) Add the following variable in [pubspec.yaml](https://github.com/juspay/hyper-sdk-flutter/blob/main/example/pubspec.yaml) of your project if you want to override the base SDK version present in the plugin (the newer version among both would be considered):
-
-```yaml
-# pubspec.yaml
-name: your_flutter_app
-description: A new Flutter project.
-
-# Other configurations...
-
-hyper_sdk_ios_version: "<New version>"
-```
-
+The iOS build uses this file to configure VIA for your app.
 
 ### CocoaPods
 
-The plugin supports both CocoaPods and Swift Package Manager. When Flutter's Swift Package Manager support is enabled (the default in recent Flutter versions), Flutter integrates this plugin with Swift Package Manager. To keep using CocoaPods, disable Swift Package Manager for your project in `pubspec.yaml`:
+To use CocoaPods when Flutter's Swift Package Manager support is enabled, disable SPM in the application's `pubspec.yaml`:
 
 ```yaml
 flutter:
@@ -93,355 +116,245 @@ flutter:
     enable-swift-package-manager: false
 ```
 
-Add the following post_install script in the Podfile (`ios/Podfile`)
+In `ios/Podfile`, retain Flutter's normal `post_install` build settings and add the following VIA setup:
 
-```sh
+```ruby
 post_install do |installer|
-  fuse_path = "./Pods/HyperSDK/Fuse.rb"
-  if File.exist?(fuse_path)
-    if system("ruby", fuse_path.to_s)
-    end
+  installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
   end
+
+  fuse_path = "./.symlinks/plugins/visa_infinite_access_sdk_flutter/ios/Fuse.rb"
+  abort("Visa Infinite Access Fuse.rb not found at #{fuse_path}") unless File.exist?(fuse_path)
+  abort("Visa Infinite Access asset generation failed") unless system("ruby", fuse_path)
 end
 ```
 
-Run `pod install` inside the `ios/` folder after adding or changing `hyper_sdk_ios_version`.
+Run from the Flutter application's root directory:
 
-See [example](https://github.com/juspay/hyper-sdk-flutter/blob/main/example) for a complete project.
+```sh
+flutter pub get
+cd ios
+pod install
+```
 
 ### Swift Package Manager
 
-In Xcode, open `ios/Runner.xcworkspace`, go to **Product → Scheme → Edit Scheme**, expand **Build**, select **Pre-actions**, click **+** and choose **New Run Script Action**. Set **Provide build settings from** to the App target, place it after Flutter's "Run Prepare Flutter Framework Script" and add:
+Keep Flutter's Swift Package Manager support enabled. In Xcode, open `ios/Runner.xcworkspace` and select **Product → Scheme → Edit Scheme**. Under **Build → Pre-actions**, add a **New Run Script Action** after Flutter's **Run Prepare Flutter Framework Script**. Select the application target for **Provide build settings from**, then add:
 
 ```sh
-PACKAGE_DIR="${BUILD_DIR%Build/*}SourcePackages/artifacts/hypersdk-ios/HyperSDK"
-[ -d "$PACKAGE_DIR" ] || PACKAGE_DIR="${BUILD_DIR}/SourcePackages/artifacts/hypersdk-ios/HyperSDK"
-XCFRAMEWORK_DIR="${PACKAGE_DIR}/HyperSDK.xcframework"
-FUSE_SCRIPT="${PACKAGE_DIR}/Fuse.rb"
+HYPER_SDK_DIR="${BUILD_DIR%Build/*}SourcePackages/artifacts/hypersdk-ios/HyperSDK"
+[ -d "$HYPER_SDK_DIR" ] || HYPER_SDK_DIR="${BUILD_DIR}/SourcePackages/artifacts/hypersdk-ios/HyperSDK"
+XCFRAMEWORK_DIR="${HYPER_SDK_DIR}/HyperSDK.xcframework"
 FUSE_MARKER="${XCFRAMEWORK_DIR}/.fuse_completed"
-VALIDATION_SCRIPT="${PACKAGE_DIR}/ValidateHyperSDK.rb"
+VALIDATION_SCRIPT="${HYPER_SDK_DIR}/ValidateHyperSDK.rb"
 
-[ ! -f "$FUSE_MARKER" ] || [ "${ACTION}" == "clean" ] && { cd "${PROJECT_DIR}"; echo "Running Fuse.rb script..."; ruby "$FUSE_SCRIPT"; }
+# Resolve the Flutter package location for local, Git, and pub.dev dependencies.
+FUSE_SCRIPT="$(ruby -rjson -ruri -e '
+  config_path = File.expand_path(ARGV[0])
+  config = JSON.parse(File.read(config_path))
+  package = config["packages"].find { |item| item["name"] == "visa_infinite_access_sdk_flutter" }
+  abort "Visa Infinite Access package not found in package_config.json" unless package
+  root_uri = package["rootUri"]
+  root_path = root_uri.start_with?("file:") ? URI.parse(root_uri).path : File.expand_path(root_uri, File.dirname(config_path))
+  puts File.join(URI::DEFAULT_PARSER.unescape(root_path), "ios", "Fuse.rb")
+' "${PROJECT_DIR}/../.dart_tool/package_config.json")" || exit 1
+
+if [ ! -f "$FUSE_MARKER" ] || [ "${ACTION}" = "clean" ]; then
+  cd "${PROJECT_DIR}" || exit 1
+  echo "Running Visa Infinite Access Fuse.rb..."
+  ruby "$FUSE_SCRIPT" || exit 1
+fi
 
 ruby "$VALIDATION_SCRIPT" && touch "$FUSE_MARKER" || exit 1
 ```
 
-The script downloads the HyperSDK assets on the first build and after a clean.
+This pre-action prepares the VIA resources required for iOS builds.
 
-After adding or changing `hyper_sdk_ios_version`, run from your project's root folder:
+## Invoke the SDK
 
-```sh
-dart run hypersdkflutter:sync_hypersdk_version
-```
+Use identifiers only in SDK requests; do not pass cardholder PII or card data.
 
-## Usage
+Every `initiate` and `process` request has this structure:
 
-### Import VIASdk
+| Field | Value |
+| :---- | :---- |
+| `requestId` | Unique identifier for each request. |
+| `service` | Always `com.visa.visainfiniteaccess`. |
+| `payload` | The VIA action and its fields. |
 
-```dart
-import 'package:hypersdk/hypersdkflutter.dart';
-```
+Replace `viaglobal` in the examples with the client ID assigned by the VIA team.
 
-### Step-1: Create VIASdk Object
-
-This method creates an instance of VIASdk class on which all the VIASdk APIs / methods are triggered.
-
-Note: This method is mandatory and is required to call any other subsequent methods from VIASdk.
+### Import and create the SDK instance
 
 ```dart
-final viaSdk = VIASdk();
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
+import 'package:visa_infinite_access_sdk_flutter/visa_infinite_access_sdk_flutter.dart';
+
+final viaSdk = VisaInfiniteAccessSdk();
 ```
 
+### Handle SDK events
 
-### Step-1.1: Create Instance of HyperService (Optional)
-
-This step is required if your app has multiple tenants or different clientIds.
-
-Note: This method is not mandatory and is required only if the same app has multiple clientIds.
-Please reach out to VIA Merchant Spoc to get information of your tenant & clientIds.
+Pass the callback to `initiate` and every `process` call. `hide_loader` indicates that the SDK has rendered its screen. `result` contains the final status; on failure, `error` is true and `errorMessage` explains the failure.
 
 ```dart
-viaSdk.createHyperServicesWithTenantId("<tenantName>", "clientId");
-```
+void viaCallbackHandler(MethodCall call) {
+  switch (call.method) {
+    case 'hide_loader':
+      // Hide the host app's loader.
+      break;
+    case 'result':
+      final response = jsonDecode(call.arguments as String)
+          as Map<String, dynamic>;
+      final error = response['error'] == true;
+      final errorMessage = response['errorMessage']?.toString() ?? '';
 
-### Step-2: Initiate
-
-This method should be called on the render of the host screen. This will boot up the SDK and start the Hyper engine. It takes a stringified JSON as its argument which will contain the base parameters for the entire session and remains static throughout one SDK instance lifetime. It also takes a function to handle initiate callbacks.
-
-Note: It is highly recommended to initiate SDK from the order summary page (at least 5 seconds before opening your payment page) for seamless user experience.
-
-```dart
-await viaSdk.initiate(initiatePayload, initiateCallbackHandler);
-```
-
-### Step-3: Process
-
-This API should be triggered for all operations required from VIASdk. The operation may be related to:
-
-Displaying payment options on your payment page
-Performing a transaction
-User's payment profile management
-
-```dart
-await viaSdk.process(processPayload, viaSdkCallbackHandler)
-```
-
-This API should be used when you want to open the payment page in a new activity created by hyper-sdk-flutter.
-
-```dart
-await viaSdk.processWithActivity(processPayload, viaSdkCallbackHandler)
-```
-
-### Step-3.1: Process via Container
-
-This API should be used when Payment Page needs to be rendered within a particular container within the merchant app instead of whole screen.
-This is custom view component that returns a StatefulWidget, AndroidView and UiKitView, for android and iOS respectively.
-
-```dart
-    viaSdk.hyperSdkView(processPayload, viaSdkCallbackHandler)
-```
-
-You can attach this within a container of your screen like below:
-
-```dart
-  Container(
-    color: Colors.white,
-    child: viaSdk.hyperSdkView(processPayload, viaSdkCallbackHandler)
-  )
-```
-
-### Step 3.2: Process via PaymentWidget
-
-This API should be used when you want to use blended payment widget where users can interact with both product and payment UI at the same time as per convenience.
-This is custom view component that returns a Widget, AndroidView and UiKitView, for android and iOS wrapped inside a container respectively.
-
-```dart
-    viaSdk.hyperFragmentView(height, width, "paymentWidget", processPayload, viaSdkCallbackHandler)
-```
-
-You can attach this within a container of your screen like below:
-
-```dart
-  Container(
-    color: Colors.white,
-    child: viaSdk.hyperFragmentView(height, width, "paymentWidget", processPayload, viaSdkCallbackHandler)
-  )
-```
-
-### Step-4: Android Hardware Back-Press Handling
-
-Hyper SDK internally uses an android fragment for opening the bank page and will need the control to hardware back press when the bank page is active.
-
-For Android, this can be done by wrapping your scaffold widget(or any other parent widget) with `WillPopScope` [Flutter Doumentation](https://api.flutter.dev/flutter/widgets/WillPopScope-class.html)
-
-Call `await viaSdk.onBackPress();` inside `onWillPop` within `WillPopScope`.
-
-Handling Android Hardware Back-Press can be done using `WillPopScope` as shown below
-
-```dart
-onWillPop: () async {
-        if (Platform.isAndroid) {
-          var backpressResult = await viaSdk.onBackPress();
-          if (backpressResult.toLowerCase() == "true") {
-            return false;
-          } else {
-            return true;
-          }
-        } else {
-          return true;
-        }
+      if (error) {
+        // Show errorMessage or apply the host app's error handling.
       }
+      break;
+  }
+}
 ```
 
-### Step-5: Terminate
+### Initiate at app launch
 
-This method shall be triggered when VIASdk is no longer required.
+Call `initiate` once when the VIA flow starts. It prepares the SDK and does not require authentication.
+
+```dart
+final initiatePayload = <String, dynamic>{
+  'requestId': '<unique identifier>',
+  'service': 'com.visa.visainfiniteaccess',
+  'payload': <String, dynamic>{
+    'action': 'initiate',
+    'clientId': 'viaglobal',
+    'environment': 'sandbox',
+    'language': 'en',
+    'customerId': '<VIA customer id>',
+    'deviceId': '<VIA device id>',
+  },
+};
+
+await viaSdk.initiate(initiatePayload, viaCallbackHandler);
+```
+
+| Field | Description | Required |
+| :---- | :---- | :---- |
+| `environment` | `sandbox` or `production` | Yes |
+| `language` | ISO 639-1 language code, such as `en`, `ar`, `fr`, `pt`, `ru`, or `uk` | Yes |
+| `customerId` | VIA opaque cardholder ID | Yes |
+| `deviceId` | VIA device ID for device and risk context | No |
+
+### Log in after cardholder authentication
+
+After the cardholder logs in to VIA, pass the auth code from Visa B2C IAM to the `login` action.
+
+```dart
+final loginPayload = <String, dynamic>{
+  'requestId': '<unique identifier>',
+  'service': 'com.visa.visainfiniteaccess',
+  'payload': <String, dynamic>{
+    'action': 'login',
+    'clientId': 'viaglobal',
+    'authCode': '<B2C IAM auth code or Visa-sealed JWE>',
+  },
+};
+
+await viaSdk.process(loginPayload, viaCallbackHandler);
+```
+
+### Open a benefit journey
+
+Call `redeemBenefit` once for each benefit the cardholder opens.
+
+```dart
+final redeemBenefitPayload = <String, dynamic>{
+  'requestId': '<unique identifier>',
+  'service': 'com.visa.visainfiniteaccess',
+  'payload': <String, dynamic>{
+    'action': 'redeemBenefit',
+    'clientId': 'viaglobal',
+    'benefitId': '<VDBP benefit id>',
+    'benefitPartnerId': '<VIA partner id>',
+    'cardAlias': '<card alias>',
+  },
+};
+
+await viaSdk.process(redeemBenefitPayload, viaCallbackHandler);
+```
+
+| Field | Description | Required |
+| :---- | :---- | :---- |
+| `action` | `redeemBenefit` | Yes |
+| `benefitId` | VDBP benefit or offer ID being opened | Yes |
+| `benefitPartnerId` | VIA partner ID associated with the benefit | No |
+| `cardAlias` | Card on which the benefit is used | Required when the cardholder has more than one card |
+
+### Open benefit details
+
+When the cardholder opens a benefit's detail page, use the same fields with `viewBenefitDetail`.
+
+```dart
+final viewBenefitDetailPayload = <String, dynamic>{
+  'requestId': '<unique identifier>',
+  'service': 'com.visa.visainfiniteaccess',
+  'payload': <String, dynamic>{
+    'action': 'viewBenefitDetail',
+    'clientId': 'viaglobal',
+    'benefitId': '<VDBP benefit id>',
+    'benefitPartnerId': '<VIA partner id>',
+    'cardAlias': '<card alias>',
+  },
+};
+
+await viaSdk.process(viewBenefitDetailPayload, viaCallbackHandler);
+```
+
+### Log out of VIA
+
+Call this action when the cardholder logs out of VIA. It ends the current VIA session; the next session requires a fresh `login` action.
+
+```dart
+final logoutPayload = <String, dynamic>{
+  'requestId': '<unique identifier>',
+  'service': 'com.visa.visainfiniteaccess',
+  'payload': <String, dynamic>{
+    'action': 'logout',
+    'clientId': 'viaglobal',
+  },
+};
+
+await viaSdk.process(logoutPayload, viaCallbackHandler);
+```
+
+Call `logout` before `terminate` when the cardholder is logging out.
+
+### Release the SDK instance
+
+Call `terminate` when the SDK screen closes. It releases on-device resources and does not log the cardholder out.
 
 ```dart
 await viaSdk.terminate();
 ```
 
-### Optional: Is Initialised
+### Android back handling
 
-This is a helper / optional method to check whether SDK has been initialised after step-2. It returns a boolean.
-
-```dart
-await viaSdk.isInitialised();
-```
-
-## Callbacks
-
-### Initiate callback handler
-
-Use this function to get result from initiate.
+Forward Android hardware back presses while the SDK screen is active:
 
 ```dart
-void initiateCallbackHandler(MethodCall methodCall) {
-    if (methodCall.method == "initiate_result") {
-      // check initiate result
-    }
-  }
+final backPressResult = await viaSdk.onBackPress();
+final consumedBySdk = backPressResult.toLowerCase() == 'true';
 ```
 
-### Process callback handler
-
-Use this function to get results from process.
-
-```dart
-void viaSdkCallbackHandler(MethodCall methodCall) {
-    switch (methodCall.method) {
-      case "hide_loader":
-        break;
-      case "process_result":
-        var args = {};
-
-        try {
-          args = json.decode(methodCall.arguments);
-        } catch (e) {
-          print(e);
-        }
-
-        var error = args["error"] ?? false;
-
-        var innerPayload = args["payload"] ?? {};
-
-        var status = innerPayload["status"] ?? " ";
-        var pi = innerPayload["paymentInstrument"] ?? " ";
-        var pig = innerPayload["paymentInstrumentGroup"] ?? " ";
-
-        if (!error) {
-          switch (status) {
-            case "charged":
-              {
-                // Successful Transaction
-                // check order status via S2S API
-              }
-              break;
-            case "cod_initiated":
-              {
-                // User opted for cash on delivery option displayed on payment page
-              }
-              break;
-          }
-        } else {
-          var errorCode = args["errorCode"] ?? " ";
-          var errorMessage = args["errorMessage"] ?? " ";
-          switch (status) {
-            case "backpressed":
-              {
-                // user back-pressed from PP without initiating any txn
-              }
-              break;
-            case "user_aborted":
-              {
-                // user initiated a txn and pressed back
-                // check order status via S2S API
-              }
-              break;
-            case "pending_vbv":
-              {}
-              break;
-            case "authorizing":
-              {
-                // txn in pending state
-                // check order status via S2S API
-              }
-              break;
-            case "authorization_failed":
-              {}
-              break;
-            case "authentication_failed":
-              {}
-              break;
-            case "api_failure":
-              {
-                // txn failed
-                // check order status via S2S API
-              }
-              break;
-            case "new":
-              {
-                // order created but txn failed
-                // check order status via S2S API
-              }
-              break;
-          }
-        }
-    }
-  }
-```
-
-### WebView Configuration Callback (Optional)
-
-The Minkasu SDK requires access to the bank WebView SDK. This can be enabled after whitelisting on VIA end. Below is a reference to changes required post getting SDK whitelisted. This should be called before calling process.
-
-#### Android
-
-**Kotlin:**
-
-```kotlin
-import `in`.juspay.hyper_sdk_flutter.HyperSdkFlutterPlugin
-import `in`.juspay.hypersdk.core.JuspayWebViewConfigurationCallback
-
-
-HyperSdkFlutterPlugin.webViewConfigurationCallback =
-    JuspayWebViewConfigurationCallback { webview ->
-
-    }
-```
-
-**Java:**
-
-```java
-import in.juspay.hyper_sdk_flutter.HyperSdkFlutterPlugin;
-
-
-HyperSdkFlutterPlugin.setWebViewConfigurationCallback(webView -> {
-
-});
-```
-
-#### iOS
-
-**Swift:**
-
-```swift
-import hypersdkflutter
-
-
-SwiftHyperSdkFlutterPlugin.setJuspayWebViewConfigurationCallback { webView in
-
-}
-```
-
-**Objective-C:**
-
-```objective-c
-#if __has_include(<hypersdkflutter/hypersdkflutter-Swift.h>)
-#import <hypersdkflutter/hypersdkflutter-Swift.h>
-#else
-@import hypersdkflutter;
-#endif
-
-[SwiftHyperSdkFlutterPlugin setJuspayWebViewConfigurationCallback:^(WKWebView * _Nonnull webview) {
-
-}];
-```
-
-## Payload Structure
-
-Payload type is `Map<String,Dynamic>`
-
-For Payment Page Product, [click here](https://developer.juspay.in/docs/introduction-6) for payload.
-
-For EC-Headless Product, [click here](https://developer.juspay.in/v2.0/docs/payload) for payload.
+When `consumedBySdk` is false, the host application handles the back navigation.
 
 ## License
 
-hypersdkflutter is distributed under [AGPL-3.0-only](https://pub.dev/packages/hypersdkflutter/license) license.
+`visa_infinite_access_sdk_flutter` is distributed under the [AGPL-3.0-only](https://pub.dev/packages/visa_infinite_access_sdk_flutter/license) license.
 
 ### Attribution
 
-This project is based on the OSS project juspay_flutter by [Deep Rooted.co](https://deep-rooted.co) published under MIT License
-
-The original repository is accessible [here](https://github.com/deep-rooted-co/juspay_flutter).
+This project is based on the OSS project juspay_flutter by [Deep Rooted.co](https://deep-rooted.co), published under the MIT License. The original repository is available [here](https://github.com/deep-rooted-co/juspay_flutter).

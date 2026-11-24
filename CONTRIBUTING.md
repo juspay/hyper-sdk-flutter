@@ -1,55 +1,65 @@
-# Hyper SDK Flutter
+# Contributing to Visa Infinite Access SDK for Flutter
 
-Flutter plugin for HyperSDK which enables payment orchestration via different dynamic modules.
+The example application uses the local Flutter package through `visa_infinite_access_sdk_flutter: path: ../`. See the [main README](README.md) for the complete VIA integration guide.
 
-## Flutter Setup
+## Configure the example
 
-Add flutter plugin dependency in `pubspec.yaml`.
-Get dependency from [pub.dev](https://pub.dev/packages/hypersdkflutter/install)
+Fetch dependencies from the `example/` directory:
 
-
-## To Run the Demo app
-
-### Provide Customer and Merchant Details
-
-Provide the cutomer and merchant details in the example/lib/screens/home.dart file 
-
-```
-var customerDetails = {
-    "customerId" : "",
-    "customerPhone" : "",
-    "customerEmail": ""
-};
-
-var merchantDetails = {
-    "clientId": "",
-    "merchantId": "",
-    "action": "",
-    "returnUrl": "",
-    "currency": "INR",
-    "privateKey": "",
-    "merchantKeyId": "",
-    "environment": "",
-    "service": ""
-};
-
+```sh
+flutter pub get
 ```
 
-### In Android
+Use test identifiers and auth data supplied for your sandbox environment. Do not commit real credentials, auth codes, private keys, cardholder PII, or card data.
 
-Navigate to example/android/build.gradle -> buildscript -> ext -> clientId, provide the clientId given to you by Juspay team.
+### Android
 
+The example's root `android/build.gradle` declares only the `com.visa:visainfiniteaccess.plugin:0.0.1` classpath. Its `android/app/build.gradle` applies `visainfiniteaccess.plugin` and configures the client directly through `visaInfiniteAccessPlugin`; no root `ext.clientId` is used.
 
-### In IOS
+Change the test client in `example/android/app/build.gradle`:
 
-Navigate to example/ios/MerchantConfig.txt, provide the clientId provided by the Juspay team.
-
-
-### Run the project
-
-Navigate to example ( cd example). Run the command
-
+```groovy
+visaInfiniteAccessPlugin {
+    clientId = "viaglobal"
+}
 ```
+
+The application owns the VIA Assets Plugin setup. The Flutter SDK supplies only the HyperSDK dependencies and does not apply the VIA plugin.
+
+### iOS
+
+Update the client key in `example/ios/VisaInfiniteAccessConfig.json`:
+
+```json
+{
+  "clientConfigs": {
+    "viaglobal": {}
+  }
+}
+```
+
+The example uses CocoaPods. After changing the client, regenerate dependencies and VIA assets:
+
+```sh
+cd ios
+pod install
+cd ..
+```
+
+The example targets iOS 15 for the installed Xcode 27 toolchain. The Flutter package itself supports iOS 13 and later.
+
+## Run the example
+
+From `example/`:
+
+```sh
 flutter run
-
 ```
+
+For an unsigned iOS device-build check, run:
+
+```sh
+flutter build ios --no-codesign
+```
+
+Keep changes focused and run `flutter analyze` from the repository root before submitting changes.

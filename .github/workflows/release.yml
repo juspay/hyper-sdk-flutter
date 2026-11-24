@@ -1,4 +1,4 @@
-name: Release hypersdkflutter to pub.dev
+name: Release visa_infinite_access_sdk_flutter to pub.dev
 on:
   push:
     branches:
@@ -118,12 +118,12 @@ jobs:
         run: |
           # Update the version in pubspec.yaml
           sed -i "s/^version: .*/version: ${{ env.new_version }}/" pubspec.yaml
-          sed -i "s/s.version[ ]*=[ ]*'.*'/s.version          = '${{ env.new_version }}'/g" ios/hypersdkflutter.podspec
+          sed -i "s/s.version[ ]*=[ ]*'.*'/s.version          = '${{ env.new_version }}'/g" ios/visa_infinite_access_sdk_flutter.podspec
           sed -i "1s/^/# ${{ env.new_version }}\n* ${{ env.commit_message }}\n\n/" CHANGELOG.md
 
           # Commit the updated pubspec.yaml file
           git add pubspec.yaml
-          git add ios/hypersdkflutter.podspec
+          git add ios/visa_infinite_access_sdk_flutter.podspec
           git add CHANGELOG.md
           git commit -m "chore: bump version to ${{ env.new_version }}"
         shell: bash

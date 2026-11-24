@@ -1,4 +1,4 @@
-name: Publish hypersdkflutter to pub.dev
+name: Publish visa_infinite_access_sdk_flutter to pub.dev
 on:
   push:
     tags:

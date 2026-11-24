@@ -38,7 +38,8 @@ class VisaInfiniteAccessSdk {
   }
 
   Future<void> createHyperServices(String clientId) async {
-    await hyperSDK.invokeMethod('createHyperServices', <String, dynamic>{'clientId': clientId});
+    await hyperSDK.invokeMethod(
+        'createHyperServices', <String, dynamic>{'clientId': clientId});
   }
 
   /// Fetches dynamic assets for SDK.
@@ -56,17 +57,16 @@ class VisaInfiniteAccessSdk {
   /// {@category Required}
   Future<String> initiate(Map<String, dynamic> params,
       void Function(MethodCall) initiateHandler) async {
-    var result = await hyperSDK.invokeMethod('initiate', <String, dynamic>{
-      'params': params,
-    });
-
-    // Wrapper function to eliminate redundant Future<dynamic> return value
+    // Register before invoking native code so immediate callbacks are not lost.
     Future<dynamic> callbackFunction(MethodCall methodCall) {
       initiateHandler(methodCall);
       return Future.value(0);
     }
 
     hyperSDK.setMethodCallHandler(callbackFunction);
+    var result = await hyperSDK.invokeMethod('initiate', <String, dynamic>{
+      'params': params,
+    });
 
     return result.toString();
   }
@@ -77,17 +77,16 @@ class VisaInfiniteAccessSdk {
   /// {@category Required}
   Future<String> process(Map<String, dynamic> params,
       void Function(MethodCall) processHandler) async {
-    var result = await hyperSDK.invokeMethod('process', <String, dynamic>{
-      'params': params,
-    });
-
-    // Wrapper function to eliminate redundant Future<dynamic> return value
+    // Register before invoking native code so immediate callbacks are not lost.
     Future<dynamic> callbackFunction(MethodCall methodCall) {
       processHandler(methodCall);
       return Future.value(0);
     }
 
     hyperSDK.setMethodCallHandler(callbackFunction);
+    var result = await hyperSDK.invokeMethod('process', <String, dynamic>{
+      'params': params,
+    });
     return result.toString();
   }
 
@@ -238,23 +237,23 @@ class VisaInfiniteAccessSdk {
             ));
   }
 
-
   Future<String> processWithActivity(Map<String, dynamic> params,
-    void Function(MethodCall) processHandler) async {
-      if (Platform.isIOS) {
-        return process(params, processHandler);
-      }
-      var result = await hyperSDK.invokeMethod('processWithActivity', <String, dynamic>{
-        'params': params,
-      });
+      void Function(MethodCall) processHandler) async {
+    if (Platform.isIOS) {
+      return process(params, processHandler);
+    }
 
-    // Wrapper function to eliminate redundant Future<dynamic> return value
+    // Register before invoking native code so immediate callbacks are not lost.
     Future<dynamic> callbackFunction(MethodCall methodCall) {
       processHandler(methodCall);
       return Future.value(0);
     }
 
     hyperSDK.setMethodCallHandler(callbackFunction);
+    var result =
+        await hyperSDK.invokeMethod('processWithActivity', <String, dynamic>{
+      'params': params,
+    });
     return result.toString();
   }
 }

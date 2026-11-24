@@ -1,3 +1,6 @@
+# 0.0.1
+* Initial Visa Infinite Access Flutter SDK release.
+
 # 4.0.62
 * fix: create release tags with the hyper-sdk-app token
 
