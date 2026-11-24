@@ -298,6 +298,32 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
         }
     }
 
+    private fun createViaHyperServices(
+        activity: FragmentActivity,
+        params: Map<String, Any>,
+    ): HyperServices {
+        val viaPayload = (params["payload"] as? Map<*, *>)?.entries
+            ?.filter { it.key is String }
+            ?.associate { it.key as String to (it.value ?: "") }
+            ?: params
+        val clientId = viaPayload["clientId"] as? String
+        require(!clientId.isNullOrEmpty()) { "payload.clientId is required" }
+
+        val isCug = runCatching {
+            activity.packageManager.getPackageInfo("in.juspay.devqa", 0)
+        }.isSuccess
+        val headers = mutableMapOf<String?, String?>("isCug" to isCug.toString())
+        for (key in listOf("displayIssuerName", "location", "language", "customerId", "environment")) {
+            (viaPayload[key] as? String)?.let { headers[key] = it }
+        }
+
+        return HyperServices(
+            activity,
+            VisaInfiniteAccessTenantParams(clientId, headers),
+            "$clientId-android",
+        )
+    }
+
     private fun initiate(activity: Activity?, params: Map<String, Any>, result: Result) {
         try {
             if (activity == null) {
@@ -343,7 +369,7 @@ class HyperSdkFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
                     }
                 }
             }
-            val services = hyperServices ?: HyperServices(fragmentActivity).also { hyperServices = it }
+            val services = hyperServices ?: createViaHyperServices(fragmentActivity, params).also { hyperServices = it }
             services.initiate(fragmentActivity, JSONObject(params), updateHyperPaymentsCallback(callback))
             result.success(true)
         } catch (e: Exception) {

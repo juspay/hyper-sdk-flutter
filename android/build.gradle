@@ -1,7 +1,7 @@
-import in.juspay.payments.core.ClientConfig
-
 group 'in.juspay.hyper_sdk_flutter'
 version '1.0-SNAPSHOT'
+
+def hyperSdkVersion = '2.2.8'
 
 buildscript {
     ext.kotlin_version = '1.5.31'
@@ -14,7 +14,6 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'in.juspay:hypersdk.plugin:2.2.14'
     }
 }
 
@@ -28,7 +27,6 @@ rootProject.allprojects {
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'hypersdk.plugin'
 
 android {
     compileSdk 34
@@ -55,93 +53,6 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    compileOnly "in.juspay:hypercheckoutlite:${getHyperSDKVersion(rootProject)}"
-}
-
-static def mostRecentVersion(List<String> versions) {
-    return versions.sort(false) { a, b ->
-        [a, b]*.tokenize('-rc')*.join('')*.tokenize('.')*.collect {
-            it as int
-        }.with { u, v ->
-            [u, v].transpose().findResult { x, y -> x <=> y ?: null } ?: u.size() <=> v.size()
-        }
-    }[-1]
-}
-
-static def getHyperSDKVersion(rootProject) {
-    def hyperSdkVersion = '2.2.8-rc.15'
-    if (!rootProject.hasProperty('hyperSDKVersion')) {
-        return hyperSdkVersion
-    }
-    def rootVersion = rootProject.hyperSDKVersion
-    hyperSdkVersion = mostRecentVersion([rootVersion, hyperSdkVersion])
-    if (hyperSdkVersion != rootVersion) {
-        System.out.println("Ignoring the overriden SDK version present in root build.gradle ($rootVersion), as there is a newer version present in the SDK ($hyperSdkVersion).")
-    }
-    return hyperSdkVersion
-}
-
-static def getExcludedMicroSdks(rootProject) {
-    if (!rootProject.hasProperty('excludedMicroSDKs')) {
-        return []
-    }
-    return rootProject.excludedMicroSDKs
-}
-
-static def getClientId(rootProject) {
-    if (!rootProject.hasProperty('clientId')) {
-        throw new GradleException("clientId parameter is required in ext block of root build.gradle")
-    }
-    return rootProject.clientId
-}
-
-static def getClientConfigs(rootProject, Project project) {
-    def clientConfigs = rootProject.clientConfigs
-
-    def namedDomainObjectContainer = project.container(ClientConfig) { name ->
-        def clientConfig = new ClientConfig(name)
-
-        // Find the configuration closure for the given name
-        def configClosure = clientConfigs.get(name)
-
-        if (configClosure instanceof Closure) {
-            def configMap = configClosure.call() // Execute the closure
-
-            if (configMap instanceof Map) {
-                if (configMap.containsKey("tenantName")) {
-                    clientConfig.tenantName = configMap.tenantName
-                }
-                if (configMap.containsKey("assetVersion")) {
-                    clientConfig.assetVersion = configMap.assetVersion
-                }
-            }
-        }
-
-        return clientConfig
-    }
-
-    // Iterate and create configs
-    clientConfigs.each { key, configClosure ->
-        if (configClosure instanceof Closure) {
-            namedDomainObjectContainer.create(key)
-        }
-    }
-
-    return namedDomainObjectContainer
-}
-
-hyperSdkPlugin {
-    sdkVersion = getHyperSDKVersion(rootProject)
-    excludedMicroSDKs = getExcludedMicroSdks(rootProject)
-}
-
-if(rootProject.hasProperty('hyperAssetVersion')) {
-    hyperSdkPlugin.assetVersion = rootProject.hyperAssetVersion
-}
-
-if (rootProject.hasProperty("clientId")) {
-    hyperSdkPlugin.clientId = getClientId(rootProject)
-}
-if (!rootProject.hasProperty("clientId") && rootProject.hasProperty("clientConfigs")) {
-    hyperSdkPlugin.clientConfigs = getClientConfigs(rootProject, project)
+    implementation "in.juspay:hypersdk:$hyperSdkVersion"
+    compileOnly "in.juspay:hypercheckoutlite:$hyperSdkVersion"
 }
