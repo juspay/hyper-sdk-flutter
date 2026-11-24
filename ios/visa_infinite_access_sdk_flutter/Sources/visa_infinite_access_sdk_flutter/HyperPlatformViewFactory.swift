@@ -1,6 +1,6 @@
 //
 //  HyperPlatformViewFactory.swift
-//  hypersdkflutter
+//  visa_infinite_access_sdk_flutter
 //
 //  Created by Harsh Garg on 09/05/24.
 //

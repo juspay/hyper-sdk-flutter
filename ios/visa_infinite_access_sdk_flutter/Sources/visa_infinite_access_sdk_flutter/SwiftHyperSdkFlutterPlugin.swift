@@ -86,6 +86,7 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
             return
         }
         self.hyperServices = HyperServices(tenantId: tenantId!, clientId: clientId!)
+        result(true)
     }
 
     private func createHyperServices(_ clientId: String?, _ result: @escaping FlutterResult) {
@@ -94,6 +95,7 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
             return
         }
         self.hyperServices = HyperServices()
+        result(true)
     }
 
     private func isInitialised(_ result: @escaping FlutterResult) {
@@ -107,7 +109,15 @@ public typealias JuspayWebViewConfigurationCallback = (WKWebView) -> ()
 
     private func initiate(_ params: [String: Any], _ result: @escaping FlutterResult) {
         if (self.hyperServices == nil) {
-            self.hyperServices = HyperServices()
+            let viaPayload = params["payload"] as? [String: Any] ?? params
+            guard let clientId = viaPayload["clientId"] as? String, !clientId.isEmpty else {
+                result(FlutterError(code: "INIT_ERROR", message: "payload.clientId is required", details: nil))
+                return
+            }
+            self.hyperServices = VisaInfiniteAccessTenantConfiguration.hyperServices(
+                clientId: clientId,
+                payload: viaPayload
+            )
         }
         hyperViewController.modalPresentationStyle = .overFullScreen
         self.hyperServices?.initiate(hyperViewController, payload: params, callback: { [unowned self] (response) in

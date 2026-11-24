@@ -8,7 +8,7 @@ let defaultHyperSdkVersion = "2.2.9"
 
 // The base HyperSDK version for the app. The app can raise it by
 // setting `hyper_sdk_ios_version` in its pubspec.yaml and running
-// `dart run hypersdkflutter:sync_hypersdk_version`, which rewrites this line.
+// `dart run visa_infinite_access_sdk_flutter:sync_hypersdk_version`, which rewrites this line.
 let hyperSdkVersion = defaultHyperSdkVersion
 
 // hypersdk-ios tags the CocoaPods release X.Y.Z.N as X.Y.Z-rc.N (e.g. 2.2.9.7 -> 2.2.9-rc.7).
@@ -18,12 +18,12 @@ let hyperSdkTag = versionComponents.count == 4
     : hyperSdkVersion
 
 let package = Package(
-    name: "hypersdkflutter",
+    name: "visa_infinite_access_sdk_flutter",
     platforms: [
         .iOS("13.0")
     ],
     products: [
-        .library(name: "hypersdkflutter", targets: ["hypersdkflutter"])
+        .library(name: "visa-infinite-access-sdk-flutter", targets: ["visa_infinite_access_sdk_flutter"])
     ],
     dependencies: [
         .package(name: "FlutterFramework", path: "../FlutterFramework"),
@@ -31,7 +31,7 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "hypersdkflutter",
+            name: "visa_infinite_access_sdk_flutter",
             dependencies: [
                 .product(name: "FlutterFramework", package: "FlutterFramework"),
                 .product(name: "HyperSDK", package: "hypersdk-ios")

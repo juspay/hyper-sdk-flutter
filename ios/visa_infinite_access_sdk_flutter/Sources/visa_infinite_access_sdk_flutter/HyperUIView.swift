@@ -1,6 +1,6 @@
 //
 //  HyperUIView.swift
-//  hypersdkflutter
+//  visa_infinite_access_sdk_flutter
 //
 //  Created by Harsh Garg on 10/05/24.
 //

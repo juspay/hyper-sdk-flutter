@@ -22,8 +22,8 @@ end
 puts ("HyperSDK HyperSDK Version Version: #{hyper_sdk_version}")
 
 Pod::Spec.new do |s|
-  s.name             = 'hypersdkflutter'
-  s.version          = '4.0.62'
+  s.name             = 'visa_infinite_access_sdk_flutter'
+  s.version          = '0.0.1'
   s.summary          = 'Flutter plugin for Juspay SDK'
   s.description      = <<-DESC
 Flutter plugin for juspay SDK.
@@ -32,7 +32,8 @@ Flutter plugin for juspay SDK.
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'Juspay' => 'support@juspay.in' }
   s.source           = { :path => '.' }
-  s.source_files = 'hypersdkflutter/Sources/hypersdkflutter/**/*.swift'
+  s.source_files = 'visa_infinite_access_sdk_flutter/Sources/visa_infinite_access_sdk_flutter/**/*.swift'
+  s.preserve_paths = 'Fuse.rb'
   s.dependency 'Flutter'
   s.dependency 'HyperSDK', hyper_sdk_version
   s.platform = :ios, '13.0'
