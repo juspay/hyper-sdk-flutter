@@ -3,17 +3,13 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-    }
-
-    ext {
-        clientId = "geddit"
-        hyperSDKVersion = "2.1.32"
-        excludedMicroSDKs = []
+        maven { url "https://maven.juspay.in/jp-build-packages/hyper-sdk/" }
     }
 
     dependencies {
         classpath 'com.android.tools.build:gradle:8.9.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.visa:visainfiniteaccess.plugin:0.0.1'
     }
 }
 
@@ -21,6 +17,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven { url "https://visabenefits.me1.juspay.io/hyper-sdk/" }
         maven { url "https://maven.getsimpl.com" }
     }
 }

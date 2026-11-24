@@ -36,7 +36,7 @@ dependencies:
   dio: ^5.1.2
 # Applying HyperAssets plugin
 # block:start:add-dependency
-  hypersdkflutter:
+  visa_infinite_access_sdk_flutter:
     path: ../
 # block:end:add-dependency
 
@@ -63,6 +63,8 @@ dev_dependencies:
 
 # The following section is specific to Flutter.
 flutter:
+  config:
+    enable-swift-package-manager: false
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

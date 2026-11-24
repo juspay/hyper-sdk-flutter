@@ -11,7 +11,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:hypersdkflutter/hypersdkflutter.dart';
+import 'package:visa_infinite_access_sdk_flutter/visa_infinite_access_sdk_flutter.dart';
 
 import '../utils/generate_payload.dart';
 import './success.dart';

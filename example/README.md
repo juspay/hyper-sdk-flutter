@@ -1,16 +1,53 @@
-# example
+# Visa Infinite Access Flutter example
 
-A new Flutter project.
+This application uses the local `visa_infinite_access_sdk_flutter` package in `../` and provides a host for testing the VIA integration.
 
-## Getting Started
+## Configure the VIA client
 
-This project is a starting point for a Flutter application.
+- **Android:** the root `android/build.gradle` declares only the VIA Assets Plugin classpath. `android/app/build.gradle` applies the plugin and sets `clientId` directly inside `visaInfiniteAccessPlugin`; no root `ext.clientId` is needed. Replace `viaglobal` with the client assigned by the VIA team.
+- **iOS:** set the client key in `ios/VisaInfiniteAccessConfig.json`:
 
-A few resources to get you started if this is your first Flutter project:
+  ```json
+  {
+    "clientConfigs": {
+      "viaglobal": {}
+    }
+  }
+  ```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+The example uses `viaglobal` for iOS asset generation. Replace it only if the VIA team assigns a different client ID.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Use sandbox identifiers and auth data without committing credentials, auth codes, cardholder PII, or card data. See the [main integration guide](../README.md#invoke-the-sdk) for the initiate, login, benefit, logout, and terminate call contracts.
+
+## Run
+
+Fetch dependencies and build-time assets:
+
+```sh
+flutter pub get
+cd ios
+pod install
+cd ..
+```
+
+Then run the application:
+
+```sh
+flutter run
+```
+
+For an unsigned iOS device-build check:
+
+```sh
+flutter build ios --no-codesign
+```
+
+The example disables Swift Package Manager to exercise the CocoaPods integration and targets iOS 15 for the installed Xcode 27 toolchain. The package itself supports iOS 13 and later and also supports Swift Package Manager.
+
+## Dart API
+
+```dart
+import 'package:visa_infinite_access_sdk_flutter/visa_infinite_access_sdk_flutter.dart';
+
+final viaSdk = VisaInfiniteAccessSdk();
+```

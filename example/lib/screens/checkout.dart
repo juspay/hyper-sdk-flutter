@@ -7,7 +7,7 @@
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:hypersdkflutter/hypersdkflutter.dart';
+import 'package:visa_infinite_access_sdk_flutter/visa_infinite_access_sdk_flutter.dart';
 
 import '../widgets/app_bar.dart';
 import '../widgets/bottom_button.dart';

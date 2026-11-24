@@ -8,7 +8,7 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:hypersdkflutter/hypersdkflutter.dart';
+import 'package:visa_infinite_access_sdk_flutter/visa_infinite_access_sdk_flutter.dart';
 import 'package:flutter/services.dart';
 import './screens/home.dart';
 

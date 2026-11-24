@@ -8,7 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:hypersdkflutter/hypersdkflutter.dart';
+import 'package:visa_infinite_access_sdk_flutter/visa_infinite_access_sdk_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 import './checkout.dart';
