@@ -17,7 +17,7 @@ void main() async {
   if (Platform.isAndroid) {
     await InAppWebViewController.setWebContentsDebuggingEnabled(true);
   }
-  final visaInfiniteAccessSdk = VisaInfiniteAccessSdk();
+  final visaInfiniteAccessSdk = VisaInfiniteAccessSdk(clientId: 'viaglobal');
   runApp(MyApp(visaInfiniteAccessSdk: visaInfiniteAccessSdk));
 }
 

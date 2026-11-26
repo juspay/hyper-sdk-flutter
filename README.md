@@ -193,7 +193,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:visa_infinite_access_sdk_flutter/visa_infinite_access_sdk_flutter.dart';
 
-final viaSdk = VisaInfiniteAccessSdk();
+final viaSdk = VisaInfiniteAccessSdk(clientId: '<clientid>');
 ```
 
 ### Handle SDK events
@@ -230,11 +230,8 @@ final initiatePayload = <String, dynamic>{
   'service': 'com.visa.visainfiniteaccess',
   'payload': <String, dynamic>{
     'action': 'initiate',
-    'clientId': 'viaglobal',
     'environment': 'sandbox',
     'language': 'en',
-    'customerId': '<VIA customer id>',
-    'deviceId': '<VIA device id>',
   },
 };
 
@@ -245,8 +242,6 @@ await viaSdk.initiate(initiatePayload, viaCallbackHandler);
 | :---- | :---- | :---- |
 | `environment` | `sandbox` or `production` | Yes |
 | `language` | ISO 639-1 language code, such as `en`, `ar`, `fr`, `pt`, `ru`, or `uk` | Yes |
-| `customerId` | VIA opaque cardholder ID | Yes |
-| `deviceId` | VIA device ID for device and risk context | No |
 
 ### Log in after cardholder authentication
 
@@ -258,8 +253,8 @@ final loginPayload = <String, dynamic>{
   'service': 'com.visa.visainfiniteaccess',
   'payload': <String, dynamic>{
     'action': 'login',
-    'clientId': 'viaglobal',
     'authCode': '<B2C IAM auth code or Visa-sealed JWE>',
+    'customerId': '<VIA customer id>',
   },
 };
 
@@ -268,7 +263,7 @@ await viaSdk.process(loginPayload, viaCallbackHandler);
 
 ### Open a benefit journey
 
-Call `redeemBenefit` once for each benefit the cardholder opens.
+Call `redeemBenefit` once for enabling the benefit redemption journey.
 
 ```dart
 final redeemBenefitPayload = <String, dynamic>{
@@ -276,10 +271,8 @@ final redeemBenefitPayload = <String, dynamic>{
   'service': 'com.visa.visainfiniteaccess',
   'payload': <String, dynamic>{
     'action': 'redeemBenefit',
-    'clientId': 'viaglobal',
     'benefitId': '<VDBP benefit id>',
-    'benefitPartnerId': '<VIA partner id>',
-    'cardAlias': '<card alias>',
+    'benefitRef': '<VIA benefit reference>',
   },
 };
 
@@ -290,8 +283,7 @@ await viaSdk.process(redeemBenefitPayload, viaCallbackHandler);
 | :---- | :---- | :---- |
 | `action` | `redeemBenefit` | Yes |
 | `benefitId` | VDBP benefit or offer ID being opened | Yes |
-| `benefitPartnerId` | VIA partner ID associated with the benefit | No |
-| `cardAlias` | Card on which the benefit is used | Required when the cardholder has more than one card |
+| `benefitRef` | Opaque reference minted by VIA and carried through unmodified | Yes |
 
 ### Open benefit details
 
@@ -303,10 +295,8 @@ final viewBenefitDetailPayload = <String, dynamic>{
   'service': 'com.visa.visainfiniteaccess',
   'payload': <String, dynamic>{
     'action': 'viewBenefitDetail',
-    'clientId': 'viaglobal',
     'benefitId': '<VDBP benefit id>',
-    'benefitPartnerId': '<VIA partner id>',
-    'cardAlias': '<card alias>',
+    'benefitRef': '<VIA benefit reference>',
   },
 };
 
@@ -323,7 +313,6 @@ final logoutPayload = <String, dynamic>{
   'service': 'com.visa.visainfiniteaccess',
   'payload': <String, dynamic>{
     'action': 'logout',
-    'clientId': 'viaglobal',
   },
 };
 

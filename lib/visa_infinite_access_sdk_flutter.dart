@@ -15,6 +15,20 @@ import 'package:flutter/services.dart';
 ///
 /// Proper integration constructs to be followed.
 class VisaInfiniteAccessSdk {
+  final String clientId;
+
+  VisaInfiniteAccessSdk({required this.clientId});
+
+  Map<String, dynamic> _withClientId(Map<String, dynamic> params) {
+    final updatedParams = Map<String, dynamic>.from(params);
+    final payload = Map<String, dynamic>.from(
+      params['payload'] as Map? ?? const <String, dynamic>{},
+    );
+    payload['clientId'] = clientId;
+    updatedParams['payload'] = payload;
+    return updatedParams;
+  }
+
   /// @nodoc
   static MethodChannel hyperSDK = const MethodChannel('hyperSDK');
 
@@ -65,7 +79,7 @@ class VisaInfiniteAccessSdk {
 
     hyperSDK.setMethodCallHandler(callbackFunction);
     var result = await hyperSDK.invokeMethod('initiate', <String, dynamic>{
-      'params': params,
+      'params': _withClientId(params),
     });
 
     return result.toString();
@@ -85,7 +99,7 @@ class VisaInfiniteAccessSdk {
 
     hyperSDK.setMethodCallHandler(callbackFunction);
     var result = await hyperSDK.invokeMethod('process', <String, dynamic>{
-      'params': params,
+      'params': _withClientId(params),
     });
     return result.toString();
   }
@@ -144,7 +158,7 @@ class VisaInfiniteAccessSdk {
                   await hyperSDK
                       .invokeMethod('processWithView', <String, dynamic>{
                     'viewId': viewId,
-                    'params': params,
+                    'params': _withClientId(params),
                   });
                 }
                 return Future.value(0);
@@ -164,7 +178,7 @@ class VisaInfiniteAccessSdk {
                   await hyperSDK
                       .invokeMethod('processWithView', <String, dynamic>{
                     'viewId': viewId,
-                    'params': params,
+                    'params': _withClientId(params),
                   });
                 }
                 return Future.value(0);
@@ -201,7 +215,7 @@ class VisaInfiniteAccessSdk {
                     await hyperSDK.invokeMethod(
                         'hyperFragmentView', <String, dynamic>{
                       'viewId': viewId,
-                      'payload': payload,
+                      'payload': _withClientId(payload),
                       'namespace': namespace
                     });
                   }
@@ -225,7 +239,7 @@ class VisaInfiniteAccessSdk {
                     await hyperSDK.invokeMethod(
                         'hyperFragmentView', <String, dynamic>{
                       'viewId': viewId,
-                      'params': payload,
+                      'params': _withClientId(payload),
                       'namespace': namespace
                     });
                   }
@@ -252,7 +266,7 @@ class VisaInfiniteAccessSdk {
     hyperSDK.setMethodCallHandler(callbackFunction);
     var result =
         await hyperSDK.invokeMethod('processWithActivity', <String, dynamic>{
-      'params': params,
+      'params': _withClientId(params),
     });
     return result.toString();
   }
